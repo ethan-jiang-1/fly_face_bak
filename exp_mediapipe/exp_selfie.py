@@ -1,5 +1,8 @@
 from datetime import datetime 
 
+def _check_mp_solution(mp_solution):
+    pass
+
 def _track_selfie(mp=None, cv2=None):
     if mp is None:
         import mediapipe as mp
@@ -16,6 +19,9 @@ def _track_selfie(mp=None, cv2=None):
     cap = cv2.VideoCapture(0)
     with mp_selfie_segmentation.SelfieSegmentation(
         model_selection=1) as selfie_segmentation:
+
+        _check_mp_solution(selfie_segmentation)
+
         bg_image = None
         while cap.isOpened():
             success, image = cap.read()
