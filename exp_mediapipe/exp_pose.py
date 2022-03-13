@@ -59,3 +59,6 @@ def do_exp():
 
     _track_pose(mp, cv2)
 
+
+if __name__ == '__main__':
+    do_exp()

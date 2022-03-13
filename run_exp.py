@@ -1,9 +1,9 @@
 
 def main():
     #do_exp_face_mesh()
-    #do_exp_selfie()
+    do_exp_selfie()
     #do_exp_pose()
-    do_exp_holstic()
+    #do_exp_holstic()
 
 def do_exp_face_mesh():
     from exp_mediapipe.exp_face_mesh import do_exp
