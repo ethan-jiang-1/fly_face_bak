@@ -129,3 +129,4 @@ dmypy.json
 .pyre/
 
 .vscode
+absltest_mediapipe_python/solutions/resultdata
