@@ -7,7 +7,10 @@ def _make_face_mesh(src_dir, mp=None, cv2=None):
     if cv2 is None:
         import cv2 as cv2
 
-    from utils_inspect.inspect_solution import inspect_solution  
+    from utils_inspect.inspect_solution import inspect_solution
+    from utils_inspect.inspect_mp import inspect_mp
+
+    inspect_mp(mp)
 
     if not os.path.isdir(src_dir):
         raise ValueError("{} not folder".format(src_dir))
