@@ -1,0 +1,185 @@
+node {
+  calculator: "TfLiteCustomOpResolverCalculator"
+  output_side_packet: "op_resolver"
+}
+node {
+  calculator: "ImagePropertiesCalculator"
+  input_stream: "IMAGE_CPU:image"
+  output_stream: "SIZE:input_size"
+}
+node {
+  name: "switchcontainer__SwitchDemuxCalculator"
+  calculator: "SwitchDemuxCalculator"
+  input_stream: "IMAGE:image"
+  output_stream: "C0__IMAGE:switchcontainer__c0__image"
+  output_stream: "C1__IMAGE:switchcontainer__c1__image"
+  input_side_packet: "SELECT:model_selection"
+  options {
+    [mediapipe.SwitchContainerOptions.ext] {
+      select: 0
+    }
+  }
+  input_stream_handler {
+    input_stream_handler: "ImmediateInputStreamHandler"
+  }
+}
+node {
+  name: "switchcontainer__ImageToTensorCalculator_1"
+  calculator: "ImageToTensorCalculator"
+  input_stream: "IMAGE:switchcontainer__c0__image"
+  output_stream: "TENSORS:switchcontainer__c0__input_tensors"
+  options {
+    [mediapipe.ImageToTensorCalculatorOptions.ext] {
+      output_tensor_width: 256
+      output_tensor_height: 256
+      keep_aspect_ratio: false
+      output_tensor_float_range {
+        min: 0
+        max: 1
+      }
+      border_mode: BORDER_ZERO
+    }
+  }
+}
+node {
+  name: "switchcontainer__ImageToTensorCalculator_2"
+  calculator: "ImageToTensorCalculator"
+  input_stream: "IMAGE:switchcontainer__c1__image"
+  output_stream: "TENSORS:switchcontainer__c1__input_tensors"
+  options {
+    [mediapipe.ImageToTensorCalculatorOptions.ext] {
+      output_tensor_width: 256
+      output_tensor_height: 144
+      keep_aspect_ratio: false
+      output_tensor_float_range {
+        min: 0
+        max: 1
+      }
+      border_mode: BORDER_ZERO
+    }
+  }
+}
+node {
+  name: "switchcontainer__SwitchMuxCalculator"
+  calculator: "SwitchMuxCalculator"
+  input_stream: "C0__TENSORS:switchcontainer__c0__input_tensors"
+  input_stream: "C1__TENSORS:switchcontainer__c1__input_tensors"
+  output_stream: "TENSORS:input_tensors"
+  input_side_packet: "SELECT:model_selection"
+  options {
+    [mediapipe.SwitchContainerOptions.ext] {
+      select: 0
+    }
+  }
+  input_stream_handler {
+    input_stream_handler: "ImmediateInputStreamHandler"
+  }
+}
+node {
+  name: "selfiesegmentationmodelloader__switchcontainer__SwitchDemuxCalculator"
+  calculator: "SwitchDemuxCalculator"
+  input_side_packet: "SELECT:model_selection"
+  options {
+    [mediapipe.SwitchContainerOptions.ext] {
+      select: 0
+    }
+  }
+  input_stream_handler {
+    input_stream_handler: "ImmediateInputStreamHandler"
+  }
+}
+node {
+  name: "selfiesegmentationmodelloader__switchcontainer__ConstantSidePacketCalculator_1"
+  calculator: "ConstantSidePacketCalculator"
+  output_side_packet: "PACKET:selfiesegmentationmodelloader__switchcontainer__c0__selfiesegmentationmodelloader__model_path"
+  options {
+    [mediapipe.ConstantSidePacketCalculatorOptions.ext] {
+      packet {
+        string_value: "mediapipe/modules/selfie_segmentation/selfie_segmentation.tflite"
+      }
+    }
+  }
+}
+node {
+  name: "selfiesegmentationmodelloader__switchcontainer__ConstantSidePacketCalculator_2"
+  calculator: "ConstantSidePacketCalculator"
+  output_side_packet: "PACKET:selfiesegmentationmodelloader__switchcontainer__c1__selfiesegmentationmodelloader__model_path"
+  options {
+    [mediapipe.ConstantSidePacketCalculatorOptions.ext] {
+      packet {
+        string_value: "mediapipe/modules/selfie_segmentation/selfie_segmentation_landscape.tflite"
+      }
+    }
+  }
+}
+node {
+  name: "selfiesegmentationmodelloader__switchcontainer__SwitchMuxCalculator"
+  calculator: "SwitchMuxCalculator"
+  input_side_packet: "SELECT:model_selection"
+  input_side_packet: "C0__PACKET:selfiesegmentationmodelloader__switchcontainer__c0__selfiesegmentationmodelloader__model_path"
+  input_side_packet: "C1__PACKET:selfiesegmentationmodelloader__switchcontainer__c1__selfiesegmentationmodelloader__model_path"
+  output_side_packet: "PACKET:selfiesegmentationmodelloader__model_path"
+  options {
+    [mediapipe.SwitchContainerOptions.ext] {
+      select: 0
+    }
+  }
+  input_stream_handler {
+    input_stream_handler: "ImmediateInputStreamHandler"
+  }
+}
+node {
+  name: "selfiesegmentationmodelloader__LocalFileContentsCalculator"
+  calculator: "LocalFileContentsCalculator"
+  input_side_packet: "FILE_PATH:selfiesegmentationmodelloader__model_path"
+  output_side_packet: "CONTENTS:selfiesegmentationmodelloader__model_blob"
+  options {
+    [mediapipe.LocalFileContentsCalculatorOptions.ext] {
+      text_mode: false
+    }
+  }
+}
+node {
+  name: "selfiesegmentationmodelloader__TfLiteModelCalculator"
+  calculator: "TfLiteModelCalculator"
+  input_side_packet: "MODEL_BLOB:selfiesegmentationmodelloader__model_blob"
+  output_side_packet: "MODEL:model"
+}
+node {
+  name: "inferencecalculator__InferenceCalculatorCpu"
+  calculator: "InferenceCalculatorCpu"
+  input_stream: "TENSORS:input_tensors"
+  output_stream: "TENSORS:output_tensors"
+  input_side_packet: "MODEL:model"
+  input_side_packet: "CUSTOM_OP_RESOLVER:op_resolver"
+  options {
+    [mediapipe.InferenceCalculatorOptions.ext] {
+      delegate {
+        xnnpack {
+        }
+      }
+    }
+  }
+}
+node {
+  calculator: "TensorsToSegmentationCalculator"
+  input_stream: "TENSORS:output_tensors"
+  input_stream: "OUTPUT_SIZE:input_size"
+  output_stream: "MASK:mask_image"
+  options {
+    [mediapipe.TensorsToSegmentationCalculatorOptions.ext] {
+      activation: NONE
+    }
+  }
+}
+node {
+  calculator: "FromImageCalculator"
+  input_stream: "IMAGE:mask_image"
+  output_stream: "IMAGE_CPU:segmentation_mask"
+}
+input_stream: "IMAGE:image"
+executor {
+}
+output_stream: "SEGMENTATION_MASK:segmentation_mask"
+input_side_packet: "MODEL_SELECTION:model_selection"
+type: "SelfieSegmentationCpu"

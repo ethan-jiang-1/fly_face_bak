@@ -6,7 +6,7 @@ def _track_face_mesh(mp=None, cv2=None):
     if cv2 is None:
         import cv2 as cv2
 
-    from utils.inspect_solution import inspect_solution        
+    from utils_inspect.inspect_solution import inspect_solution        
 
     mp_drawing = mp.solutions.drawing_utils
     mp_drawing_styles = mp.solutions.drawing_styles
