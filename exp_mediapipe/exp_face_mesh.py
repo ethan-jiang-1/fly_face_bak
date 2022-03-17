@@ -4,7 +4,9 @@ def _track_face_mesh(mp=None, cv2=None):
     if mp is None:
         import mediapipe as mp
     if cv2 is None:
-        import cv2 as cv2        
+        import cv2 as cv2
+
+    from utils.inspect_solution import inspect_solution        
 
     mp_drawing = mp.solutions.drawing_utils
     mp_drawing_styles = mp.solutions.drawing_styles
@@ -19,6 +21,7 @@ def _track_face_mesh(mp=None, cv2=None):
         refine_landmarks=True,
         min_detection_confidence=0.5,
         min_tracking_confidence=0.5) as face_mesh:
+        inspect_solution(face_mesh)
 
         while cap.isOpened():
             success, image = cap.read()
@@ -79,6 +82,15 @@ def do_exp():
 
     _track_face_mesh(mp, cv2)
 
+def _add_parent_in_sys_path():
+    import sys 
+    import os 
+
+    dir_this = os.path.dirname(__file__)
+    dir_parent = os.path.dirname(dir_this)
+    if dir_parent not in sys.path:
+        sys.path.append(dir_parent)
 
 if __name__ == '__main__':
+    _add_parent_in_sys_path()
     do_exp()
