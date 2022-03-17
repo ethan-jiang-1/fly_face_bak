@@ -38,6 +38,13 @@ def _chk_face_landmark():
     print("\nDUMP OUTPUT")
     print(interpreter.get_output_details()[0])
 
+def _inspect_mp(mp):
+    from utils.inspect_mp import inspect_mp
+    inspect_mp(mp)
+
+def _inspect_cv2(cv2):
+    print(cv2)
+
 def do_chk():
     d0 = datetime.now()
     print("loading mediapipe...")
@@ -50,10 +57,20 @@ def do_chk():
     dt = datetime.now() - d0
     print("loading done", "{:.2f}sec".format(dt.total_seconds()))
 
-    print(mp)
-    print(cv2)
+    _inspect_mp(mp)
+    _inspect_cv2(cv2)
     _chk_face_landmark()
 
 
+def _add_parent_in_sys_path():
+    import sys 
+    import os 
+
+    dir_this = os.path.dirname(__file__)
+    dir_parent = os.path.dirname(dir_this)
+    if dir_parent not in sys.path:
+        sys.path.append(dir_parent)
+
 if __name__ == '__main__':
+    _add_parent_in_sys_path()
     do_chk()
