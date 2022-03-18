@@ -9,7 +9,7 @@ def _create_interpeter(model_pathname):
 def _get_model_pathname():
     sub_dir = os.path.dirname(__file__)
     root_dir = os.path.dirname(sub_dir)
-    paths = [root_dir, "tflite_models", "face_landmark.tflite"]
+    paths = [root_dir, "ref_graph_exist", "face_landmark.tflite"]
     full_path = os.sep.join(paths)
     if not os.path.isfile(full_path):
         raise ValueError("{} not exist".format(full_path))
@@ -39,7 +39,7 @@ def _chk_face_landmark():
     print(interpreter.get_output_details()[0])
 
 def _inspect_mp(mp):
-    from utils.inspect_mp import inspect_mp
+    from utils_inspect.inspect_mp import inspect_mp
     inspect_mp(mp)
 
 def _inspect_cv2(cv2):
