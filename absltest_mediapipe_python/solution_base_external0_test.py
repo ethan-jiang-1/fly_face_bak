@@ -23,27 +23,17 @@ from mediapipe.framework import calculator_pb2
 from mediapipe.framework.formats import detection_pb2
 from mediapipe.python import solution_base
 
-CO_TEST_GRAPH_CONFIG0 = """
-      input_stream: 'image_in'
-      output_stream: 'image_out'
-      node {
-        calculator: 'ImageTransformationCalculator'
-        input_stream: 'IMAGE:image_in'
-        output_stream: 'IMAGE:transformed_image_in'
-      }
-      node {
-        calculator: 'ImageTransformationCalculator'
-        input_stream: 'IMAGE:transformed_image_in'
-        output_stream: 'IMAGE:image_out'
-      }
-      """
+
+PBTXT_LOCATION = "ref_tflite_models/selfie_segmentation_cpu.pbtxt"
 
 def load_config():
     #return CO_TEST_GRAPH_CONFIG0
     import os 
     dir_this = os.path.dirname(__file__)
     dir_root = os.path.dirname(dir_this)
-    pbtxt_filename = os.sep.join([dir_root, "ref_tflite_models", "selfie_segmentation_cpu.pbtxt"])
+    names = [dir_root]
+    names.extend(PBTXT_LOCATION.split("/"))
+    pbtxt_filename = os.sep.join(names)
     if not os.path.isfile(pbtxt_filename):
         raise ValueError("")
 
