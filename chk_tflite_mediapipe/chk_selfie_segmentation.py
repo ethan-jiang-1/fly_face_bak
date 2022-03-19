@@ -9,35 +9,17 @@ def _create_interpeter(model_pathname):
 def _get_model_pathname():
     sub_dir = os.path.dirname(__file__)
     root_dir = os.path.dirname(sub_dir)
-    paths = [root_dir, "ref_graph_unknown", "hair_segmentation.tflite"]
-    #paths = [root_dir, "ref_graph_unknown", "hair_segmentation_junhwanjang.tflite"]
+    paths = [root_dir, "ref_graph_exist", "selfie_segmentation.tflite"]
     full_path = os.sep.join(paths)
     if not os.path.isfile(full_path):
         raise ValueError("{} not exist".format(full_path))
     return full_path
 
-def _chk_hair_segmentation():
+def _chk_selfie_segmentation():
+    from utils_inspect.inspect_tflite import inspect_tflite
     model_pathname = _get_model_pathname()
     interpreter = _create_interpeter(model_pathname)
-    print(interpreter)
-
-    interpreter.allocate_tensors()
-
-    print("== Input details ==")
-    print("name:", interpreter.get_input_details()[0]['name'])
-    print("shape:", interpreter.get_input_details()[0]['shape'])
-    print("type:", interpreter.get_input_details()[0]['dtype'])
-
-    print("\nDUMP INPUT")
-    print(interpreter.get_input_details()[0])
-
-    print("\n== Output details ==")
-    print("name:", interpreter.get_output_details()[0]['name'])
-    print("shape:", interpreter.get_output_details()[0]['shape'])
-    print("type:", interpreter.get_output_details()[0]['dtype'])
-
-    print("\nDUMP OUTPUT")
-    print(interpreter.get_output_details()[0])
+    inspect_tflite(interpreter)
 
 def _add_parent_in_sys_path():
     import sys 
@@ -62,7 +44,7 @@ def do_chk():
 
     print(mp)
     print(cv2)
-    _chk_hair_segmentation()
+    _chk_selfie_segmentation()
 
 
 if __name__ == '__main__':
