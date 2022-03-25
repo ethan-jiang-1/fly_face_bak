@@ -1,15 +1,12 @@
 from datetime import datetime
+import cv2
 import os
 
-def _make_face_mesh(src_dir, mp=None, cv2=None):
-    if mp is None:
-        import mediapipe as mp
-    if cv2 is None:
-        import cv2 as cv2
-
+def _make_face_mesh(src_dir, mp=None):
     from utils_inspect.inspect_solution import inspect_solution
     from utils_inspect.inspect_mp import inspect_mp
-
+    if mp is None:
+        import mediapipe as mp
     inspect_mp(mp)
 
     if not os.path.isdir(src_dir):
@@ -90,13 +87,8 @@ def do_exp():
     dt = datetime.now() - d0
     print("loading done", "{:.2f}sec".format(dt.total_seconds()))
 
-    d0 = datetime.now()
-    import cv2 as cv2
-    dt = datetime.now() - d0
-    print("loading done", "{:.2f}sec".format(dt.total_seconds()))
-
     src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
-    _make_face_mesh(src_dir, mp, cv2)
+    _make_face_mesh(src_dir, mp)
 
 def _get_root_dir():
     import os 

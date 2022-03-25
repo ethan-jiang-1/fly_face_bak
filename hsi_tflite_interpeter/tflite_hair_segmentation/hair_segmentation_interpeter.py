@@ -70,14 +70,6 @@ class HairSegmentationInterpreter(object):
             self._dump_tflite_tensor(output)
         print()
 
-    def get_resized_img(self, img_pathname):
-        img = cv2.imread(img_pathname, cv2.IMREAD_ANYCOLOR)
-        #print(img.shape)
-        img_size = HSI_IMG_SIZE
-        img_resized = cv2.resize(img, (img_size, img_size))
-        #print(img_resized.shape)
-        return img_resized
-
     def process_img_cv512(self, img_cv512, img_name=None):
         if self.ipt is None:
             raise ValueError("Interperter not found")

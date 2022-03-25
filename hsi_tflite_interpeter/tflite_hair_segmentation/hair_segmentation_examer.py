@@ -1,8 +1,8 @@
 import cv2
 import os
 
-from hair_segmentation_interpeter import HairSegmentationMaskSharpener
-from hair_segmentation_interpeter import HairSegmentationInterpreter
+from hair_segmentation_interpeter import HairSegmentationMaskSharpener, HairSegmentationInterpreter
+from hair_segmentation_image import HsiImageAlignment, HsiReseredImg
 
 class HsiOutputHelper(object):
     @classmethod
@@ -69,14 +69,13 @@ class HsiOutputHelper(object):
         plt.show()
         print("plt show...")
 
-
 class HsiExamer():
     @classmethod
     def debug_single_image(cls, img_pathname, show=True):
         hsi = HairSegmentationInterpreter(debug=True)
         hsi.validate()
 
-        img = hsi.get_resized_img(img_pathname)
+        img = HsiImageAlignment.convert_to_aligned_img_cv512(img_pathname)
         hsi_ret  = hsi.process_img_cv512(img, img_name=os.path.basename(img_pathname))
         if show:
             HsiOutputHelper.display_hsi_results([hsi_ret])
@@ -90,7 +89,7 @@ class HsiExamer():
 
         hsi_rets = []
         for img_pathname in img_pathnames:
-            img = hsi.get_resized_img(img_pathname)
+            img = HsiImageAlignment.convert_to_aligned_img_cv512(img_pathname)
             ret = hsi.process_img_cv512(img, img_name=os.path.basename(img_pathname))
             hsi_rets.append(ret)
 
@@ -100,17 +99,8 @@ class HsiExamer():
             HsiOutputHelper.save_hsi_results(hsi_rets)
 
     @classmethod
-    def get_resvered_img_pathname(cls, index):
-        dir_this = os.path.dirname(__file__)
-        dir_parent = os.path.dirname(dir_this)
-        img_pathname = os.sep.join([dir_parent, "_reserved_imgs", "image{}.jpeg".format(index)])
-        if os.path.isfile(img_pathname):
-            return img_pathname
-        return None
-
-    @classmethod
     def do_debug_reseved_img(cls, index, show=True):
-        img_pathname = cls.get_resvered_img_pathname(index)
+        img_pathname = HsiReseredImg.get_resvered_img_pathname(index)
 
         cls.debug_single_image(img_pathname, show=show)
 
@@ -118,7 +108,7 @@ class HsiExamer():
     def do_debug_reseved_imgs(cls,indexs, show=True):
         img_pathnames = []
         for index in indexs:
-            img_pathname = cls.get_resvered_img_pathname(index)
+            img_pathname = HsiReseredImg.get_resvered_img_pathname(index)
             if img_pathname is not None:
                 img_pathnames.append(img_pathname)
 
