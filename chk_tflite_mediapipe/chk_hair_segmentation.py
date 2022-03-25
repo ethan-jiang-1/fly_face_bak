@@ -17,27 +17,14 @@ def _get_model_pathname():
     return full_path
 
 def _chk_hair_segmentation():
+    from utils_inspect.inspect_tflite import inspect_tflite
     model_pathname = _get_model_pathname()
     interpreter = _create_interpeter(model_pathname)
     print(interpreter)
 
     interpreter.allocate_tensors()
+    inspect_tflite(interpreter)
 
-    print("== Input details ==")
-    print("name:", interpreter.get_input_details()[0]['name'])
-    print("shape:", interpreter.get_input_details()[0]['shape'])
-    print("type:", interpreter.get_input_details()[0]['dtype'])
-
-    print("\nDUMP INPUT")
-    print(interpreter.get_input_details()[0])
-
-    print("\n== Output details ==")
-    print("name:", interpreter.get_output_details()[0]['name'])
-    print("shape:", interpreter.get_output_details()[0]['shape'])
-    print("type:", interpreter.get_output_details()[0]['dtype'])
-
-    print("\nDUMP OUTPUT")
-    print(interpreter.get_output_details()[0])
 
 def _add_parent_in_sys_path():
     import sys 
@@ -55,13 +42,7 @@ def do_chk():
     dt = datetime.now() - d0
     print("loading done", "{:.2f}sec".format(dt.total_seconds()))
 
-    d0 = datetime.now()
-    import cv2 as cv2
-    dt = datetime.now() - d0
-    print("loading done", "{:.2f}sec".format(dt.total_seconds()))
-
     print(mp)
-    print(cv2)
     _chk_hair_segmentation()
 
 

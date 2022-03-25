@@ -19,6 +19,9 @@ def _chk_selfie_segmentation():
     from utils_inspect.inspect_tflite import inspect_tflite
     model_pathname = _get_model_pathname()
     interpreter = _create_interpeter(model_pathname)
+    print(interpreter)
+
+    interpreter.allocate_tensors()
     inspect_tflite(interpreter)
 
 def _add_parent_in_sys_path():
@@ -37,13 +40,7 @@ def do_chk():
     dt = datetime.now() - d0
     print("loading done", "{:.2f}sec".format(dt.total_seconds()))
 
-    d0 = datetime.now()
-    import cv2 as cv2
-    dt = datetime.now() - d0
-    print("loading done", "{:.2f}sec".format(dt.total_seconds()))
-
     print(mp)
-    print(cv2)
     _chk_selfie_segmentation()
 
 
