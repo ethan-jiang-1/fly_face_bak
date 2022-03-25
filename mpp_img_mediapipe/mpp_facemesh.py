@@ -2,7 +2,7 @@ from datetime import datetime
 import cv2
 import os
 
-class ExpFacemeshMarker():
+class MppFacemeshMarker():
     @classmethod
     def mark_face_mesh(cls, mp, slt_facemesh, image):
         mp_face_mesh = mp.solutions.face_mesh
@@ -93,7 +93,7 @@ def _mark_facemesh_imgs(src_dir, mp=None):
 
     filenames = _find_all_images(src_dir)
 
-    slt_facemesh = ExpFacemeshMarker.create_slt_facemesh(mp)
+    slt_facemesh = MppFacemeshMarker.create_slt_facemesh(mp)
     for filename in filenames:
         image = cv2.imread(filename, cv2.IMREAD_COLOR)
         if image is None:
@@ -101,7 +101,7 @@ def _mark_facemesh_imgs(src_dir, mp=None):
             continue
 
         slt_facemesh.reset()
-        image, _ = ExpFacemeshMarker.mark_face_mesh(mp, slt_facemesh, image)
+        image, _ = MppFacemeshMarker.mark_face_mesh(mp, slt_facemesh, image)
         if image is None:
             print("not able to mark landmark on", filename)
 
@@ -110,7 +110,7 @@ def _mark_facemesh_imgs(src_dir, mp=None):
         cv2.imwrite(dst_pathname, image)
         print("{} saved".format(dst_pathname))
 
-    ExpFacemeshMarker.close_slt_facemesh(slt_facemesh)
+    MppFacemeshMarker.close_slt_facemesh(slt_facemesh)
     print("done")
 
 def _get_root_dir():
