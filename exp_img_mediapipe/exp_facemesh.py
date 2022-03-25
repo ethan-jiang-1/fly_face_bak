@@ -47,7 +47,7 @@ class ExpFacemeshMarker():
                     connections=mp_face_mesh.FACEMESH_IRISES,
                     landmark_drawing_spec=None,
                     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
-            print(image.shape)
+            print(image.shape, image.dtype)
         else:
             image = None
         return image, dt
