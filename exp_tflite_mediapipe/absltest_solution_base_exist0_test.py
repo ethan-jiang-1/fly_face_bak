@@ -20,18 +20,18 @@ import numpy as np
 
 from google.protobuf import text_format
 from mediapipe.framework import calculator_pb2
-from mediapipe.framework.formats import detection_pb2
+# from mediapipe.framework.formats import detection_pb2
 from mediapipe.python import solution_base
 
 
-PBTXT_LOCATION = "exp_ref_graph_exist/selfie_segmentation_cpu.pbtxt"
+PBTXT_LOCATION = "ref_graph_exist/selfie_segmentation_cpu.pbtxt"
 
 def load_config():
     #return CO_TEST_GRAPH_CONFIG0
     import os 
     dir_this = os.path.dirname(__file__)
-    dir_root = os.path.dirname(dir_this)
-    names = [dir_root]
+    #dir_root = os.path.dirname(dir_this)
+    names = [dir_this]
     names.extend(PBTXT_LOCATION.split("/"))
     pbtxt_filename = os.sep.join(names)
     if not os.path.isfile(pbtxt_filename):
@@ -59,6 +59,7 @@ class SolutionBaseAltTest(parameterized.TestCase):
         print(solution)
         for _ in range(20):
             outputs = solution.process(input_image)
+            print(type(outputs))
             #self.assertTrue(np.array_equal(input_image, outputs.image_out))
             solution.reset()
     print()

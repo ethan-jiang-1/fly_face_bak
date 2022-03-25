@@ -8,9 +8,8 @@ def _create_interpeter(model_pathname):
 
 def _get_model_pathname():
     sub_dir = os.path.dirname(__file__)
-    root_dir = os.path.dirname(sub_dir)
-    paths = [root_dir, "exp_ref_graph_unknown", "hair_segmentation.tflite"]
-    #paths = [root_dir, "exp_ref_graph_unknown", "hair_segmentation_junhwanjang.tflite"]
+    ##root_dir = os.path.dirname(sub_dir)
+    paths = [sub_dir, "ref_graph_unknown", "hair_segmentation.tflite"]
     full_path = os.sep.join(paths)
     if not os.path.isfile(full_path):
         raise ValueError("{} not exist".format(full_path))
