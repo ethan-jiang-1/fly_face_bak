@@ -3,7 +3,7 @@ import cv2
 import os
 import numpy as np
 
-class MppSelfieMarker():
+class ImgpSelfieMarker():
     @classmethod
     def mark_selfie(cls, mp, slt_selfie, image):
         # To improve performance, optionally mark the image as not writeable to
@@ -69,7 +69,7 @@ def _mark_selfie_imgs(src_dir, mp=None):
 
     filenames = _find_all_images(src_dir)
 
-    slt_selfie = MppSelfieMarker.create_slt_selfie(mp)
+    slt_selfie = ImgpSelfieMarker.create_slt_selfie(mp)
     for filename in filenames:
         image = cv2.imread(filename, cv2.IMREAD_COLOR)
         if image is None:
@@ -77,7 +77,7 @@ def _mark_selfie_imgs(src_dir, mp=None):
             continue
 
         slt_selfie.reset()
-        image, _ = MppSelfieMarker.mark_selfie(mp, slt_selfie, image)
+        image, _ = ImgpSelfieMarker.mark_selfie(mp, slt_selfie, image)
         if image is None:
             print("not able to mark landmark on", filename)
 
@@ -86,7 +86,7 @@ def _mark_selfie_imgs(src_dir, mp=None):
         cv2.imwrite(dst_pathname, image)
         print("{} saved".format(dst_pathname))
 
-    MppSelfieMarker.close_slt_selfie(slt_selfie)
+    ImgpSelfieMarker.close_slt_selfie(slt_selfie)
     print("done")
 
 def _get_root_dir():
