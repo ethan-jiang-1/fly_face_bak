@@ -132,3 +132,5 @@ dmypy.json
 absltest_mediapipe_python/solutions/resultdata
 
 _test_*
+_reserved_imgs_output
+
