@@ -22,13 +22,14 @@ echo ""
 echo "copy latest built pip for "$(uname)
 
 if [ "$(uname)" == "Darwin" ]; then
-    rm -rf tflite_custom.macos
-    cp -r ../tensorflow/lite/tools/pip_package/gen/tflite_pip/python3 .
-    mv python3 tflite_custom.macos
+    sudo rm -rf tflite_custom.macos
+    sudo cp -r ../tensorflow/lite/tools/pip_package/gen/tflite_pip/python3 .
+    sudo mv python3 tflite_custom.macos
 elif [ "$(expr substr $(uname -s) 1 5)" == "Linux" ]; then
-    rm -rf tflite_custom.linux
-    cp -r ../tensorflow/lite/tools/pip_package/gen/tflite_pip/python3 .
-    mv python3 tflite_custom .linux
+    sudo rm -rf tflite_custom.linux
+
+    sudo cp -r ../tensorflow/lite/tools/pip_package/gen/tflite_pip/python3 .
+    sudo mv python3 tflite_custom.linux
 fi
 
 echo "copy pip done"
