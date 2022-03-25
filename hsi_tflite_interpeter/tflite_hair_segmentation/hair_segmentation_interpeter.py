@@ -70,16 +70,10 @@ class HairSegmentationInterpreter(object):
             self._dump_tflite_tensor(output)
         print()
 
-    def process_img_cv512(self, img_cv512, img_name=None):
-        if self.ipt is None:
-            raise ValueError("Interperter not found")
+    def run_inference(self, img_cv512, img_name=None):
+        self.ipt.reset_all_variables()
 
         img_size = HSI_IMG_SIZE
-
-        if img_cv512.shape[0] != img_size and img_cv512.shape[1] != img_size and img_cv512.shape[2] != 3:
-            raise ValueError("expecting (512, 512, 3) instead of {}".format(img_cv512))
-
-        self.ipt.reset_all_variables()
 
         d0 = datetime.now()
         img_unified = img_cv512.copy() 
@@ -99,14 +93,26 @@ class HairSegmentationInterpreter(object):
         result_masks = self.ipt.get_tensor(idx_output)
 
         mask_black = np.zeros((img_size, img_size, 1), dtype=np.int32)
-        mask_white = np.zeros((img_size, img_size, 1), dtype=np.float32)
-
         mask_black = result_masks[0, :, :, 0]
+
+        mask_white = np.zeros((img_size, img_size, 1), dtype=np.float32)
         mask_white = result_masks[0, :, :, 1]
 
         d1 = datetime.now()
         dt = d1 - d0
         print("inference time: {:.3f}sec for {}".format(dt.total_seconds(), img_name))
+        return img_unified, mask_white, mask_black, dt
+
+    def process_img_cv512(self, img_cv512, img_name=None):
+        if self.ipt is None:
+            raise ValueError("Interperter not found")
+
+        img_size = HSI_IMG_SIZE
+
+        if img_cv512.shape[0] != img_size and img_cv512.shape[1] != img_size and img_cv512.shape[2] != 3:
+            raise ValueError("expecting (512, 512, 3) instead of {}".format(img_cv512))
+
+        img_unified, mask_white, mask_black, dt = self.run_inference(img_cv512, img_name=img_name)
 
         mask_black_sharp = HairSegmentationMaskSharpener.sharpen_mask_black(mask_black)
         mask_white_sharp = HairSegmentationMaskSharpener.sharpen_mask_white(mask_white)

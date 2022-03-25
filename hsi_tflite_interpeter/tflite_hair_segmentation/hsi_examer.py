@@ -2,7 +2,7 @@ import cv2
 import os
 
 from hair_segmentation_interpeter import HairSegmentationMaskSharpener, HairSegmentationInterpreter
-from hair_segmentation_image import HsiImageAlignment, HsiReseredImg
+from hsi_image import HsiImageAlignment, HsiReseredImg
 
 class HsiOutputHelper(object):
     @classmethod
