@@ -24,7 +24,7 @@ from mediapipe.framework.formats import detection_pb2
 from mediapipe.python import solution_base
 
 
-PBTXT_LOCATION = "ref_graph_exist/selfie_segmentation_cpu.pbtxt"
+PBTXT_LOCATION = "exp_ref_graph_exist/selfie_segmentation_cpu.pbtxt"
 
 def load_config():
     #return CO_TEST_GRAPH_CONFIG0

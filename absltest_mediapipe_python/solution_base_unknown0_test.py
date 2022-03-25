@@ -24,7 +24,7 @@ from mediapipe.framework.formats import detection_pb2
 from mediapipe.python import solution_base
 
 
-PBTXT_LOCATION = "ref_graph_unknown/hair_segmentation_desktop_live.pbtxt"
+PBTXT_LOCATION = "exp_ref_graph_unknown/hair_segmentation_desktop_live.pbtxt"
 
 def load_config():
     #return CO_TEST_GRAPH_CONFIG0
