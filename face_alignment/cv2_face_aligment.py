@@ -22,7 +22,7 @@ def create_cv_detectors():
     eye_detector_path = path+"/data/haarcascade_eye.xml"
     nose_detector_path = path+"/data/haarcascade_mcs_nose.xml"
 
-    if os.path.isfile(face_detector_path):
+    if not os.path.isfile(face_detector_path):
         raise ValueError("Confirm that opencv is installed on your environment! Expected path ",face_detector_path," violated.")
 
     face_detector = cv2.CascadeClassifier(face_detector_path)
@@ -63,7 +63,10 @@ def alignFace(img_path):
 
     img_face, gray_img = detectFace(img_org)
     
-    eyes = eye_detector.detectMultiScale(gray_img)
+    #eyes = eye_detector.detectMultiScale(gray_img)
+    eyes = eye_detector.detectMultiScale(gray_img, 1.1, 10)
+    eyes = sorted(eyes, key = lambda v: abs((v[0] - v[2]) * (v[1] - v[3])), reverse=True)
+    eyes =np.array(eyes)
     
     #print("found eyes: ",len(eyes))
     
