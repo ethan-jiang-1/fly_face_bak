@@ -4,9 +4,10 @@ import cv2
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+from datetime import datetime 
 
 
-FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_face')
+FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_face dt')
 FA_IMG_SIZE = 512
 
 class FaceAligmentBase(object):
@@ -78,6 +79,7 @@ class FaceAligmentBase(object):
         return direction, angle
 
     def align_face(self, img_org):
+        d0 = datetime.now()
         img_raw = img_org.copy()
         
         img_face, eyes = self.detect_face_and_eys(img_org.copy())
@@ -86,13 +88,15 @@ class FaceAligmentBase(object):
             return FA_RESULT(img_org=img_org, 
                               img_face=None, 
                               img_rotated=None, 
-                              img_ratoted_face=None) 
+                              img_ratoted_face=None,
+                              dt=datetime.now() - d0) 
 
         if eyes is None or len(eyes) < 2:
             return FA_RESULT(img_org=img_org, 
                               img_face=img_face, 
                               img_rotated=None, 
-                              img_ratoted_face=None) 
+                              img_ratoted_face=None,
+                              dt=datetime.now() - d0) 
         
         #rotate image
         direction, angle = self._find_rotate_info(img_face, eyes)
@@ -101,10 +105,13 @@ class FaceAligmentBase(object):
         img_rotated = np.array(img_rotated.rotate(direction * angle))
         img_ratoted_face = self.detect_face(img_rotated)
 
+        dt = dt=datetime.now() - d0
+        print("inference time: {:.3f}".format(dt.total_seconds()))
         return FA_RESULT(img_org=img_org, 
                          img_face=img_face, 
                          img_rotated=img_rotated, 
-                         img_ratoted_face=img_ratoted_face)
+                         img_ratoted_face=img_ratoted_face,
+                         dt=dt)
                     
     def detect_face_and_eys(self, img_org):
         raise ValueError("not-implemented")
