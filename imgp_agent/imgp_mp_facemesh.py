@@ -106,7 +106,9 @@ def _mark_facemesh_imgs(src_dir, mp=None):
             print("not able to mark landmark on", filename)
 
         #img_flip = cv2.flip(image, 1)
-        dst_pathname = "{}{}{}".format(os.path.basename(src_dir) + "_output", os.sep, os.path.basename(filename).replace(".jp", "_fm.jp"))
+        output_dir = "_reserved_output_{}".format(os.path.basename(src_dir))
+        os.makedirs(output_dir, exist_ok=True)
+        dst_pathname = "{}{}{}".format(output_dir, os.sep, os.path.basename(filename).replace(".jp", "_fm.jp"))
         cv2.imwrite(dst_pathname, image)
         print("{} saved".format(dst_pathname))
 
@@ -135,7 +137,8 @@ def do_exp():
     print("loading done", "{:.2f}sec".format(dt.total_seconds()))
 
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
-    src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
+    #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
+    src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
    
     _mark_facemesh_imgs(src_dir, mp)
 

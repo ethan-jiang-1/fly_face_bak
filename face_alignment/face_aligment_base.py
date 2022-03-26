@@ -9,6 +9,7 @@ from datetime import datetime
 
 FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_face dt')
 FA_IMG_SIZE = 512
+FA_TRANSINFO = namedtuple("FA_TRANSINFO", 'direction angle img_width img_height center_of_eyes distance_of_eyes')
 
 class FaceAligmentBase(object):
     def __init__(self, debug=False):
@@ -20,21 +21,27 @@ class FaceAligmentBase(object):
     def close_detector():
         pass
 
-    def _find_rotate_info(self, img_face, left_eye, right_eye):
+    def _compute_eyes_location(self, left_eye, right_eye):
         #center of eyes
         if len(left_eye) == 4:
             left_eye_center = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
         else:
             left_eye_center = left_eye
-        left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
-        
+
         if len(right_eye) == 4:
             right_eye_center = (int(right_eye[0] + (right_eye[2]/2)), int(right_eye[1] + (right_eye[3]/2)))
         else:
             right_eye_center = right_eye
+        left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
         right_eye_x = right_eye_center[0]; right_eye_y = right_eye_center[1]
         
         center_of_eyes = (int((left_eye_x+right_eye_x)/2), int((left_eye_y+right_eye_y)/2))
+        return left_eye_center, right_eye_center, center_of_eyes
+
+    def _find_transform_info(self, img_face, _left_eye, _right_eye):
+        left_eye_center, right_eye_center, center_of_eyes = self._compute_eyes_location(_left_eye, _right_eye) 
+        left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
+        right_eye_x = right_eye_center[0]; right_eye_y = right_eye_center[1]
         
         # find rotation direction
         if left_eye_y > right_eye_y:
@@ -56,29 +63,30 @@ class FaceAligmentBase(object):
             cv2.line(img_face,right_eye_center, left_eye_center,(67,67,67),1)
             cv2.line(img_face,left_eye_center, point_3rd,(67,67,67),1)
             cv2.line(img_face,right_eye_center, point_3rd,(67,67,67),1)
-        
-        a = self.euclidean_distance(left_eye_center, point_3rd)
-        b = self.euclidean_distance(right_eye_center, point_3rd)
-        c = self.euclidean_distance(right_eye_center, left_eye_center)
+
+        da = self.euclidean_distance(left_eye_center, point_3rd)
+        db = self.euclidean_distance(right_eye_center, point_3rd)
+        dc = self.euclidean_distance(right_eye_center, left_eye_center)
+
+        cos_a = (db*db + dc*dc - da*da)/(2*db*dc)
+        angle = np.arccos(cos_a)
+        angle = (angle * 180) / math.pi
+        if direction == -1:
+            angle = 90 - angle
         
         #print("left eye: ", left_eye_center)
         #print("right eye: ", right_eye_center)
         #print("additional point: ", point_3rd)
-        #print("triangle lengths: ",a, b, c)
-        
-        cos_a = (b*b + c*c - a*a)/(2*b*c)
-        #print("cos(a) = ", cos_a)
-        angle = np.arccos(cos_a)
-        #print("angle: ", angle," in radian")
-        
-        angle = (angle * 180) / math.pi
-        print("angle: ", angle," in degree")
-        
-        if direction == -1:
-            angle = 90 - angle
-        
-        print("angle: ", angle," in degree")
-        return direction, angle
+        #print("triangle lengths: ",da, db, dc)
+        #print("angle: ", angle," in degree")
+
+        fti = FA_TRANSINFO(direction=direction, 
+                         angle=angle,
+                        img_width=img_face.shape[1],
+                        img_height=img_face.shape[0],
+                        center_of_eyes=center_of_eyes,
+                        distance_of_eyes=dc)
+        return fti
 
     def align_face(self, img_org):
         d0 = datetime.now()
@@ -101,7 +109,8 @@ class FaceAligmentBase(object):
                               dt=datetime.now() - d0) 
         
         #rotate image
-        direction, angle = self._find_rotate_info(img_face, left_eye, right_eye)
+        fti = self._find_transform_info(img_face, left_eye, right_eye)
+        direction, angle = fti.direction, fti.angle
         
         img_rotated = Image.fromarray(img_raw)
         img_rotated = np.array(img_rotated.rotate(direction * angle))

@@ -18,11 +18,11 @@ class FaceAlignemtMp(FaceAligmentBase):
             min_detection_confidence=0.5,
             min_tracking_confidence=0.5)
 
-        self.face_oval_ndx = []
+        self.mesh_ndx_face_oval = []
         for ct in mp.solutions.face_mesh_connections.FACEMESH_FACE_OVAL:
             fpt, tpt = ct 
-            if fpt not in self.face_oval_ndx:
-                self.face_oval_ndx.append(fpt)
+            if fpt not in self.mesh_ndx_face_oval:
+                self.mesh_ndx_face_oval.append(fpt)
 
     def close_detector(self):
         self.slt_face_mesh.close()
@@ -44,7 +44,7 @@ class FaceAlignemtMp(FaceAligmentBase):
     def _get_landmark_bounding(self, llm):
         landmark_face_oval_x = []
         landmark_face_oval_y = []
-        for ndx in self.face_oval_ndx:
+        for ndx in self.mesh_ndx_face_oval:
             llmn = llm[ndx]
             if (llmn.x >= 0) and (llmn.y >= 0) and (llmn.x <= 1) and (llmn.y <= 1):
                 landmark_face_oval_x.append(llmn.x)
@@ -56,38 +56,34 @@ class FaceAlignemtMp(FaceAligmentBase):
 
         x_max = np_landmark_face_oval_x.max()
         x_min = np_landmark_face_oval_x.min()
-        y_max = np_landmark_face_oval_x.max()
+        y_max = np_landmark_face_oval_y.max()
         y_min = np_landmark_face_oval_y.min()
-        return x_min, y_min, x_max-x_min, y_max-y_min
-        
-    def find_and_crop_face(self, img, draw_marks=False):
-        landmark = self._get_key_landmark(img)
+        return x_min, y_min, y_max-y_min, x_max-x_min,
+
+    def _find_and_crop_face_core(self, img_org):
+        landmark = self._get_key_landmark(img_org)
         if landmark is None:
             return None
 
-        height,width = img.shape[0],img.shape[1]
+        height,width = img_org.shape[0], img_org.shape[1]
 
         b_xmin, b_ymin, b_height, b_width = self._get_landmark_bounding(landmark.landmark)
         x = int(b_xmin * width)
         y = int(b_ymin * height)
         w = int(b_width * width)
         h = int(b_height * height)
-        img_crop = img[y:y+h,x:x+w]
+        img_crop = img_org.copy()[y:y+h,x:x+w]
+        return img_crop,(x, y, w, h), landmark
+
+    def find_and_crop_face(self, img, draw_marks=False):
+        img_crop, _, _ = self._find_and_crop_face_core(img)
         return img_crop
 
     def detect_face_and_eyes(self, img_org):
-        landmark = self._get_key_landmark(img_org)
-        if landmark is None:
-            return None, None, None
-    
+        img_crop, bbox_crop, landmark = self._find_and_crop_face_core(img_org)
+        x_crop, y_crop, _, _ = bbox_crop
+
         height,width = img_org.shape[0],img_org.shape[1]
-
-        b_xmin, b_ymin, b_height, b_width = self._get_landmark_bounding(landmark.landmark)
-        x = int(b_xmin * width)
-        y = int(b_ymin * height)
-        w = int(b_width * width)
-        h = int(b_height * height)
-
         #le = mp.solutions.face_mesh_connections.FACEMESH_LEFT_EYE   # 362<->263
         #re = mp.solutions.face_mesh_connections.FACEMESH_RIGHT_EYE  # 33<->133
         
@@ -95,11 +91,10 @@ class FaceAlignemtMp(FaceAligmentBase):
 
         abs_right_eye = (int((llm[33].x * width + llm[133].x * width) / 2), int((llm[33].y * height + llm[133].y * height)/2))
         abs_left_eye = (int((llm[362].x * width + llm[263].x * width) / 2), int((llm[362].y * height + llm[263].y * height)/2))
-        right_eye = (abs_right_eye[0]-x, abs_right_eye[1]-y)
-        left_eye = (abs_left_eye[0]-x, abs_left_eye[1]-y)
+        right_eye = (abs_right_eye[0]-x_crop, abs_right_eye[1]-y_crop)
+        left_eye = (abs_left_eye[0]-x_crop, abs_left_eye[1]-y_crop)
 
-        img_crop = img_org[y:y+h,x:x+w]
-        #return img_org[y:y+h,x:x+w], left_eye, right_eye
+        #return img_crop, left_eye, right_eye
         return img_crop, right_eye, left_eye
     
 
@@ -137,6 +132,8 @@ if __name__ == '__main__':
 
     selected_names = None 
     #selected_names = ["hsi_image4.jpeg"]
-    #selected_names = ["hsi_image1.jpeg"]
+    #selected_names = ["hsi_image1.jpeg"]    
+    #selected_names = ["hsi_image8.jpeg"]
+
     exam_face_aligment(face_crop=True, selected_names=selected_names)
     #exam_face_aligment(face_crop=False)
