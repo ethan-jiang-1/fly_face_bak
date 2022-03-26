@@ -84,10 +84,19 @@ class FaceAlignemtCv2(FaceAligmentBase):
             df = pd.DataFrame(items, columns = ["length", "idx"]).sort_values(by=['length'], ascending=False)
             
             eyes = eyes[df.idx.values[0:2]]
-        else:
-            eyes = None
 
-        return img_face, eyes
+            eye_1 = eyes[0]; eye_2 = eyes[1]
+            if eye_1[0] < eye_2[0]:
+                left_eye = eye_1
+                right_eye = eye_2
+            else:
+                left_eye = eye_2
+                right_eye = eye_1
+        else:
+            left_eye = None
+            right_eye = None
+
+        return img_face, left_eye, right_eye
     
 
 def exam_face_aligment(face_crop=False, selected_names=None):

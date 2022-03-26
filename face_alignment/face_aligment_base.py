@@ -14,16 +14,7 @@ class FaceAligmentBase(object):
     def __init__(self, debug=False):
         self.debug = debug
 
-    def _find_rotate_info(self, img_face, eyes):
-        eye_1 = eyes[0]; eye_2 = eyes[1]
-        
-        if eye_1[0] < eye_2[0]:
-            left_eye = eye_1
-            right_eye = eye_2
-        else:
-            left_eye = eye_2
-            right_eye = eye_1
-
+    def _find_rotate_info(self, img_face, left_eye, right_eye):
         #center of eyes
         left_eye_center = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
         left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
@@ -82,7 +73,7 @@ class FaceAligmentBase(object):
         d0 = datetime.now()
         img_raw = img_org.copy()
         
-        img_face, eyes = self.detect_face_and_eys(img_org.copy())
+        img_face, left_eye, right_eye = self.detect_face_and_eys(img_org.copy())
 
         if img_face is None:
             return FA_RESULT(img_org=img_org, 
@@ -91,7 +82,7 @@ class FaceAligmentBase(object):
                               img_ratoted_face=None,
                               dt=datetime.now() - d0) 
 
-        if eyes is None or len(eyes) < 2:
+        if left_eye is None and right_eye is None:
             return FA_RESULT(img_org=img_org, 
                               img_face=img_face, 
                               img_rotated=None, 
@@ -99,7 +90,7 @@ class FaceAligmentBase(object):
                               dt=datetime.now() - d0) 
         
         #rotate image
-        direction, angle = self._find_rotate_info(img_face, eyes)
+        direction, angle = self._find_rotate_info(img_face, left_eye, right_eye)
         
         img_rotated = Image.fromarray(img_raw)
         img_rotated = np.array(img_rotated.rotate(direction * angle))
