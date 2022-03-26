@@ -33,7 +33,7 @@ class FaceAlignemtCv2(FaceAligmentBase):
         del self.eye_detector
         del self.nose_detector
 
-    def find_and_crop_face(self, img, draw_marks=False):
+    def find_and_crop_face(self, img):
         for att in [0, 1, 2]:
             if att == 0:
                 faces = self.face_detector.detectMultiScale(img, 1.1, 10)
@@ -45,17 +45,17 @@ class FaceAlignemtCv2(FaceAligmentBase):
                 break
 
         if len(faces) > 0:
-            face = faces[0]
-            face_x, face_y, face_w, face_h = face
+            bbox_face = faces[0]
+            face_x, face_y, face_w, face_h = bbox_face
             img_crop = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
-            return img_crop
+            return img_crop, bbox_face
         
-        return None
+        return None, None
 
     def detect_face_and_eyes(self, img_org):
-        img_face = self.find_and_crop_face(img_org)
+        img_face, bbox_face_in_org = self.find_and_crop_face(img_org)
         if img_face is None:
-            return None, None 
+            return None, None, None, None 
 
         img_gray_face = cv2.cvtColor(img_face, cv2.COLOR_BGR2GRAY)
         
@@ -89,16 +89,16 @@ class FaceAlignemtCv2(FaceAligmentBase):
 
             eye_1 = eyes[0]; eye_2 = eyes[1]
             if eye_1[0] < eye_2[0]:
-                left_eye = eye_1
-                right_eye = eye_2
+                left_eye_in_face = eye_1
+                right_eye_in_face = eye_2
             else:
-                left_eye = eye_2
-                right_eye = eye_1
+                left_eye_in_face = eye_2
+                right_eye_in_face = eye_1
         else:
-            left_eye = None
-            right_eye = None
+            left_eye_in_face = None
+            right_eye_in_face = None
 
-        return img_face, left_eye, right_eye
+        return bbox_face_in_org, img_face, left_eye_in_face, right_eye_in_face
     
 
 def exam_face_aligment(face_crop=False, selected_names=None):

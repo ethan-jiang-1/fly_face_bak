@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 from datetime import datetime 
 
 
-FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_face dt')
+FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_unified dt')
 FA_IMG_SIZE = 512
-FA_TRANSINFO = namedtuple("FA_TRANSINFO", 'direction angle img_width img_height center_of_eyes distance_of_eyes')
+FA_TRANSINFO = namedtuple("FA_TRANSINFO", 'img_org_shape bbox_crop img_crop_shape direction angle center_of_eyes distance_of_eyes')
 
 class FaceAligmentBase(object):
     def __init__(self, debug=False):
@@ -38,8 +38,8 @@ class FaceAligmentBase(object):
         center_of_eyes = (int((left_eye_x+right_eye_x)/2), int((left_eye_y+right_eye_y)/2))
         return left_eye_center, right_eye_center, center_of_eyes
 
-    def _find_transform_info(self, img_face, _left_eye, _right_eye):
-        left_eye_center, right_eye_center, center_of_eyes = self._compute_eyes_location(_left_eye, _right_eye) 
+    def _find_transform_info(self, img_org, bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop):
+        left_eye_center, right_eye_center, center_of_eyes = self._compute_eyes_location(left_eye_in_crop, right_eye_in_crop) 
         left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
         right_eye_x = right_eye_center[0]; right_eye_y = right_eye_center[1]
         
@@ -54,15 +54,15 @@ class FaceAligmentBase(object):
             print("rotate to inverse clock direction")
         
         if self.debug:       
-            cv2.circle(img_face, left_eye_center, 2, (255, 0, 0) , 2)
-            cv2.circle(img_face, right_eye_center, 2, (255, 255, 0) , 2)
-            cv2.circle(img_face, center_of_eyes, 2, (255, 0, 255) , 2)
+            cv2.circle(img_crop, left_eye_center, 2, (255, 0, 0) , 2)
+            cv2.circle(img_crop, right_eye_center, 2, (255, 255, 0) , 2)
+            cv2.circle(img_crop, center_of_eyes, 2, (255, 0, 255) , 2)
 
-            cv2.circle(img_face, point_3rd, 2, (255, 0, 0) , 2)
+            cv2.circle(img_crop, point_3rd, 2, (255, 0, 0) , 2)
             
-            cv2.line(img_face,right_eye_center, left_eye_center,(67,67,67),1)
-            cv2.line(img_face,left_eye_center, point_3rd,(67,67,67),1)
-            cv2.line(img_face,right_eye_center, point_3rd,(67,67,67),1)
+            cv2.line(img_crop,right_eye_center, left_eye_center,(67,67,67),1)
+            cv2.line(img_crop,left_eye_center, point_3rd,(67,67,67),1)
+            cv2.line(img_crop,right_eye_center, point_3rd,(67,67,67),1)
 
         da = self.euclidean_distance(left_eye_center, point_3rd)
         db = self.euclidean_distance(right_eye_center, point_3rd)
@@ -80,49 +80,58 @@ class FaceAligmentBase(object):
         #print("triangle lengths: ",da, db, dc)
         #print("angle: ", angle," in degree")
 
-        fti = FA_TRANSINFO(direction=direction, 
-                         angle=angle,
-                        img_width=img_face.shape[1],
-                        img_height=img_face.shape[0],
-                        center_of_eyes=center_of_eyes,
-                        distance_of_eyes=dc)
+        fti = FA_TRANSINFO(img_org_shape=img_org.shape,
+                           bbox_crop=bbox_crop_in_org, 
+                           img_crop_shape=img_crop.shape, 
+                           direction=direction, 
+                           angle=angle,
+                           center_of_eyes=center_of_eyes,
+                           distance_of_eyes=dc)
         return fti
 
     def align_face(self, img_org):
         d0 = datetime.now()
         img_raw = img_org.copy()
         
-        img_face, left_eye, right_eye = self.detect_face_and_eyes(img_org.copy())
+        bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop = self.detect_face_and_eyes(img_org.copy())
 
-        if img_face is None:
+        if img_crop is None:
             return FA_RESULT(img_org=img_org, 
                               img_face=None, 
                               img_rotated=None, 
-                              img_ratoted_face=None,
+                              img_ratoted_unified=None,
                               dt=datetime.now() - d0) 
 
-        if left_eye is None and right_eye is None:
+        if right_eye_in_crop is None and left_eye_in_crop is None:
             return FA_RESULT(img_org=img_org, 
-                              img_face=img_face, 
+                              img_face=img_crop, 
                               img_rotated=None, 
-                              img_ratoted_face=None,
+                              img_ratoted_unified=None,
                               dt=datetime.now() - d0) 
         
         #rotate image
-        fti = self._find_transform_info(img_face, left_eye, right_eye)
+        fti = self._find_transform_info(img_org, bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop)
         direction, angle = fti.direction, fti.angle
         
         img_rotated = Image.fromarray(img_raw)
         img_rotated = np.array(img_rotated.rotate(direction * angle))
-        img_ratoted_face = self.find_and_crop_face(img_rotated)
+
+        img_ratoted_unified = self.transfer_to_unified(img_raw, fti)
 
         dt = dt=datetime.now() - d0
         print("inference time: {:.3f}".format(dt.total_seconds()))
         return FA_RESULT(img_org=img_org, 
-                         img_face=img_face, 
+                         img_face=img_crop, 
                          img_rotated=img_rotated, 
-                         img_ratoted_face=img_ratoted_face,
+                         img_ratoted_unified=img_ratoted_unified,
                          dt=dt)
+
+    def transfer_to_unified(self, img_raw, fti):
+        img_face, _ = self.find_and_crop_face(img_raw)
+        
+        img_rotated = Image.fromarray(img_face)
+        img_rotated = np.array(img_rotated.rotate(fti.direction * fti.angle))
+        return img_rotated
                     
     def detect_face_and_eyes(self, img_org):
         raise ValueError("not-implemented")
@@ -164,10 +173,10 @@ class FaceAligmentBase(object):
             ax.set_title("rotated")
             ax.imshow(fa_ret.img_rotated[:, :, ::-1])
 
-        if fa_ret.img_ratoted_face is not None:
+        if fa_ret.img_ratoted_unified is not None:
             ax = fig.add_subplot(1,4,4)
             ax.set_axis_off()
-            ax.set_title("rotated_face")       
-            ax.imshow(fa_ret.img_ratoted_face[:, :, ::-1])
+            ax.set_title("rotated_unified")       
+            ax.imshow(fa_ret.img_ratoted_unified[:, :, ::-1])
         
         plt.show()
