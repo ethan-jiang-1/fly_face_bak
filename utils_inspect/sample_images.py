@@ -12,6 +12,7 @@ def get_sample_images(name_prefix=None):
                 continue
         if name.endswith(".jpg") or name.endswith(".jpeg"):
             image_pathnames.append(os.sep.join([dir_imgs, name]))
+    image_pathnames = sorted(image_pathnames)
     return image_pathnames 
 
 def get_sample_images_hsi():

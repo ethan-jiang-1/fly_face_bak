@@ -9,10 +9,7 @@ class FaceAlignemtCv2(FaceAligmentBase):
     def __init__(self, debug=True):
         super(FaceAlignemtCv2, self).__init__(debug=debug)
 
-        self._create_cv_detectors()
-
-    #opencv path
-    def _create_cv_detectors(self):
+    def create_detector(self):
         opencv_home = cv2.__file__
         folders = opencv_home.split(os.path.sep)[0:-1]
 
@@ -31,7 +28,12 @@ class FaceAlignemtCv2(FaceAligmentBase):
         self.eye_detector = cv2.CascadeClassifier(eye_detector_path) 
         self.nose_detector = cv2.CascadeClassifier(nose_detector_path) 
 
-    def detect_face(self, img):
+    def close_detector(self):
+        del self.face_detector
+        del self.eye_detector
+        del self.nose_detector
+
+    def find_and_crop_face(self, img, draw_marks=False):
         for att in [0, 1, 2]:
             if att == 0:
                 faces = self.face_detector.detectMultiScale(img, 1.1, 10)
@@ -45,13 +47,13 @@ class FaceAlignemtCv2(FaceAligmentBase):
         if len(faces) > 0:
             face = faces[0]
             face_x, face_y, face_w, face_h = face
-            img = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
-            return img
+            img_crop = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
+            return img_crop
         
         return None
 
-    def detect_face_and_eys(self, img_org):
-        img_face = self.detect_face(img_org)
+    def detect_face_and_eyes(self, img_org):
+        img_face = self.find_and_crop_face(img_org)
         if img_face is None:
             return None, None 
 
@@ -104,6 +106,7 @@ def exam_face_aligment(face_crop=False, selected_names=None):
     test_set = get_sample_images()
 
     fa = FaceAlignemtCv2()
+    fa.create_detector()
 
     for filename in test_set:
         basename = os.path.basename(filename)
@@ -117,6 +120,7 @@ def exam_face_aligment(face_crop=False, selected_names=None):
             continue
 
         fa.plot_fa_result(fa_ret, basename)
+    fa.close_detector()
 
 def _add_root_in_sys_path():
     import sys 

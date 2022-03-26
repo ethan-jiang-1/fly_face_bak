@@ -14,20 +14,27 @@ class FaceAligmentBase(object):
     def __init__(self, debug=False):
         self.debug = debug
 
+    def create_detector():
+        pass 
+
+    def close_detector():
+        pass
+
     def _find_rotate_info(self, img_face, left_eye, right_eye):
         #center of eyes
-        left_eye_center = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
+        if len(left_eye) == 4:
+            left_eye_center = (int(left_eye[0] + (left_eye[2] / 2)), int(left_eye[1] + (left_eye[3] / 2)))
+        else:
+            left_eye_center = left_eye
         left_eye_x = left_eye_center[0]; left_eye_y = left_eye_center[1]
         
-        right_eye_center = (int(right_eye[0] + (right_eye[2]/2)), int(right_eye[1] + (right_eye[3]/2)))
+        if len(right_eye) == 4:
+            right_eye_center = (int(right_eye[0] + (right_eye[2]/2)), int(right_eye[1] + (right_eye[3]/2)))
+        else:
+            right_eye_center = right_eye
         right_eye_x = right_eye_center[0]; right_eye_y = right_eye_center[1]
         
         center_of_eyes = (int((left_eye_x+right_eye_x)/2), int((left_eye_y+right_eye_y)/2))
-        
-        if self.debug:
-            cv2.circle(img_face, left_eye_center, 2, (255, 0, 0) , 2)
-            cv2.circle(img_face, right_eye_center, 2, (255, 255, 0) , 2)
-            cv2.circle(img_face, center_of_eyes, 2, (255, 0, 255) , 2)
         
         # find rotation direction
         if left_eye_y > right_eye_y:
@@ -40,6 +47,10 @@ class FaceAligmentBase(object):
             print("rotate to inverse clock direction")
         
         if self.debug:       
+            cv2.circle(img_face, left_eye_center, 2, (255, 0, 0) , 2)
+            cv2.circle(img_face, right_eye_center, 2, (255, 255, 0) , 2)
+            cv2.circle(img_face, center_of_eyes, 2, (255, 0, 255) , 2)
+
             cv2.circle(img_face, point_3rd, 2, (255, 0, 0) , 2)
             
             cv2.line(img_face,right_eye_center, left_eye_center,(67,67,67),1)
@@ -73,7 +84,7 @@ class FaceAligmentBase(object):
         d0 = datetime.now()
         img_raw = img_org.copy()
         
-        img_face, left_eye, right_eye = self.detect_face_and_eys(img_org.copy())
+        img_face, left_eye, right_eye = self.detect_face_and_eyes(img_org.copy())
 
         if img_face is None:
             return FA_RESULT(img_org=img_org, 
@@ -94,7 +105,7 @@ class FaceAligmentBase(object):
         
         img_rotated = Image.fromarray(img_raw)
         img_rotated = np.array(img_rotated.rotate(direction * angle))
-        img_ratoted_face = self.detect_face(img_rotated)
+        img_ratoted_face = self.find_and_crop_face(img_rotated)
 
         dt = dt=datetime.now() - d0
         print("inference time: {:.3f}".format(dt.total_seconds()))
@@ -104,11 +115,11 @@ class FaceAligmentBase(object):
                          img_ratoted_face=img_ratoted_face,
                          dt=dt)
                     
-    def detect_face_and_eys(self, img_org):
+    def detect_face_and_eyes(self, img_org):
         raise ValueError("not-implemented")
         #return None, None  # img_face, eyes (iris)
 
-    def detect_face(self, img_org):
+    def find_and_crop_face(self, img_org, draw_marks=False):
         raise ValueError("not-implemented")
         # return None
 
