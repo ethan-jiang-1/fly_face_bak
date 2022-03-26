@@ -74,10 +74,6 @@ class FaceAlignemtMp(FaceAligmentBase):
         img_crop = img_org.copy()[y:y+h,x:x+w]
         return img_crop,(x, y, w, h), landmark
 
-    def find_and_crop_face(self, img):
-        img_crop, bbox_crop, _ = self._find_and_crop_face_core(img)
-        return img_crop, bbox_crop
-
     def detect_face_and_eyes(self, img_org):
         img_crop, bbox_crop_in_org, landmark = self._find_and_crop_face_core(img_org)
         x_crop, y_crop, _, _ = bbox_crop_in_org

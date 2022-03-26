@@ -11,15 +11,24 @@ FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_un
 FA_IMG_SIZE = 512
 FA_TRANSINFO = namedtuple("FA_TRANSINFO", 'img_org_shape bbox_crop img_crop_shape direction angle center_of_eyes distance_of_eyes')
 
+def euclidean_distance(a, b):
+    x1 = a[0]; y1 = a[1]
+    x2 = b[0]; y2 = b[1]
+    
+    return math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
+
 class FaceAligmentBase(object):
     def __init__(self, debug=False):
         self.debug = debug
 
     def create_detector():
-        pass 
+        raise ValueError("not-implemented")
 
     def close_detector():
-        pass
+        raise ValueError("not-implemented")
+
+    def detect_face_and_eyes(self, img_org):
+        raise ValueError("not-implemented")
 
     def _compute_eyes_location(self, left_eye, right_eye):
         #center of eyes
@@ -64,9 +73,9 @@ class FaceAligmentBase(object):
             cv2.line(img_crop,left_eye_center, point_3rd,(67,67,67),1)
             cv2.line(img_crop,right_eye_center, point_3rd,(67,67,67),1)
 
-        da = self.euclidean_distance(left_eye_center, point_3rd)
-        db = self.euclidean_distance(right_eye_center, point_3rd)
-        dc = self.euclidean_distance(right_eye_center, left_eye_center)
+        da = euclidean_distance(left_eye_center, point_3rd)
+        db = euclidean_distance(right_eye_center, point_3rd)
+        dc = euclidean_distance(right_eye_center, left_eye_center)
 
         cos_a = (db*db + dc*dc - da*da)/(2*db*dc)
         angle = np.arccos(cos_a)
@@ -93,7 +102,7 @@ class FaceAligmentBase(object):
         d0 = datetime.now()
         img_raw = img_org.copy()
         
-        bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop = self.detect_face_and_eyes(img_org.copy())
+        bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop = self.detect_face_and_eyes(img_raw)
 
         if img_crop is None:
             return FA_RESULT(img_org=img_org, 
@@ -127,25 +136,12 @@ class FaceAligmentBase(object):
                          dt=dt)
 
     def transfer_to_unified(self, img_raw, fti):
-        img_face, _ = self.find_and_crop_face(img_raw)
+        # img_face, _ = self.find_and_crop_face(img_raw)
         
-        img_rotated = Image.fromarray(img_face)
-        img_rotated = np.array(img_rotated.rotate(fti.direction * fti.angle))
-        return img_rotated
-                    
-    def detect_face_and_eyes(self, img_org):
-        raise ValueError("not-implemented")
-        #return None, None  # img_face, eyes (iris)
-
-    def find_and_crop_face(self, img_org, draw_marks=False):
-        raise ValueError("not-implemented")
-        # return None
-
-    def euclidean_distance(self, a, b):
-        x1 = a[0]; y1 = a[1]
-        x2 = b[0]; y2 = b[1]
-        
-        return math.sqrt(((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1)))
+        # img_rotated = Image.fromarray(img_face)
+        # img_rotated = np.array(img_rotated.rotate(fti.direction * fti.angle))
+        # return img_rotated
+        return None
 
     def plot_fa_result(self, fa_ret, img_name):
         if fa_ret is None:

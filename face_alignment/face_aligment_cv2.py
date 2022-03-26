@@ -33,7 +33,7 @@ class FaceAlignemtCv2(FaceAligmentBase):
         del self.eye_detector
         del self.nose_detector
 
-    def find_and_crop_face(self, img):
+    def _find_and_crop_face(self, img):
         for att in [0, 1, 2]:
             if att == 0:
                 faces = self.face_detector.detectMultiScale(img, 1.1, 10)
@@ -53,7 +53,7 @@ class FaceAlignemtCv2(FaceAligmentBase):
         return None, None
 
     def detect_face_and_eyes(self, img_org):
-        img_face, bbox_face_in_org = self.find_and_crop_face(img_org)
+        img_face, bbox_face_in_org = self._find_and_crop_face(img_org)
         if img_face is None:
             return None, None, None, None 
 
