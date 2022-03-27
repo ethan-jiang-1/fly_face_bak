@@ -109,54 +109,56 @@ class ImgTransformAgent():
         return rotated
 
     @classmethod
-    def _get_moved_param(cls, img_org_shape, center_of_eyes):
+    def _cal_src_dst_box(cls, delta_center_n, shape_org_n, shape_moved_n):
+        if delta_center_n > 0:
+            sn0 = delta_center_n
+            snw = shape_org_n - delta_center_n
+            dn0 = 0
+            dnw = shape_moved_n
+        elif delta_center_n < 0:
+            sn0 = 0
+            snw = shape_org_n
+            dn0 = -delta_center_n
+            dnw = shape_moved_n - dn0
+        else:
+            sn0 = 0
+            snw = shape_org_n
+            dn0 = 0
+            dnw = shape_moved_n           
+        minw = min(snw, dnw)
+        dnw, snw = minw, minw
+        return sn0, snw, dn0, snw
+
+    @classmethod
+    def _get_moved_param(cls, img_org_shape, center_of_eyes, debug=False):
+        shape_height_org, shape_width_org = img_org_shape[0], img_org_shape[1]
+
+        center_of_img = (int(shape_height_org / 2) , int(shape_width_org / 2))
         center_of_eyes_yx = (center_of_eyes[1], center_of_eyes[0])
-        height_org, width_org = img_org_shape[0], img_org_shape[1]
-        center_of_img = (int(height_org / 2) , int(width_org / 2))
 
         delta_center_y = int(center_of_eyes_yx[0] - center_of_img[0])
         delta_center_x = int(center_of_eyes_yx[1] - center_of_img[1])
 
-        delta_center_y = 0
-        img_moved_shape = (int(height_org + delta_center_y), int(width_org + delta_center_x), img_org_shape[2])
+        shape_height_moved = int(shape_height_org + delta_center_y)
+        shape_width_moved = int(shape_width_org + delta_center_x)
+        img_moved_shape = (shape_height_moved, shape_width_moved, img_org_shape[2])
 
-        sy0, syh = 0, height_org
-        sx0, sxw = 0, width_org
+        sx0, sxw, dx0, dxw = cls._cal_src_dst_box(delta_center_x, shape_width_org, shape_width_moved)
+        sy0, syh, dy0, dyh = cls._cal_src_dst_box(delta_center_y, shape_height_org, shape_height_moved)
 
-        dy0, dyh = 0, img_moved_shape[0]
-        dx0, dxw = 0, img_moved_shape[1]
-
-        #if delta_center_y > 0:
-        #    y0 = delta_center_y
-        #    yh = height_org - delta_center_y
-        #elif delta_center_y < 0:
-        #    y0 = - delta_center_y
-        #    yh = height_org 
-
-        print("delta_center_x", delta_center_x)
-        if delta_center_x > 0:
-            sx0 = 0
-            sxw -= delta_center_x
-            dx0 = delta_center_x
-            dxw = sxw
-        elif delta_center_x < 0:
-            sx0 = -delta_center_x
-            sxw += delta_center_x
-            dx0 = 0
-            dxw = sxw
-
-        print()
-        print("center_of_img_yx: ", center_of_img)
-        print("center_of_eyes_yx:", center_of_eyes_yx)
-        print("img_org_shape:  ", img_org_shape)
-        print("img_moved_shape:", img_moved_shape)
-        print("move src        ", (sy0, syh, sx0, sxw))
-        print("move dst        ", (dy0, dyh, dx0, dxw))
-        print()
+        if debug:
+            print()
+            print("center_of_img_yx: ", center_of_img)
+            print("center_of_eyes_yx:", center_of_eyes_yx)
+            print("img_org_shape:  ", img_org_shape)
+            print("img_moved_shape:", img_moved_shape)
+            print("move src        ", (sy0, syh, sx0, sxw))
+            print("move dst        ", (dy0, dyh, dx0, dxw))
+            print()
         return (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape
 
     @classmethod
-    def transfer_to_img_unified(cls, img_org, fti):
+    def transfer_to_img_unified(cls, img_org, fti, debug=False):
         bbox_crop = fti.bbox_crop
         center_crop = fti.center_of_eyes
 
@@ -165,7 +167,7 @@ class ImgTransformAgent():
         img_rotated_by_eye_center = cls._rotate_cv_by_center(img_org, angle, center=center_of_eyes)
         print('img_rotated_by_eye_center.shape', img_rotated_by_eye_center.shape)
 
-        (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape = cls._get_moved_param(img_rotated_by_eye_center.shape, center_of_eyes)
+        (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape = cls._get_moved_param(img_rotated_by_eye_center.shape, center_of_eyes, debug=debug)
         img_moved_rotated_center = np.zeros(img_moved_shape, dtype=img_org.dtype)
         img_src = img_rotated_by_eye_center[sy0:sy0+syh, sx0:sx0+sxw]
         img_moved_rotated_center[dy0:dy0+dyh, dx0:dx0+dxw] = img_src      
@@ -218,7 +220,7 @@ class FaceAligmentBase(ABC):
 
         img_rotated = ImgTransformAgent.tranform_to_img_rotated(img_raw, fti)
 
-        img_ratoted_unified = ImgTransformAgent.transfer_to_img_unified(img_raw, fti)
+        img_ratoted_unified = ImgTransformAgent.transfer_to_img_unified(img_raw, fti, debug=self.debug)
 
         dt = dt=datetime.now() - d0
         print("inference time: {:.3f}".format(dt.total_seconds()))
@@ -256,7 +258,7 @@ class FaceAligmentBase(ABC):
 
         if fa_ret.img_ratoted_unified is not None:
             ax = fig.add_subplot(1,4,4)
-            ax.set_axis_off()
+            #ax.set_axis_off()
             ax.set_title("crop_rotated_unified")       
             ax.imshow(fa_ret.img_ratoted_unified[:, :, ::-1])
         
