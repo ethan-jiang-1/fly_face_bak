@@ -342,3 +342,5 @@ class FaceAligmentBase(ABC):
             ax.set_title("unified")
             #ax.set_axis_off()
             ax.imshow(fa_sum.img_ratoted_unified)
+
+        plt.show()
