@@ -2,16 +2,41 @@ from datetime import datetime
 import cv2
 import os
 import numpy as np
+import mediapipe as mp
+
 
 class ImgpSelfieMarker():
+    slt_selfie = None 
+    
     @classmethod
-    def mark_selfie(cls, mp, slt_selfie, image):
+    def init_imgp(cls):
+        if cls.slt_selfie is not None:
+            return
+
+        from utils_inspect.inspect_solution import inspect_solution
+        mp_selfie_segmentation = mp.solutions.selfie_segmentation
+        cls.slt_selfie = mp_selfie_segmentation.SelfieSegmentation(model_selection=1) 
+        inspect_solution(cls.slt_selfie)
+
+    @classmethod
+    def close_imgp(cls):
+        if cls.slt_selfie is not None:
+            cls.slt_selfie.close()
+            cls.slt_selfie = None
+
+    @classmethod
+    def mark_selfie(cls, image):
+        if cls.slt_selfie is None:
+            cls.init_imgp()
+        
+        slt_selfie = cls.slt_selfie
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.
         image.flags.writeable = False
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         d0 = datetime.now()
+        slt_selfie.reset()
         results = slt_selfie.process(image)
         dt = datetime.now() - d0
         print("inference time {:.3f}".format(dt.total_seconds()))
@@ -37,18 +62,6 @@ class ImgpSelfieMarker():
         print(output_image.shape, output_image.dtype)
         return output_image, dt
 
-    @classmethod
-    def create_slt_selfie(cls, mp):
-        from utils_inspect.inspect_solution import inspect_solution
-        mp_selfie_segmentation = mp.solutions.selfie_segmentation
-        fslt_selfie = mp_selfie_segmentation.SelfieSegmentation(model_selection=1) 
-        inspect_solution(fslt_selfie)
-        return fslt_selfie
-
-    @classmethod
-    def close_slt_selfie(cls, fslt_selfie):
-        fslt_selfie.close()
-
 
 def _find_all_images(src_dir):
     if not os.path.isdir(src_dir):
@@ -61,23 +74,17 @@ def _find_all_images(src_dir):
             filenames.append(os.sep.join([src_dir, name]))
     return filenames
 
-def _mark_selfie_imgs(src_dir, mp=None):
-    from utils_inspect.inspect_mp import inspect_mp
-    if mp is None:
-        import mediapipe as mp
-    inspect_mp(mp)
-
+def _mark_selfie_imgs(src_dir):
     filenames = _find_all_images(src_dir)
 
-    slt_selfie = ImgpSelfieMarker.create_slt_selfie(mp)
+    ImgpSelfieMarker.init_imgp()
     for filename in filenames:
         image = cv2.imread(filename, cv2.IMREAD_COLOR)
         if image is None:
             print("not image file", filename)
             continue
 
-        slt_selfie.reset()
-        image, _ = ImgpSelfieMarker.mark_selfie(mp, slt_selfie, image)
+        image, _ = ImgpSelfieMarker.mark_selfie(image)
         if image is None:
             print("not able to mark landmark on", filename)
 
@@ -88,7 +95,7 @@ def _mark_selfie_imgs(src_dir, mp=None):
         cv2.imwrite(dst_pathname, image)
         print("{} saved".format(dst_pathname))
 
-    ImgpSelfieMarker.close_slt_selfie(slt_selfie)
+    ImgpSelfieMarker.close_imgp()
     print("done")
 
 def _get_root_dir():
@@ -106,17 +113,11 @@ def _add_root_in_sys_path():
         sys.path.append(dir_root)
 
 def do_exp():
-    d0 = datetime.now()
-    print("loading mediapipe...")
-    import mediapipe as mp
-    dt = datetime.now() - d0
-    print("loading done", "{:.2f}sec".format(dt.total_seconds()))
-
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
 
-    _mark_selfie_imgs(src_dir, mp)
+    _mark_selfie_imgs(src_dir)
 
 
 if __name__ == '__main__':

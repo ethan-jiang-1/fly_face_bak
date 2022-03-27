@@ -1,10 +1,39 @@
 from datetime import datetime
 import cv2
 import os
+import mediapipe as mp
 
 class ImgpFacemeshMarker():
+    slt_facemesh = None 
+
     @classmethod
-    def mark_face_mesh(cls, mp, slt_facemesh, image):
+    def init_imgp(cls):
+        if cls.slt_facemesh is not None:
+            return
+
+        from utils_inspect.inspect_solution import inspect_solution
+        mp_face_mesh = mp.solutions.face_mesh
+        cls.slt_facemesh = mp_face_mesh.FaceMesh(
+            max_num_faces=1,
+            refine_landmarks=True,
+            min_detection_confidence=0.5,
+            min_tracking_confidence=0.5) 
+        inspect_solution(cls.slt_facemesh)
+        return cls.slt_facemesh
+
+    @classmethod
+    def close_imgp(cls):
+        if cls.slt_facemesh is not None:
+            cls.slt_facemesh.close()
+            cls.slt_facemesh = None
+
+    @classmethod
+    def mark_face_mesh(cls, image):
+        if cls.slt_facemesh is None:
+            cls.init_imgp()
+        slt_facemesh = cls.slt_facemesh
+        slt_facemesh.reset()
+
         mp_face_mesh = mp.solutions.face_mesh
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
@@ -53,22 +82,6 @@ class ImgpFacemeshMarker():
         return image, dt
 
     @classmethod
-    def create_slt_facemesh(cls, mp):
-        from utils_inspect.inspect_solution import inspect_solution
-        mp_face_mesh = mp.solutions.face_mesh
-        slt_facemesh = mp_face_mesh.FaceMesh(
-            max_num_faces=1,
-            refine_landmarks=True,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5) 
-        inspect_solution(slt_facemesh)
-        return slt_facemesh
-
-    @classmethod
-    def close_slt_facemesh(cls, slt_facemesh):
-        slt_facemesh.close()
-
-    @classmethod
     def _inpect_landmarks(cls, image, mp_face_mesh, face_landmarks):
         lms = face_landmarks.landmark
         print("len(lms)", len(lms))
@@ -85,23 +98,17 @@ def _find_all_images(src_dir):
             filenames.append(os.sep.join([src_dir, name]))
     return filenames
 
-def _mark_facemesh_imgs(src_dir, mp=None):
-    from utils_inspect.inspect_mp import inspect_mp
-    if mp is None:
-        import mediapipe as mp
-    inspect_mp(mp)
-
+def _mark_facemesh_imgs(src_dir):
     filenames = _find_all_images(src_dir)
 
-    slt_facemesh = ImgpFacemeshMarker.create_slt_facemesh(mp)
+    ImgpFacemeshMarker.init_imgp()
     for filename in filenames:
         image = cv2.imread(filename, cv2.IMREAD_COLOR)
         if image is None:
             print("not image file", filename)
             continue
 
-        slt_facemesh.reset()
-        image, _ = ImgpFacemeshMarker.mark_face_mesh(mp, slt_facemesh, image)
+        image, _ = ImgpFacemeshMarker.mark_face_mesh(image)
         if image is None:
             print("not able to mark landmark on", filename)
 
@@ -112,7 +119,7 @@ def _mark_facemesh_imgs(src_dir, mp=None):
         cv2.imwrite(dst_pathname, image)
         print("{} saved".format(dst_pathname))
 
-    ImgpFacemeshMarker.close_slt_facemesh(slt_facemesh)
+    ImgpFacemeshMarker.close_imgp()
     print("done")
 
 def _get_root_dir():
@@ -130,17 +137,11 @@ def _add_root_in_sys_path():
         sys.path.append(dir_root)
 
 def do_exp():
-    d0 = datetime.now()
-    print("loading mediapipe...")
-    import mediapipe as mp
-    dt = datetime.now() - d0
-    print("loading done", "{:.2f}sec".format(dt.total_seconds()))
-
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
    
-    _mark_facemesh_imgs(src_dir, mp)
+    _mark_facemesh_imgs(src_dir)
 
 
 if __name__ == '__main__':
