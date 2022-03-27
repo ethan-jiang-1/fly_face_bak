@@ -16,8 +16,14 @@ class FileOp(object):
 
     @classmethod
     def save_output_image(cls, image, src_dir, filename, suffix):
+        if image is None:
+            return False
         output_dir = "_reserved_output_{}".format(os.path.basename(src_dir))
         os.makedirs(output_dir, exist_ok=True)
         dst_pathname = "{}{}{}".format(output_dir, os.sep, os.path.basename(filename).replace(".jp", "_{}.jp".format(suffix)))
         cv2.imwrite(dst_pathname, image)
+        if not os.path.isfile(dst_pathname):
+            print("ERROR, failed to save {}".format(dst_pathname))
+            return False
         print("{} saved".format(dst_pathname))
+        return True

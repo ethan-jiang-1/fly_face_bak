@@ -3,27 +3,39 @@
 import os
 import cv2
 
+#USING_FACE_ALIGMENT = "MP"  
+#USING_FACE_ALIGMENT = "DLIB" 
+USING_FACE_ALIGMENT = "CV2"
+
 class ImgpFaceAligment():
-    hsi_klass = None 
+    fal_klass = None 
 
     @classmethod
     def init_imgp(cls):
-        if cls.hsi_klass is not None:
-            return 
-        from face_alignment.face_aligment_mp import FaceAlignemtMp    
-        cls.hsi_klass = FaceAlignemtMp
+        if cls.fal_klass is not None:
+            return
+        if USING_FACE_ALIGMENT == "MP": 
+            from face_alignment.face_aligment_mp import FaceAlignemtMp    
+            cls.fal_klass = FaceAlignemtMp
+        elif USING_FACE_ALIGMENT == "DLIB":
+            from face_alignment.face_aligment_dlib import FaceAlignemtDlib  
+            cls.fal_klass = FaceAlignemtDlib
+        elif USING_FACE_ALIGMENT == "CV2":
+            from face_alignment.face_aligment_cv2 import FaceAlignemtCv2  
+            cls.fal_klass = FaceAlignemtCv2           
+        print("Using FaceAlignment", cls.fal_klass)           
 
     @classmethod
     def close_imgp(cls):
-        if cls.hsi_klass is not None:
-            cls.hsi_klass = None
+        if cls.fal_klass is not None:
+            cls.fal_klass = None
 
     @classmethod
     def make_aligment(cls, image):
-        if cls.hsi_klass is None:
+        if cls.fal_klass is None:
             cls.init_imgp()
         
-        fa = cls.hsi_klass()
+        fa = cls.fal_klass()
         fa.create_detector()
 
         fa_ret = fa.align_face(image)
@@ -48,7 +60,7 @@ def _mark_hair_imgs(src_dir):
         if image is None:
             print("not able to mark hair on", filename)
 
-        FileOp.save_output_image(image, src_dir, filename, "hair")
+        FileOp.save_output_image(image, src_dir, filename, "aligment_{}".format(USING_FACE_ALIGMENT.lower()))
 
     ImgpFaceAligment.close_imgp()
 

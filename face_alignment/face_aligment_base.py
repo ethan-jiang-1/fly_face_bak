@@ -206,7 +206,7 @@ class ImgTransformAgent():
         bbox_crop = fti.bbox_crop
         center_crop = fti.center_of_eyes
 
-        center_of_eyes = (center_crop[0] + bbox_crop[0], center_crop[1] + bbox_crop[1])
+        center_of_eyes = (int(center_crop[0] + bbox_crop[0]), int(center_crop[1] + bbox_crop[1]))
         angle = fti.direction * fti.angle
         img_rotated_aligned_eye = cls._rotate_to_align_center(img_org, angle, center=center_of_eyes)
         print('img_rotated_aligned_eye.shape', img_rotated_aligned_eye.shape)

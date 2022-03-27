@@ -37,7 +37,7 @@ class FaceAlignemtCv2(FaceAligmentBase):
         del self.nose_detector
 
     def detect_face_and_eyes(self, img_org):
-        img_face, bbox_face_in_org = self._find_and_crop_face(img_org)
+        img_face, bbox_face_in_org = self._find_and_crop_face(img_org.copy())
         if img_face is None:
             return None, None, None, None 
 
@@ -146,8 +146,8 @@ if __name__ == '__main__':
 
     selected_names = None 
     #selected_names = ["hsi_image4.jpeg"]
-    #selected_names = ["hsi_image1.jpeg"]
-    selected_names = ["icl_image2.jpeg"]
+    selected_names = ["hsi_image1.jpeg"]
+    #selected_names = ["icl_image2.jpeg"]
 
     exam_face_aligment(face_crop=True, selected_names=selected_names)
     #exam_face_aligment(face_crop=False)
