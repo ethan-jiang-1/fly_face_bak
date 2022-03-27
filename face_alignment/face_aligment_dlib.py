@@ -13,6 +13,8 @@ class FaceAlignemtDlib(FaceAligmentBase):
         super(FaceAlignemtDlib, self).__init__(debug=debug)
         self.predictor = None
 
+        self.slt_face_detection = MpFaceDetectionHelper.create_slt_face_detection() 
+
     def create_detector(self):
         if self.predictor is None:
             dir_this = os.path.dirname(__file__)
@@ -25,21 +27,17 @@ class FaceAlignemtDlib(FaceAligmentBase):
 
     def close_detector(self):
         del self.predictor
+        MpFaceDetectionHelper.close_slt_face_detection(self.slt_face_detection)
 
     def detect_face_and_eyes(self, img_org):
-        #imags_resized = cv2.resize(img_org, (512, 512))
 
-        slt_face_detection = MpFaceDetectionHelper.create_slt_face_detection() 
-
-        slt_face_detection.reset()
-        results = slt_face_detection.process(cv2.cvtColor(img_org, cv2.COLOR_BGR2RGB))
+        self.slt_face_detection.reset()
+        results = self.slt_face_detection.process(cv2.cvtColor(img_org, cv2.COLOR_BGR2RGB))
 
         key_face_detection_result = MpFaceDetectionHelper.get_key_dectection_result(results) 
 
         img_face, bbox_face_in_org = MpFaceDetectionHelper.get_cropped_img_face(img_org, key_face_detection_result, draw_keypoints=False)
 
-        MpFaceDetectionHelper.close_slt_face_detection(slt_face_detection)
-        
         right_eye,  left_eye = self._detect_eyes(img_face)
 
         right_eye_in_face = left_eye
