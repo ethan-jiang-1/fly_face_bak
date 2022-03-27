@@ -2,7 +2,7 @@ from collections import namedtuple
 import math
 import cv2
 import numpy as np
-#from PIL import Image as PilImage
+
 import matplotlib.pyplot as plt
 from datetime import datetime 
 from abc import ABC, abstractmethod

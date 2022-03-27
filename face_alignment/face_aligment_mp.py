@@ -1,7 +1,7 @@
 import os
 import cv2
 import numpy as np
-from face_aligment_base import FaceAligmentBase
+from .face_aligment_base import FaceAligmentBase
 
 
 class FaceAlignemtMp(FaceAligmentBase):
