@@ -101,13 +101,14 @@ class FaceAlignemtCv2(FaceAligmentBase):
         return None, None
 
 
-def exam_face_aligment(face_crop=False, selected_names=None):
+def exam_face_aligment(face_crop=False, selected_names=None, show_summary=False):
     from utils_inspect.sample_images import get_sample_images
     test_set = get_sample_images()
 
     fa = FaceAlignemtCv2()
     fa.create_detector()
 
+    sum =[]
     for filename in test_set:
         basename = os.path.basename(filename)
         if selected_names is not None:
@@ -115,11 +116,15 @@ def exam_face_aligment(face_crop=False, selected_names=None):
                 continue
         
         img_org = cv2.imread(filename)
-        fa_ret = fa.align_face(img_org)
+        fa_ret = fa.align_face(img_org, img_name=basename)
         if fa_ret is None:
             continue
-
-        fa.plot_fa_result(fa_ret, basename)
+        if show_summary:
+            fa.update_fa_sum(sum, fa_ret)
+        else:
+            fa.plot_fa_result(fa_ret, basename)
+    if show_summary:
+        fa.plot_fa_sum(sum)
     fa.close_detector()
 
 def _add_root_in_sys_path():

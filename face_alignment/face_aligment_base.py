@@ -2,14 +2,16 @@ from collections import namedtuple
 import math
 import cv2
 import numpy as np
-from PIL import Image as PilImage
+#from PIL import Image as PilImage
 import matplotlib.pyplot as plt
 from datetime import datetime 
 from abc import ABC, abstractmethod
 
 FA_IMG_SIZE = 512
-FA_RESULT = namedtuple('FA_RESULT', 'img_org img_face img_rotated img_ratoted_unified dt')
+FA_EYE_DIS = (128 + 64)
+FA_RESULT = namedtuple('FA_RESULT', 'img_org img_name img_face img_rotated img_ratoted_unified dt')
 FA_TRANSINFO = namedtuple("FA_TRANSINFO", 'img_org_shape bbox_crop img_crop_shape direction angle center_of_eyes distance_of_eyes left_eye_center right_eye_center point_3rd')
+FA_SUM = namedtuple('FA_SUM', 'img_org img_name img_ratoted_unified dt')
 
 def euclidean_distance(a, b):
     x1 = a[0]; y1 = a[1]
@@ -87,16 +89,7 @@ class ImgTransformAgent():
         cv2.line(img_crop,fti.right_eye_center, fti.point_3rd,(67,67,67),1)
 
     @classmethod
-    def tranform_to_img_rotated(cls, img_org, fti):
-        direction, angle = fti.direction, fti.angle
-        
-        image_rotated = PilImage.fromarray(img_org)
-        image_rotated = image_rotated.rotate(direction * angle)
-        img_rotated = np.array(image_rotated)
-        return img_rotated
-
-    @classmethod
-    def _rotate_cv_by_center(cls, image, angle, center = None, scale = 1.0):
+    def _rotate_to_align_center(cls, image, angle, center = None, scale = 1.0):
         (h, w) = image.shape[:2]
 
         if center is None:
@@ -107,6 +100,12 @@ class ImgTransformAgent():
         rotated = cv2.warpAffine(image, M, (w, h))
 
         return rotated
+
+    @classmethod
+    def tranform_to_img_rotated(cls, img_org, fti, debug=False):
+        angle = fti.direction * fti.angle 
+        img_rotated = cls._rotate_to_align_center(img_org, angle)
+        return img_rotated
 
     @classmethod
     def _cal_src_dst_box(cls, delta_center_n, shape_org_n, shape_moved_n):
@@ -158,23 +157,68 @@ class ImgTransformAgent():
         return (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape
 
     @classmethod
+    def _move_eye_to_center(cls, img_rotated_aligned_eye, center_of_eyes, debug=False):
+        (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape = cls._get_moved_param(img_rotated_aligned_eye.shape, center_of_eyes, debug=debug)
+        img_moved_rotated_center = np.zeros(img_moved_shape, dtype=img_rotated_aligned_eye.dtype)
+        img_src = img_rotated_aligned_eye[sy0:sy0+syh, sx0:sx0+sxw]
+        img_moved_rotated_center[dy0:dy0+dyh, dx0:dx0+dxw] = img_src
+        return img_moved_rotated_center   
+
+    @classmethod
+    def _unifiy_aligned_img(cls, img_moved_rotated_center, distance_of_eyes, debug=False):
+        height_input, width_input = img_moved_rotated_center.shape[0], img_moved_rotated_center.shape[1]
+        square_size = max(height_input, width_input)
+        img_square = np.zeros((square_size, square_size, img_moved_rotated_center.shape[2]), dtype=img_moved_rotated_center.dtype)
+
+        if height_input > width_input:
+            width_gap = int((square_size - width_input) /2)
+            img_square[ :, width_gap:width_gap + width_input] = img_moved_rotated_center
+        elif width_input > height_input:
+            height_gap = int((square_size - height_input) /2)
+            img_square[ height_gap: height_gap + height_input, :] = img_moved_rotated_center
+        else:
+            img_square = img_moved_rotated_center
+
+        #scale_ration = float(distance_of_eyes / FA_EYE_DIS)
+        #scale_size = int(scale_ration * 512)
+        #img_square_resized = cv2.resize(img_square, (scale_size, scale_size))
+        #print("img_square_resized.shape", img_square_resized.shape)
+
+        off_center = 2.4 * distance_of_eyes
+        x0 = int((square_size / 2) - off_center)
+        if x0 < 0:
+            x0 = 0
+        xw = int(2 * off_center)
+        if xw > square_size:
+            xw = square_size
+
+        y0, yh = x0, xw 
+        img_square_distance = img_square[y0:y0+yh, x0:x0+xw]
+        print("img_square_distance.shape", img_square_distance.shape)
+
+        img_square_unified = cv2.resize(img_square_distance.copy(), (FA_IMG_SIZE, FA_IMG_SIZE))
+        print("img_square_resized.shape", img_square_unified.shape)
+
+        return img_square_unified
+
+    @classmethod
     def transfer_to_img_unified(cls, img_org, fti, debug=False):
         bbox_crop = fti.bbox_crop
         center_crop = fti.center_of_eyes
 
         center_of_eyes = (center_crop[0] + bbox_crop[0], center_crop[1] + bbox_crop[1])
         angle = fti.direction * fti.angle
-        img_rotated_by_eye_center = cls._rotate_cv_by_center(img_org, angle, center=center_of_eyes)
-        print('img_rotated_by_eye_center.shape', img_rotated_by_eye_center.shape)
+        img_rotated_aligned_eye = cls._rotate_to_align_center(img_org, angle, center=center_of_eyes)
+        print('img_rotated_aligned_eye.shape', img_rotated_aligned_eye.shape)
 
-        (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape = cls._get_moved_param(img_rotated_by_eye_center.shape, center_of_eyes, debug=debug)
-        img_moved_rotated_center = np.zeros(img_moved_shape, dtype=img_org.dtype)
-        img_src = img_rotated_by_eye_center[sy0:sy0+syh, sx0:sx0+sxw]
-        img_moved_rotated_center[dy0:dy0+dyh, dx0:dx0+dxw] = img_src      
-
+        img_moved_rotated_center = cls._move_eye_to_center(img_rotated_aligned_eye, center_of_eyes, debug=debug)  
         print("img_moved_rotated_center.shape", img_moved_rotated_center.shape)
 
-        return img_moved_rotated_center
+        distance_of_eyes = fti.distance_of_eyes
+        img_unified = cls._unifiy_aligned_img(img_moved_rotated_center, distance_of_eyes, debug=debug)  
+        print("img_unified.shape", img_unified.shape)
+
+        return img_unified
         
 
 class FaceAligmentBase(ABC):
@@ -193,14 +237,15 @@ class FaceAligmentBase(ABC):
     def detect_face_and_eyes(self, img_org):
         pass
 
-    def align_face(self, img_org):
+    def align_face(self, img_org, img_name=None):
         d0 = datetime.now()
         img_raw = img_org.copy()
         
         bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop = self.detect_face_and_eyes(img_raw)
 
         if img_crop is None:
-            return FA_RESULT(img_org=img_org, 
+            return FA_RESULT(img_org=img_org,
+                              img_name=img_name, 
                               img_face=None, 
                               img_rotated=None, 
                               img_ratoted_unified=None,
@@ -208,6 +253,7 @@ class FaceAligmentBase(ABC):
 
         if right_eye_in_crop is None and left_eye_in_crop is None:
             return FA_RESULT(img_org=img_org, 
+                              img_name=img_name, 
                               img_face=img_crop, 
                               img_rotated=None, 
                               img_ratoted_unified=None,
@@ -218,13 +264,14 @@ class FaceAligmentBase(ABC):
         if self.debug:
             ImgTransformAgent.plot_transinfo_keypoints(img_crop, fti)
 
-        img_rotated = ImgTransformAgent.tranform_to_img_rotated(img_raw, fti)
+        img_rotated = ImgTransformAgent.tranform_to_img_rotated(img_raw, fti, debug=self.debug)
 
         img_ratoted_unified = ImgTransformAgent.transfer_to_img_unified(img_raw, fti, debug=self.debug)
 
         dt = dt=datetime.now() - d0
         print("inference time: {:.3f}".format(dt.total_seconds()))
         return FA_RESULT(img_org=img_org, 
+                         img_name=img_name, 
                          img_face=img_crop, 
                          img_rotated=img_rotated, 
                          img_ratoted_unified=img_ratoted_unified,
@@ -263,3 +310,35 @@ class FaceAligmentBase(ABC):
             ax.imshow(fa_ret.img_ratoted_unified[:, :, ::-1])
         
         plt.show()
+
+    def update_fa_sum(self, sum, fa_ret):
+        fa_sum = FA_SUM(img_org=fa_ret.img_org,
+                        img_name = fa_ret.img_name,
+                        img_ratoted_unified=fa_ret.img_ratoted_unified,
+                        dt=fa_ret.dt)
+        sum.append(fa_sum)
+
+    def plot_fa_sum(self, sum):
+        if sum is None:
+            return
+
+        fig = plt.figure(figsize=(12, 6))
+        ax = plt.gca()
+        ax.set_axis_off()
+
+        num = len(sum)
+        col_num = max(int(num/2 + 0.5), 6)
+
+        for ndx, fa_sum in enumerate(sum):
+            if ndx >= 6:
+                break 
+    
+            ax = fig.add_subplot(2, col_num, ndx*2 + 1)
+            ax.set_title("org")
+            ax.set_axis_off()
+            ax.imshow(fa_sum.img_org)
+
+            ax = fig.add_subplot(2, col_num, ndx*2 + 2)
+            ax.set_title("unified")
+            #ax.set_axis_off()
+            ax.imshow(fa_sum.img_ratoted_unified)
