@@ -79,6 +79,8 @@ class FaceAlignemtCv2(FaceAligmentBase):
                 left_eye_in_face = eye_2
                 right_eye_in_face = eye_1
         else:
+            print("ERROR: not able to find eyes in the picture")
+
             left_eye_in_face = None
             right_eye_in_face = None
 
@@ -100,7 +102,8 @@ class FaceAlignemtCv2(FaceAligmentBase):
             face_x, face_y, face_w, face_h = bbox_face
             img_crop = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
             return img_crop, bbox_face
-        
+    
+        print("ERROR: not able to find face in the picture")
         return None, None
 
 
@@ -144,5 +147,7 @@ if __name__ == '__main__':
     selected_names = None 
     #selected_names = ["hsi_image4.jpeg"]
     #selected_names = ["hsi_image1.jpeg"]
+    selected_names = ["icl_image2.jpeg"]
+
     exam_face_aligment(face_crop=True, selected_names=selected_names)
     #exam_face_aligment(face_crop=False)

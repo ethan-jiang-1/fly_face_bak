@@ -140,4 +140,4 @@ if __name__ == '__main__':
     selected_names = ["icl_image2.jpeg"]
 
     #exam_face_aligment(face_crop=True, selected_names=selected_names)
-    exam_face_aligment(face_crop=True, selected_names=selected_names, show_summary=True)
+    exam_face_aligment(face_crop=True, selected_names=selected_names, show_summary=False)
