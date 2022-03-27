@@ -27,6 +27,24 @@ class FaceAlignemtMp(FaceAligmentBase):
         self.slt_face_mesh.close()
         del self.slt_face_mesh
 
+    def detect_face_and_eyes(self, img_org):
+        img_crop, bbox_crop_in_org, landmark = self._find_and_crop_face_core(img_org)
+        x_crop, y_crop, _, _ = bbox_crop_in_org
+
+        height,width = img_org.shape[0],img_org.shape[1]
+        #le = mp.solutions.face_mesh_connections.FACEMESH_LEFT_EYE   # 362<->263
+        #re = mp.solutions.face_mesh_connections.FACEMESH_RIGHT_EYE  # 33<->133
+        
+        llm = landmark.landmark
+
+        abs_right_eye = (int((llm[33].x * width + llm[133].x * width) / 2), int((llm[33].y * height + llm[133].y * height)/2))
+        abs_left_eye = (int((llm[362].x * width + llm[263].x * width) / 2), int((llm[362].y * height + llm[263].y * height)/2))
+        right_eye_in_crop = (abs_right_eye[0]-x_crop, abs_right_eye[1]-y_crop)
+        left_eye_in_crop = (abs_left_eye[0]-x_crop, abs_left_eye[1]-y_crop)
+
+        #return img_crop, left_eye, right_eye
+        return bbox_crop_in_org, img_crop, right_eye_in_crop, left_eye_in_crop
+
     def _get_key_landmark(self, img):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         self.slt_face_mesh.reset()
@@ -73,24 +91,6 @@ class FaceAlignemtMp(FaceAligmentBase):
         h = int(b_height * height)
         img_crop = img_org.copy()[y:y+h,x:x+w]
         return img_crop,(x, y, w, h), landmark
-
-    def detect_face_and_eyes(self, img_org):
-        img_crop, bbox_crop_in_org, landmark = self._find_and_crop_face_core(img_org)
-        x_crop, y_crop, _, _ = bbox_crop_in_org
-
-        height,width = img_org.shape[0],img_org.shape[1]
-        #le = mp.solutions.face_mesh_connections.FACEMESH_LEFT_EYE   # 362<->263
-        #re = mp.solutions.face_mesh_connections.FACEMESH_RIGHT_EYE  # 33<->133
-        
-        llm = landmark.landmark
-
-        abs_right_eye = (int((llm[33].x * width + llm[133].x * width) / 2), int((llm[33].y * height + llm[133].y * height)/2))
-        abs_left_eye = (int((llm[362].x * width + llm[263].x * width) / 2), int((llm[362].y * height + llm[263].y * height)/2))
-        right_eye_in_crop = (abs_right_eye[0]-x_crop, abs_right_eye[1]-y_crop)
-        left_eye_in_crop = (abs_left_eye[0]-x_crop, abs_left_eye[1]-y_crop)
-
-        #return img_crop, left_eye, right_eye
-        return bbox_crop_in_org, img_crop, right_eye_in_crop, left_eye_in_crop
     
 
 def exam_face_aligment(face_crop=False, selected_names=None):

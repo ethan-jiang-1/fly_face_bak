@@ -33,25 +33,6 @@ class FaceAlignemtCv2(FaceAligmentBase):
         del self.eye_detector
         del self.nose_detector
 
-    def _find_and_crop_face(self, img):
-        for att in [0, 1, 2]:
-            if att == 0:
-                faces = self.face_detector.detectMultiScale(img, 1.1, 10)
-            elif att == 1:
-                faces = self.face_detector.detectMultiScale(img, 1.3, 5)
-            elif att == 2:
-                faces = self.face_detector.detectMultiScale(img)
-            if len(faces) >= 1:
-                break
-
-        if len(faces) > 0:
-            bbox_face = faces[0]
-            face_x, face_y, face_w, face_h = bbox_face
-            img_crop = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
-            return img_crop, bbox_face
-        
-        return None, None
-
     def detect_face_and_eyes(self, img_org):
         img_face, bbox_face_in_org = self._find_and_crop_face(img_org)
         if img_face is None:
@@ -100,6 +81,25 @@ class FaceAlignemtCv2(FaceAligmentBase):
 
         return bbox_face_in_org, img_face, left_eye_in_face, right_eye_in_face
     
+    def _find_and_crop_face(self, img):
+        for att in [0, 1, 2]:
+            if att == 0:
+                faces = self.face_detector.detectMultiScale(img, 1.1, 10)
+            elif att == 1:
+                faces = self.face_detector.detectMultiScale(img, 1.3, 5)
+            elif att == 2:
+                faces = self.face_detector.detectMultiScale(img)
+            if len(faces) >= 1:
+                break
+
+        if len(faces) > 0:
+            bbox_face = faces[0]
+            face_x, face_y, face_w, face_h = bbox_face
+            img_crop = img[int(face_y):int(face_y+face_h), int(face_x):int(face_x+face_w)]
+            return img_crop, bbox_face
+        
+        return None, None
+
 
 def exam_face_aligment(face_crop=False, selected_names=None):
     from utils_inspect.sample_images import get_sample_images
