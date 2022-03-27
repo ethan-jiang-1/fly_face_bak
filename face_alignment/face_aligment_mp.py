@@ -1,7 +1,10 @@
 import os
 import cv2
 import numpy as np
-from .face_aligment_base import FaceAligmentBase
+try:
+    from .face_aligment_base import FaceAligmentBase
+except:
+    from face_aligment_base import FaceAligmentBase
 
 
 class FaceAlignemtMp(FaceAligmentBase):
@@ -134,6 +137,7 @@ if __name__ == '__main__':
     #selected_names = ["hsi_image4.jpeg"]
     #selected_names = ["hsi_image1.jpeg"]    
     #selected_names = ["hsi_image8.jpeg"]
+    selected_names = ["icl_image2.jpeg"]
 
     #exam_face_aligment(face_crop=True, selected_names=selected_names)
     exam_face_aligment(face_crop=True, selected_names=selected_names, show_summary=True)

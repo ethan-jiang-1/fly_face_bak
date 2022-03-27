@@ -21,6 +21,8 @@ def get_sample_images_hsi():
 def get_sample_images_ctn():
     return get_sample_images("ctn_")
 
+def get_sample_images_icl():
+    return get_sample_images("icl_")
 
 if __name__ == '__main__':
     paths = get_sample_images_hsi()

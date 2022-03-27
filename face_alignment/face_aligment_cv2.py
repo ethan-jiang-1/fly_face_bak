@@ -2,7 +2,10 @@ import os
 import cv2
 import numpy as np
 import pandas as pd
-from .face_aligment_base import FaceAligmentBase
+try:
+    from .face_aligment_base import FaceAligmentBase
+except:
+    from face_aligment_base import FaceAligmentBase
 
 
 class FaceAlignemtCv2(FaceAligmentBase):
