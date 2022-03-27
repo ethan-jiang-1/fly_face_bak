@@ -30,7 +30,7 @@ class ImgpFaceAligment():
 
         fa.close_detector()
 
-        return fa_ret.img_ratoted_unified, None
+        return fa_ret.img_ratoted_unified, fa_ret
 
 
 def _mark_hair_imgs(src_dir):

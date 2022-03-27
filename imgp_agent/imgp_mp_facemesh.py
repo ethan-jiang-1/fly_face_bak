@@ -79,7 +79,7 @@ class ImgpFacemeshMarker():
             print(image.shape, image.dtype)
         else:
             image = None
-        return image, dt
+        return image, None
 
     @classmethod
     def _inpect_landmarks(cls, image, mp_face_mesh, face_landmarks):

@@ -60,7 +60,7 @@ class ImgpSelfieMarker():
         bg_image[:] = BG_COLOR
         output_image = np.where(condition, image, bg_image)
         print(output_image.shape, output_image.dtype)
-        return output_image, dt
+        return output_image, None
 
 
 def _mark_selfie_imgs(src_dir):

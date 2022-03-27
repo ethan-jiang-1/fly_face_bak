@@ -42,7 +42,7 @@ class ImgpHairMarker():
         hsi = cls.hsi_klass()
         img_cv512 = cv2.resize(image, (512, 512))
         hsi_ret = hsi.process_img_cv512(img_cv512)
-        return hsi_ret.mask_white_sharp, None
+        return hsi_ret.mask_white_sharp, hsi_ret
 
 
 def _mark_hair_imgs(src_dir):
