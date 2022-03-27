@@ -29,16 +29,16 @@ class FaceAlignemtDlib(FaceAligmentBase):
     def detect_face_and_eyes(self, img_org):
         #imags_resized = cv2.resize(img_org, (512, 512))
 
-        slt_face_detection = MpFaceDetection.create_slt_face_detection() 
+        slt_face_detection = MpFaceDetectionHelper.create_slt_face_detection() 
 
         slt_face_detection.reset()
         results = slt_face_detection.process(cv2.cvtColor(img_org, cv2.COLOR_BGR2RGB))
 
-        key_face_detection_result = MpFaceDetection.get_key_dectection_result(results) 
+        key_face_detection_result = MpFaceDetectionHelper.get_key_dectection_result(results) 
 
-        img_face, bbox_face_in_org = MpFaceDetection.get_cropped_img_face(img_org, key_face_detection_result, draw_keypoints=False)
+        img_face, bbox_face_in_org = MpFaceDetectionHelper.get_cropped_img_face(img_org, key_face_detection_result, draw_keypoints=False)
 
-        MpFaceDetection.close_slt_face_detection(slt_face_detection)
+        MpFaceDetectionHelper.close_slt_face_detection(slt_face_detection)
         
         right_eye,  left_eye = self._detect_eyes(img_face)
 
@@ -51,12 +51,12 @@ class FaceAlignemtDlib(FaceAligmentBase):
         rec = dlib.rectangle(0,0,img.shape[0],img.shape[1])
         shape = self.predictor(np.uint8(img),rec) # 注意输入的必须是uint8类型 
 
-        right_eye = (shape.part(36).x, shape.part(36).y)
-        left_eye = (shape.part(45).x, shape.part(45).y)      
+        right_eye = (int((shape.part(36).x + shape.part(39).x)/2), int((shape.part(36).y + shape.part(39).y)/2))
+        left_eye = (int((shape.part(42).x + shape.part(45).x)/2), int((shape.part(42).y + shape.part(45).y)/2))    
         
         return right_eye,  left_eye
 
-class MpFaceDetection():
+class MpFaceDetectionHelper():
     @classmethod
     def create_slt_face_detection(cls):
         import mediapipe as mp
@@ -122,7 +122,7 @@ class MpFaceDetection():
         print(detected_face_bb, detected_face_bb_exp)
         img_detect_face = annotated_image[ny:ny+nh,nx:nx+nw]
 
-        return img_detect_face, detected_face_bb_exp
+        return img_detect_face, (nx, ny, nw, nh)
 
 
 def exam_face_aligment(face_crop=False, selected_names=None, show_summary=False):
