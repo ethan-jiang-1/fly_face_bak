@@ -64,8 +64,8 @@ class ImgpSelfieMarker():
 
 
 def _mark_selfie_imgs(src_dir):
-    from imgp_agent.imgp_common import FileOp
-    filenames = FileOp.find_all_images(src_dir)
+    from imgp_agent.imgp_common import FileHelper
+    filenames = FileHelper.find_all_images(src_dir)
 
     ImgpSelfieMarker.init_imgp()
     for filename in filenames:
@@ -78,7 +78,7 @@ def _mark_selfie_imgs(src_dir):
         if image is None:
             print("not able to mark selfie on", filename)
 
-        FileOp.save_output_image(image, src_dir, filename, "selfie")
+        FileHelper.save_output_image(image, src_dir, filename, "selfie")
 
     ImgpSelfieMarker.close_imgp()
     print("done")

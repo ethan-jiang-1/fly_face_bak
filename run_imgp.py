@@ -4,7 +4,7 @@ from imgp_agent.imgp_face_aligment import ImgpFaceAligment
 from imgp_agent.imgp_mp_selfie import ImgpSelfieMarker
 from imgp_agent.imgp_mp_hair import ImgpHairMarker
 from imgp_agent.imgp_mp_facemesh import ImgpFacemeshMarker
-from imgp_agent.imgp_common import FileOp
+from imgp_agent.imgp_common import FileHelper
 
 class FaceFeatureGen(object):
     def __init__(self):
@@ -26,7 +26,7 @@ class FaceFeatureGen(object):
 def _do_exp_on_dir(src_dir):
     ffg = FaceFeatureGen()
 
-    filenames = FileOp.find_all_images(src_dir)
+    filenames = FileHelper.find_all_images(src_dir)
     #print(filenames)
 
     for filename in filenames:

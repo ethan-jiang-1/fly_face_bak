@@ -99,8 +99,8 @@ class ImgpFacemeshMarker():
         print("len(lms)", len(lms))
 
 def _mark_facemesh_imgs(src_dir):
-    from imgp_agent.imgp_common import FileOp
-    filenames =FileOp.find_all_images(src_dir)
+    from imgp_agent.imgp_common import FileHelper
+    filenames =FileHelper.find_all_images(src_dir)
 
     ImgpFacemeshMarker.init_imgp()
     for filename in filenames:
@@ -113,7 +113,7 @@ def _mark_facemesh_imgs(src_dir):
         if image is None:
             print("not able to mark facemesh on", filename)
 
-        FileOp.save_output_image(image, src_dir, filename, "facemesh")
+        FileHelper.save_output_image(image, src_dir, filename, "facemesh")
 
     ImgpFacemeshMarker.close_imgp()
     print("done")

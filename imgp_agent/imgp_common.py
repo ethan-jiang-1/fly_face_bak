@@ -1,7 +1,8 @@
 import os
 import cv2
+import matplotlib.pyplot as plt
 
-class FileOp(object):
+class FileHelper(object):
     @classmethod
     def find_all_images(cls, src_dir):
         if not os.path.isdir(src_dir):
@@ -27,3 +28,32 @@ class FileOp(object):
             return False
         print("{} saved".format(dst_pathname))
         return True
+
+class PlotHelper(object):
+    @classmethod
+    def plot_img(cls, img, name=None):
+        fig = plt.figure(figsize=(8, 8))
+        ax = fig.add_subplot(1, 1, 1)
+        if name is not None:
+            ax.set_title(name)
+        ax.imshow(img)
+        plt.show()
+
+    @classmethod
+    def plot_imgs(cls, imgs, names=None, horizontal=True):
+        if horizontal:
+            fig = plt.figure(figsize=(14, 6))    
+        else:
+            fig = plt.figure(figsize=(6, 12))        
+        num = len(imgs)
+        
+        for i, img in enumerate(imgs):
+            if horizontal:
+                ax = fig.add_subplot(1, num, i + 1)
+            else:
+                ax = fig.add_subplot(num, 1, i + 1)
+
+            if names is not None:
+                ax.set_title(names[i])
+            ax.imshow(img)
+        plt.show()    

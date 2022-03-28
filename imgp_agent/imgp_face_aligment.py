@@ -52,8 +52,8 @@ class ImgpFaceAligment():
 
 
 def _mark_hair_imgs(src_dir):
-    from imgp_agent.imgp_common import FileOp
-    filenames = FileOp.find_all_images(src_dir)
+    from imgp_agent.imgp_common import FileHelper
+    filenames = FileHelper.find_all_images(src_dir)
 
     ImgpFaceAligment.init_imgp()
     for filename in filenames:
@@ -66,7 +66,7 @@ def _mark_hair_imgs(src_dir):
         if image is None:
             print("not able to mark hair on", filename)
 
-        FileOp.save_output_image(image, src_dir, filename, "aligment_{}".format(USING_FACE_ALIGMENT.lower()))
+        FileHelper.save_output_image(image, src_dir, filename, "aligment_{}".format(USING_FACE_ALIGMENT.lower()))
 
     ImgpFaceAligment.close_imgp()
 
