@@ -15,7 +15,7 @@ def _track_selfie(mp=None, cv2=None):
     
     mp_selfie_segmentation = mp.solutions.selfie_segmentation
 
-    BG_COLOR = (192, 192, 192) # gray
+    SFM_BG_COLOR = (192, 192, 192) # gray
     cap = cv2.VideoCapture(0)
     with mp_selfie_segmentation.SelfieSegmentation(
         model_selection=1) as selfie_segmentation:
@@ -52,7 +52,7 @@ def _track_selfie(mp=None, cv2=None):
             #      bg_image = cv2.GaussianBlur(image,(55,55),0)
             if bg_image is None:
                 bg_image = np.zeros(image.shape, dtype=np.uint8)
-                bg_image[:] = BG_COLOR
+                bg_image[:] = SFM_BG_COLOR
             output_image = np.where(condition, image, bg_image)
 
             cv2.imshow('MediaPipe Selfie Segmentation', output_image)

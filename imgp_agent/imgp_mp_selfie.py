@@ -4,10 +4,10 @@ import os
 import numpy as np
 import mediapipe as mp
 
-SFG_COLOR = (192, 192, 192)
+SFM_FG_COLOR = (192, 192, 192)
 
-#SBG_COLOR = (192, 192, 192)
-SBG_COLOR = (0, 0, 0)
+#SFM_BG_COLOR = (192, 192, 192)
+SFM_BG_COLOR = (0, 0, 0)
 
 #SF_THRESHOLD = 0.1
 SF_THRESHOLD = 0.3
@@ -63,9 +63,9 @@ class ImgpSelfieMarker():
         #      bg_image = cv2.GaussianBlur(image,(55,55),0)
 
         bg_image = np.zeros(image.shape, dtype=np.uint8)
-        bg_image[:] = SBG_COLOR
+        bg_image[:] = SFM_BG_COLOR
         fg_image = np.zeros(image.shape, dtype=np.uint8)
-        fg_image[:] = SFG_COLOR
+        fg_image[:] = SFM_FG_COLOR
 
         output_image = np.where(condition, image, bg_image)
         print(output_image.shape, output_image.dtype)

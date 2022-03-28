@@ -40,8 +40,8 @@ class FaceFeatureGenerator(object):
 
 
 def do_exp():
-    #selected_names = None
-    selected_names = ["hsi_image1.jpeg"]
+    selected_names = None
+    #selected_names = ["hsi_image1.jpeg"]
 
     ffg = FaceFeatureGenerator()
 

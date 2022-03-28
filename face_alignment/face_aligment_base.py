@@ -13,6 +13,8 @@ FA_RESULT = namedtuple('FA_RESULT', 'img_org img_name img_face img_rotated img_r
 FA_TRANSINFO = namedtuple("FA_TRANSINFO", 'img_org_shape bbox_crop img_crop_shape direction angle center_of_eyes distance_of_eyes left_eye_center right_eye_center point_3rd')
 FA_SUM = namedtuple('FA_SUM', 'img_org img_name img_ratoted_unified dt')
 
+FA_BG_COLOR = (192, 192, 192)
+
 def euclidean_distance(a, b):
     x1 = a[0]; y1 = a[1]
     x2 = b[0]; y2 = b[1]
@@ -97,7 +99,7 @@ class ImgTransformAgent():
 
         # Perform the rotation
         M = cv2.getRotationMatrix2D(center, angle, scale)
-        rotated = cv2.warpAffine(image, M, (w, h))
+        rotated = cv2.warpAffine(image, M, (w, h), borderValue=FA_BG_COLOR)
 
         return rotated
 
@@ -157,9 +159,15 @@ class ImgTransformAgent():
         return (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape
 
     @classmethod
+    def _make_np_bg(cls, shape, dtype):
+        img_bg = np.zeros(shape, dtype=dtype)
+        img_bg[:] = FA_BG_COLOR
+        return img_bg
+
+    @classmethod
     def _move_eye_to_center(cls, img_rotated_aligned_eye, center_of_eyes, debug=False):
         (dy0, dyh, dx0, dxw), (sy0, syh, sx0, sxw), img_moved_shape = cls._get_moved_param(img_rotated_aligned_eye.shape, center_of_eyes, debug=debug)
-        img_moved_rotated_center = np.zeros(img_moved_shape, dtype=img_rotated_aligned_eye.dtype)
+        img_moved_rotated_center = cls._make_np_bg(img_moved_shape, img_rotated_aligned_eye.dtype)
         img_src = img_rotated_aligned_eye[sy0:sy0+syh, sx0:sx0+sxw]
         img_moved_rotated_center[dy0:dy0+dyh, dx0:dx0+dxw] = img_src
         return img_moved_rotated_center   
@@ -168,7 +176,7 @@ class ImgTransformAgent():
     def _unifiy_aligned_img(cls, img_moved_rotated_center, distance_of_eyes, debug=False):
         height_input, width_input = img_moved_rotated_center.shape[0], img_moved_rotated_center.shape[1]
         square_size = max(height_input, width_input)
-        img_square = np.zeros((square_size, square_size, img_moved_rotated_center.shape[2]), dtype=img_moved_rotated_center.dtype)
+        img_square = cls._make_np_bg((square_size, square_size, img_moved_rotated_center.shape[2]), img_moved_rotated_center.dtype)
 
         if height_input > width_input:
             width_gap = int((square_size - width_input) /2)
