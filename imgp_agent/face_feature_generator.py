@@ -8,6 +8,7 @@ from imgp_mp_selfie import ImgpSelfieMarker
 from imgp_mp_hair import ImgpHairMarker
 from imgp_mp_facemesh import ImgpFacemeshMarker
 from imgp_common import FileHelper, PlotHelper
+from datetime import datetime
 
 FFA_IMGS = namedtuple('FFA_IMGS', 'img_name img_org img_aligned img_selfie img_facemesh img_hair') 
 
@@ -29,11 +30,14 @@ class FaceFeatureGenerator(object):
         if not os.path.isfile(filename):
             return None 
 
+        d0 = datetime.now()
         img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
         img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, img_facepaint = ImgpFacemeshMarker.mark_face_mesh(img_selfie)
         img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
+        dt = datetime.now() - d0
+        print("total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
         PlotHelper.plot_imgs([img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, img_facepaint, img_hair],
                              names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "hair"])

@@ -3,6 +3,80 @@ import cv2
 import os
 import mediapipe as mp
 import numpy as np
+import math
+
+_RED = (48, 48, 255)
+_GREEN = (48, 255, 48)
+_BLUE = (192, 101, 21)
+_YELLOW = (0, 204, 255)
+_GRAY = (128, 128, 128)
+_PURPLE = (128, 64, 128)
+_PEACH = (180, 229, 255)
+_WHITE = (224, 224, 224)
+
+FMV_FACE_OVAL = (127, 162, 21, 54, 103, 67, 109, 10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234)
+FMV_LEFT_EYE = (382, 398, 384, 385, 386, 387, 388, 466, 263, 263, 249, 390, 373, 374, 380, 381)
+FMV_RIGHT_EYE = (155, 173, 157, 158, 159, 160, 161, 246, 33, 33, 7, 163, 144, 145, 153, 154)
+FMV_LIPS_UPPER = (375, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 61, 146, 91, 181, 84, 17, 314, 405, 321)
+FMV_LIPS_BOTTOM = (310, 415, 324, 318, 402, 317, 14, 87, 178, 88, 95, 78, 78, 191, 80, 81, 82, 13, 312, 311)
+FMV_LEFT_IRIS =(474, 475, 476, 477)
+FMV_RIGHT_IRIS = (470, 471, 472, 469)
+FMV_LEFT_EYEBROW = (300, 293, 334, 296, 295, 282, 283, 276)
+FMV_RIGHT_EYEBROW =(70, 63, 105, 66, 65, 52, 53, 46)
+
+FMC_FACE_OVAL = _WHITE
+FMC_LEFT_EYE = _PURPLE
+FMC_RIGHT_EYE = _PURPLE
+FMC_LIPS_UPPER = _RED
+FMC_LIPS_BOTTOM = _PEACH
+FMC_LEFT_IRIS = _BLUE
+FMC_RIGHT_IRIS = _BLUE
+FMC_LEFT_EYEBROW = _GREEN
+FMC_RIGHT_EYEBROW = _GREEN
+
+class FaceMeshConnections():
+    @classmethod
+    def check_mesh_connections(cls, connections):
+        cts_ordered = []
+        cts = list(connections)
+
+        ct = cts.pop()
+        cts_ordered.append(ct)
+
+        while len(cts) != 0:
+            vt1 = cts_ordered[-1][1]
+
+            added = False
+            for idx, ct in enumerate(cts):
+                if ct[0] == vt1 or ct[1] == vt1:
+                    cts_ordered.append(cts.pop(idx))
+                    added = True
+                    break
+            if not added:
+                vt0= cts_ordered[-1][0]
+                for idx, ct in enumerate(cts):
+                    if ct[0] == vt0 or ct[1] == vt0:
+                        cts_ordered.append(cts.pop(idx))
+                        added = True
+                        break                
+        
+            if not added:
+                cts_ordered.append((-1, -1))
+                cts_ordered.append(cts.pop()) 
+
+        vts = []
+        vt = []
+        vts.append(vt)
+        for ct in cts_ordered:
+            ct0 = ct[0]
+            if vt == -1:
+                vt = []
+                vts.append(ct0)
+            else:
+                vt.append(ct0)
+        for vt in vts:
+            print(vt)
+        return vts
 
 class ImgpFacemeshMarker():
     slt_facemesh = None 
@@ -95,6 +169,34 @@ class ImgpFacemeshMarker():
         return image
 
     @classmethod
+    def _normalized_to_pixel_coordinates(cls, normalized_x, normalized_y, image_width, image_height):
+        # Checks if the float value is between 0 and 1.
+        def is_valid_normalized_value(value: float) -> bool:
+            return (value > 0 or math.isclose(0, value)) and (value < 1 or math.isclose(1, value))
+
+        if not (is_valid_normalized_value(normalized_x) and
+                is_valid_normalized_value(normalized_y)):
+            # TODO: Draw coordinates even if it's outside of the image bounds.
+            return None, None
+        x_px = min(math.floor(normalized_x * image_width), image_width - 1)
+        y_px = min(math.floor(normalized_y * image_height), image_height - 1)
+        return x_px, y_px
+
+    @classmethod
+    def _draw_ploypoints(cls, image, face_landmarks, fmv_vertices, fmc_color):
+        image_width, image_height = image.shape[1], image.shape[0]
+
+        contour = []
+        llm = face_landmarks.landmark
+        for vt in fmv_vertices:
+            px, py = cls._normalized_to_pixel_coordinates(llm[vt].x, llm[vt].y, image_width, image_height) 
+            if px is not None and py is not None:
+                contour.append((px, py))
+
+        np_contour = np.array(contour)
+        cv2.fillConvexPoly(image, np_contour, fmc_color) 
+
+    @classmethod
     def _paint_meshes(cls, image, results):
         if results.multi_face_landmarks is None or len(results.multi_face_landmarks) == 0:
             print("no face_landmarks found")
@@ -108,24 +210,40 @@ class ImgpFacemeshMarker():
         print("len(results.multi_face_landmarks)", len(results.multi_face_landmarks))
         for face_landmarks in results.multi_face_landmarks:
             cls._inpect_landmarks(image, mp_face_mesh, face_landmarks)
+
+            cls._draw_ploypoints(image, face_landmarks, FMV_FACE_OVAL, FMC_FACE_OVAL)
+            
+            cls._draw_ploypoints(image, face_landmarks, FMV_LEFT_EYE, FMC_LEFT_EYE)
+            cls._draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYE, FMC_RIGHT_EYE)
+
+            cls._draw_ploypoints(image, face_landmarks, FMV_LEFT_IRIS, FMC_LEFT_IRIS)
+            cls._draw_ploypoints(image, face_landmarks, FMV_RIGHT_IRIS, FMC_RIGHT_IRIS)
+
+            cls._draw_ploypoints(image, face_landmarks, FMV_LIPS_UPPER, FMC_LIPS_UPPER)
+            cls._draw_ploypoints(image, face_landmarks, FMV_LIPS_BOTTOM, FMC_LIPS_BOTTOM)
+
+            cls._draw_ploypoints(image, face_landmarks, FMV_LEFT_EYEBROW, FMC_LEFT_EYEBROW)
+            cls._draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYEBROW, FMC_RIGHT_EYEBROW)
+
+            ds_tesselation = mp_drawing_styles.DrawingSpec(color=_GRAY, thickness=1)
             mp_drawing.draw_landmarks(
                 image=image,
                 landmark_list=face_landmarks,
                 connections=mp_face_mesh.FACEMESH_TESSELATION,
                 landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style())
-            mp_drawing.draw_landmarks(
-                image=image,
-                landmark_list=face_landmarks,
-                connections=mp_face_mesh.FACEMESH_CONTOURS,
-                landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
-            mp_drawing.draw_landmarks(
-                image=image,
-                landmark_list=face_landmarks,
-                connections=mp_face_mesh.FACEMESH_IRISES,
-                landmark_drawing_spec=None,
-                connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
+                connection_drawing_spec=ds_tesselation)
+            # mp_drawing.draw_landmarks(
+            #     image=image,
+            #     landmark_list=face_landmarks,
+            #     connections=mp_face_mesh.FACEMESH_CONTOURS,
+            #     landmark_drawing_spec=None,
+            #     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
+            # mp_drawing.draw_landmarks(
+            #     image=image,
+            #     landmark_list=face_landmarks,
+            #     connections=mp_face_mesh.FACEMESH_IRISES,
+            #     landmark_drawing_spec=None,
+            #     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
         print(image.shape, image.dtype)
         return image
 
@@ -134,8 +252,9 @@ class ImgpFacemeshMarker():
         lms = face_landmarks.landmark
         print("len(lms)", len(lms))
 
+
 def _mark_facemesh_imgs(src_dir, selected_names=None):
-    from imgp_agent.imgp_common import FileHelper
+    from imgp_agent.imgp_common import FileHelper, PlotHelper
     filenames =FileHelper.find_all_images(src_dir)
 
     ImgpFacemeshMarker.init_imgp()
@@ -156,6 +275,7 @@ def _mark_facemesh_imgs(src_dir, selected_names=None):
 
         FileHelper.save_output_image(image_m, src_dir, filename, "facemesh")
         FileHelper.save_output_image(image_p, src_dir, filename, "paintmesh")
+        PlotHelper.plot_img(image_p)
 
     ImgpFacemeshMarker.close_imgp()
     print("done")
@@ -180,11 +300,18 @@ def do_exp():
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
 
     #selected_names = None
-    selected_names = ["hsi_image1.jpeg"]
+    #selected_names = ["hsi_image1.jpeg"]
+    #selected_names = ["hsi_image4.jpeg"]
+    selected_names = ["icl_image5.jpeg"]
        
     _mark_facemesh_imgs(src_dir, selected_names=selected_names)
 
 
+def do_check_mesh_connections():
+    mp_face_mesh = mp.solutions.face_mesh
+    FaceMeshConnections.check_mesh_connections(mp_face_mesh.FACEMESH_RIGHT_EYEBROW)
+
 if __name__ == '__main__':
     _add_root_in_sys_path()
     do_exp()
+    #do_check_mesh_connections()
