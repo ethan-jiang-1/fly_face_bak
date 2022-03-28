@@ -40,13 +40,17 @@ class PlotHelper(object):
         plt.show()
 
     @classmethod
-    def plot_imgs(cls, imgs, names=None, horizontal=True):
+    def plot_imgs(cls, imgs, names=None, title=None, horizontal=True):
         if horizontal:
             fig = plt.figure(figsize=(14, 6))    
         else:
-            fig = plt.figure(figsize=(6, 12))        
+            fig = plt.figure(figsize=(6, 12))
+        if title is not None:
+            ax = plt.gca()
+            ax.set_axis_off()
+            ax.set_title(title)
+
         num = len(imgs)
-        
         for i, img in enumerate(imgs):
             if horizontal:
                 ax = fig.add_subplot(1, num, i + 1)

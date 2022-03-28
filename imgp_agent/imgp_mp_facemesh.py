@@ -17,26 +17,25 @@ _WHITE = (224, 224, 224)
 FMV_FACE_OVAL = (127, 162, 21, 54, 103, 67, 109, 10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234)
 FMV_LEFT_EYE = (382, 398, 384, 385, 386, 387, 388, 466, 263, 263, 249, 390, 373, 374, 380, 381)
 FMV_RIGHT_EYE = (155, 173, 157, 158, 159, 160, 161, 246, 33, 33, 7, 163, 144, 145, 153, 154)
-
 FMV_MOUTH_INNER = (310, 415, 308, 324, 318, 402, 317, 14, 87, 178, 88, 95, 78, 191, 80, 81, 82, 13, 312, 311)
 FMV_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
-
 FMV_LEFT_IRIS =(474, 475, 476, 477)
 FMV_RIGHT_IRIS = (470, 471, 472, 469)
 FMV_LEFT_EYEBROW = (300, 293, 334, 296, 336,  285, 295, 282, 283, 276)
 FMV_RIGHT_EYEBROW =(70, 63, 105, 66, 107, 55, 65, 52, 53, 46)
+FMV_NOSE = (8, 417, 465,  343, 437, 420, 279, 278, 439, 438, 457, 274, 1, 44, 237, 218, 219, 48, 49, 198, 217, 114, 245, 193)
 
-FMC_FACE_OVAL = _WHITE
-FMC_LEFT_EYE = _PURPLE
-FMC_RIGHT_EYE = _PURPLE
 
-FMC_MOUTH_INNER = _PEACH
-FMC_MOUTH_OUTTER = _RED
-
-FMC_LEFT_IRIS = _BLUE
-FMC_RIGHT_IRIS = _BLUE
-FMC_LEFT_EYEBROW = _GREEN
-FMC_RIGHT_EYEBROW = _GREEN
+FMC_FACE_OVAL = (256, 256, 0)
+FMC_LEFT_EYE = (0, 0, 32)
+FMC_RIGHT_EYE = (0, 0, 32)
+FMC_MOUTH_INNER = (0, 0, 64)
+FMC_MOUTH_OUTTER = (0, 0, 160)
+FMC_LEFT_IRIS = (0, 0, 196)
+FMC_RIGHT_IRIS = (0, 0, 196)
+FMC_LEFT_EYEBROW = (0, 0, 255)
+FMC_RIGHT_EYEBROW = (0, 0, 255)
+FMC_NOSE = (0, 0, 128)
 
 class FaceMeshConnections():
     @classmethod
@@ -217,8 +216,8 @@ class ImgpFacemeshMarker():
 
             cls._draw_ploypoints(image, face_landmarks, FMV_FACE_OVAL, FMC_FACE_OVAL)
 
-            landmark_ds = mp_drawing_styles.DrawingSpec(color=_RED, thickness=1, circle_radius=1)
-            connection_ds = mp_drawing_styles.DrawingSpec(color=_GRAY, thickness=1)
+            landmark_ds = mp_drawing_styles.DrawingSpec(color=_RED, thickness=1, circle_radius=2)
+            connection_ds = mp_drawing_styles.DrawingSpec(color=FMC_FACE_OVAL, thickness=1)
             mp_drawing.draw_landmarks(
                 image=image,
                 landmark_list=face_landmarks,
@@ -237,6 +236,7 @@ class ImgpFacemeshMarker():
 
             cls._draw_ploypoints(image, face_landmarks, FMV_LEFT_EYEBROW, FMC_LEFT_EYEBROW)
             cls._draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYEBROW, FMC_RIGHT_EYEBROW)
+            cls._draw_ploypoints(image, face_landmarks, FMV_NOSE, FMC_NOSE)
 
             # ds_tesselation = mp_drawing_styles.DrawingSpec(color=_GRAY, thickness=1)
             # mp_drawing.draw_landmarks(

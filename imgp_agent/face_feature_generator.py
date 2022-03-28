@@ -40,7 +40,8 @@ class FaceFeatureGenerator(object):
         print("total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
         PlotHelper.plot_imgs([img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, img_facepaint, img_hair],
-                             names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "hair"])
+                             names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "hair"],
+                             title=os.path.basename(filename))
 
 
 def do_exp():
