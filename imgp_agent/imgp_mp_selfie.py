@@ -10,19 +10,19 @@ class ImgpSelfieMarker():
     
     @classmethod
     def init_imgp(cls):
-        if cls.slt_selfie is not None:
-            return
-
-        from utils_inspect.inspect_solution import inspect_solution
-        mp_selfie_segmentation = mp.solutions.selfie_segmentation
-        cls.slt_selfie = mp_selfie_segmentation.SelfieSegmentation(model_selection=1) 
-        inspect_solution(cls.slt_selfie)
+        if cls.slt_selfie is None:
+            from utils_inspect.inspect_solution import inspect_solution
+            mp_selfie_segmentation = mp.solutions.selfie_segmentation
+            cls.slt_selfie = mp_selfie_segmentation.SelfieSegmentation(model_selection=1) 
+            inspect_solution(cls.slt_selfie)
+        print("ImgpSelfieMarker inited")
 
     @classmethod
     def close_imgp(cls):
         if cls.slt_selfie is not None:
             cls.slt_selfie.close()
             cls.slt_selfie = None
+        print("ImgpSelfieMarker closed")
 
     @classmethod
     def mark_selfie(cls, image):

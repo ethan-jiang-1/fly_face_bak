@@ -8,19 +8,19 @@ class ImgpHairMarker():
 
     @classmethod
     def init_imgp(cls):
-        if cls.hsi_klass is not None:
-            return 
-    
-        if not cls.has_tflite_custom_installed():
-            print("please go to hsi_tflite_interpeter foloder to install customized tflite-runtime-hsi")
-            raise ValueError("no tflite-runtime-hsi installed")
-        from hsi_tflite_interpeter.tflite_hair_segmentation import hair_segmentation_interpeter
-        cls.hsi_klass = hair_segmentation_interpeter.HairSegmentationInterpreter
+        if cls.hsi_klass is None:
+            if not cls.has_tflite_custom_installed():
+                print("please go to hsi_tflite_interpeter foloder to install customized tflite-runtime-hsi")
+                raise ValueError("no tflite-runtime-hsi installed")
+            from hsi_tflite_interpeter.tflite_hair_segmentation import hair_segmentation_interpeter
+            cls.hsi_klass = hair_segmentation_interpeter.HairSegmentationInterpreter
+        print("ImgpHairMarker inited")
 
     @classmethod
     def close_imgp(cls):
         if cls.hsi_klass is not None:
             cls.hsi_klass = None
+        print("ImgpHairMarker closed")
 
     @classmethod
     def has_tflite_custom_installed(cls):

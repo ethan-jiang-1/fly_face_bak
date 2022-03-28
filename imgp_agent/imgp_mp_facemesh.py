@@ -8,24 +8,23 @@ class ImgpFacemeshMarker():
 
     @classmethod
     def init_imgp(cls):
-        if cls.slt_facemesh is not None:
-            return
-
-        from utils_inspect.inspect_solution import inspect_solution
-        mp_face_mesh = mp.solutions.face_mesh
-        cls.slt_facemesh = mp_face_mesh.FaceMesh(
-            max_num_faces=1,
-            refine_landmarks=True,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5) 
-        inspect_solution(cls.slt_facemesh)
-        return cls.slt_facemesh
+        if cls.slt_facemesh is None:
+            from utils_inspect.inspect_solution import inspect_solution
+            mp_face_mesh = mp.solutions.face_mesh
+            cls.slt_facemesh = mp_face_mesh.FaceMesh(
+                max_num_faces=1,
+                refine_landmarks=True,
+                min_detection_confidence=0.5,
+                min_tracking_confidence=0.5) 
+            inspect_solution(cls.slt_facemesh)
+        print("ImgpFacemeshMarker inited")
 
     @classmethod
     def close_imgp(cls):
         if cls.slt_facemesh is not None:
             cls.slt_facemesh.close()
             cls.slt_facemesh = None
+        print("ImgpFacemeshMarker closed")
 
     @classmethod
     def mark_face_mesh(cls, image):

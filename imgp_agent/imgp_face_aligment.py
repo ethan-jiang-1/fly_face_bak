@@ -3,32 +3,34 @@
 import os
 import cv2
 
-#USING_FACE_ALIGMENT = "MP"  
+USING_FACE_ALIGMENT = "MP"  
 #USING_FACE_ALIGMENT = "DLIB" 
-USING_FACE_ALIGMENT = "CV2"
+#USING_FACE_ALIGMENT = "CV2"
 
 class ImgpFaceAligment():
     fal_klass = None 
 
     @classmethod
     def init_imgp(cls):
-        if cls.fal_klass is not None:
-            return
-        if USING_FACE_ALIGMENT == "MP": 
-            from face_alignment.face_aligment_mp import FaceAlignemtMp    
-            cls.fal_klass = FaceAlignemtMp
-        elif USING_FACE_ALIGMENT == "DLIB":
-            from face_alignment.face_aligment_dlib import FaceAlignemtDlib  
-            cls.fal_klass = FaceAlignemtDlib
-        elif USING_FACE_ALIGMENT == "CV2":
-            from face_alignment.face_aligment_cv2 import FaceAlignemtCv2  
-            cls.fal_klass = FaceAlignemtCv2           
-        print("Using FaceAlignment", cls.fal_klass)           
+        if cls.fal_klass is None:
+            cls.fal_klass = cls._pickup_face_klass()
+        print("ImgpFaceAligment: inited,  Using FaceAlignment", cls.fal_klass)           
 
     @classmethod
     def close_imgp(cls):
         if cls.fal_klass is not None:
             cls.fal_klass = None
+        print("ImgpFaceAligment: closed")   
+
+    @classmethod
+    def _pickup_face_klass(cls):
+        if USING_FACE_ALIGMENT == "MP": 
+            from face_alignment.face_aligment_mp import FaceAlignemtMp as FaceAligment  
+        elif USING_FACE_ALIGMENT == "DLIB":
+            from face_alignment.face_aligment_dlib import FaceAlignemtDlib as FaceAligment   
+        elif USING_FACE_ALIGMENT == "CV2":
+            from face_alignment.face_aligment_cv2 import FaceAlignemtCv2 as FaceAligment
+        return FaceAligment  
 
     @classmethod
     def make_aligment(cls, image):
