@@ -31,15 +31,18 @@ class FaceFeatureGenerator(object):
 
         img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
         img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        img_facemesh, _ = ImgpFacemeshMarker.mark_face_mesh(img_selfie)
-        img_hair, _ = ImgpHairMarker.mark_hair(img_selfie)
+        img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
+        img_facemesh, img_facepaint = ImgpFacemeshMarker.mark_face_mesh(img_selfie)
+        img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
 
-        PlotHelper.plot_imgs([img_org, img_aligned, img_selfie, img_facemesh, img_hair],
-                             names = ["org", "aligned", "selfie", "facemesh", "hair"])
+        PlotHelper.plot_imgs([img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, img_facepaint, img_hair],
+                             names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "hair"])
 
 
 def do_exp():
+    #selected_names = None
+    selected_names = ["hsi_image1.jpeg"]
+
     ffg = FaceFeatureGenerator()
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
@@ -47,6 +50,11 @@ def do_exp():
 
     filenames = FileHelper.find_all_images(src_dir)
     for filename in filenames:
+        if selected_names is not None:
+            bname = os.path.basename(filename)
+            if bname not in selected_names:
+                continue
+
         ffg.process(filename) 
 
     del ffg 

@@ -4,6 +4,13 @@ import os
 import numpy as np
 import mediapipe as mp
 
+SFG_COLOR = (192, 192, 192)
+
+#SBG_COLOR = (192, 192, 192)
+SBG_COLOR = (0, 0, 0)
+
+#SF_THRESHOLD = 0.1
+SF_THRESHOLD = 0.3
 
 class ImgpSelfieMarker():
     slt_selfie = None 
@@ -48,19 +55,23 @@ class ImgpSelfieMarker():
         # Draw selfie segmentation on the background image.
         # To improve segmentation around boundaries, consider applying a joint
         # bilateral filter to "results.segmentation_mask" with "image".
-        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.1
+        condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > SF_THRESHOLD
         # The background can be customized.
         #   a) Load an image (with the same width and height of the input image) to
         #      be the background, e.g., bg_image = cv2.imread('/path/to/image/file')
         #   b) Blur the input image by applying image filtering, e.g.,
         #      bg_image = cv2.GaussianBlur(image,(55,55),0)
 
-        BG_COLOR = (192, 192, 192) # gray
         bg_image = np.zeros(image.shape, dtype=np.uint8)
-        bg_image[:] = BG_COLOR
+        bg_image[:] = SBG_COLOR
+        fg_image = np.zeros(image.shape, dtype=np.uint8)
+        fg_image[:] = SFG_COLOR
+
         output_image = np.where(condition, image, bg_image)
         print(output_image.shape, output_image.dtype)
-        return output_image, None
+        mask_image = np.where(condition, fg_image, bg_image)
+
+        return output_image, mask_image
 
 
 def _mark_selfie_imgs(src_dir):
