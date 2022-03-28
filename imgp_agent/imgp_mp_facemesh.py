@@ -27,18 +27,14 @@ class ImgpFacemeshMarker():
         print("ImgpFacemeshMarker closed")
 
     @classmethod
-    def mark_face_mesh(cls, image):
+    def mark_face_mesh(cls, img_org, paint_region=False):
         if cls.slt_facemesh is None:
             cls.init_imgp()
+
+        image = img_org.copy()
+
         slt_facemesh = cls.slt_facemesh
         slt_facemesh.reset()
-
-        mp_face_mesh = mp.solutions.face_mesh
-        mp_drawing = mp.solutions.drawing_utils
-        mp_drawing_styles = mp.solutions.drawing_styles
-
-        #drawing_spec = mp_drawing.DrawingSpec(thickness=1, circle_radius=1)
-        #print(drawing_spec)
 
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.
@@ -53,6 +49,19 @@ class ImgpFacemeshMarker():
         # Draw the face mesh annotations on the image.
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+
+        if paint_region:
+            image_with_paint = cls._paint_meshes(image, results)
+            return image_with_paint, None 
+        else:
+            image_with_mesh = cls._draw_meshes(image, results)
+            return image_with_mesh, None 
+
+    @classmethod
+    def _draw_meshes(cls, image, results):
+        mp_face_mesh = mp.solutions.face_mesh
+        mp_drawing = mp.solutions.drawing_utils
+        mp_drawing_styles = mp.solutions.drawing_styles
         if results.multi_face_landmarks:
             print("len(results.multi_face_landmarks)", len(results.multi_face_landmarks))
             for face_landmarks in results.multi_face_landmarks:
@@ -78,7 +87,11 @@ class ImgpFacemeshMarker():
             print(image.shape, image.dtype)
         else:
             image = None
-        return image, None
+        return image
+
+    @classmethod
+    def _paint_meshes(cls, image, results):
+        return image
 
     @classmethod
     def _inpect_landmarks(cls, image, mp_face_mesh, face_landmarks):

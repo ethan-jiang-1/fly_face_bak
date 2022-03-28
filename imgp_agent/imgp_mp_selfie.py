@@ -25,7 +25,7 @@ class ImgpSelfieMarker():
         print("ImgpSelfieMarker closed")
 
     @classmethod
-    def mark_selfie(cls, image):
+    def fliter_selfie(cls, image):
         if cls.slt_selfie is None:
             cls.init_imgp()
         
@@ -74,7 +74,7 @@ def _mark_selfie_imgs(src_dir):
             print("not image file", filename)
             continue
 
-        image, _ = ImgpSelfieMarker.mark_selfie(image)
+        image, _ = ImgpSelfieMarker.fliter_selfie(image)
         if image is None:
             print("not able to mark selfie on", filename)
 

@@ -2,6 +2,7 @@
 
 import os
 import cv2
+import sys
 
 USING_FACE_ALIGMENT = "MP"  
 #USING_FACE_ALIGMENT = "DLIB" 
@@ -24,6 +25,9 @@ class ImgpFaceAligment():
 
     @classmethod
     def _pickup_face_klass(cls):
+        dir_parent = os.path.dirname(os.path.dirname(__file__))
+        if dir_parent not in sys.path:
+            sys.path.append(dir_parent)
         if USING_FACE_ALIGMENT == "MP": 
             from face_alignment.face_aligment_mp import FaceAlignemtMp as FaceAligment  
         elif USING_FACE_ALIGMENT == "DLIB":
