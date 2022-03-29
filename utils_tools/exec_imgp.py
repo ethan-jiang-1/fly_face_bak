@@ -1,5 +1,22 @@
 import os
 
+def _get_root_dir():
+    import os 
+
+    dir_this = os.path.dirname(__file__)
+    dir_root = os.path.dirname(dir_this)
+    return dir_root
+
+def _add_root_in_sys_path():
+    import sys 
+
+    dir_root = _get_root_dir()
+    if dir_root not in sys.path:
+        sys.path.append(dir_root)
+
+_add_root_in_sys_path()
+
+
 from imgp_agent.imgp_face_aligment import ImgpFaceAligment
 from imgp_agent.imgp_mp_selfie import ImgpSelfieMarker
 from imgp_agent.imgp_mp_hair import ImgpHairMarker
@@ -36,7 +53,7 @@ def _do_exp_on_dir(src_dir):
 
 
 def do_exp():
-    dir_root = os.path.dirname(__file__)
+    dir_root = _get_root_dir()
 
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
