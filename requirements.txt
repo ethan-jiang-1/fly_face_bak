@@ -1,3 +1,6 @@
+-e git+ssh://git@github.com/ethan-jiang-1/fly_face.git@caa25f245ea61a8bd08e104b9868caa3ff0b27a3#egg=tflite_runtime_hsi&subdirectory=hsi_tflite_interpeter/tflite_custom.macos
+Pillow==9.0.1
+PySimpleGUI==4.57.0
 absl-py==1.0.0
 argcomplete==1.12.3
 attrs==21.4.0
