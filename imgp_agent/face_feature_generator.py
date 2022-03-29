@@ -38,7 +38,10 @@ class FaceFeatureGenerator(object):
         d0 = datetime.now()
         img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img_org is None:
-            print("ERROR: failed to load image file {}".format(filename))
+            if not cv2.haveImageReader(filename):
+                print("ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
+            else:
+                print("ERROR: failed to load image file {}".format(filename))
             return None, None, None, None
 
         img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org)
