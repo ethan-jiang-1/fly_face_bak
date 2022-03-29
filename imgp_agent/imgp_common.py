@@ -53,7 +53,8 @@ class PlotHelper(object):
 
             if names is not None:
                 ax.set_title(names[i])
-            ax.imshow(img)
+            if img is not None:
+                ax.imshow(img)
         plt.show()    
 
     @classmethod
@@ -70,7 +71,8 @@ class PlotHelper(object):
 
             if names is not None:
                 ax.set_title(names[i])
-            ax.imshow(img)
+            if img is not None:
+                ax.imshow(img)
         plt.show()    
 
     @classmethod
@@ -89,6 +91,7 @@ class PlotHelper(object):
 
             if names is not None:
                 ax.set_title(names[i])
-            ax.imshow(img)
+            if img is not None:
+                ax.imshow(img)
         plt.show()    
 

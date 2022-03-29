@@ -45,8 +45,8 @@ class FaceFeatureGenerator(object):
         basename = os.path.basename(filename)
         print("total inference time: for {}: {:.3f}".format(basename, dt.total_seconds()))
 
-        imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, img_hair]
-        names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "hair"]
+        imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, fme_result.img_facebeard, img_hair]
+        names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "beard", "hair"]
         title = os.path.basename(filename)
         if show:
             PlotHelper.plot_imgs_grid(imgs, names, title=basename)
