@@ -22,7 +22,7 @@ class HairSegmentationInterpreter(object):
             return ipt
         except Exception as ex:
             print("Exception occured", ex)
-            return None
+            raise ex 
 
     def _get_model_pathname(self):
         this_dir = os.path.dirname(__file__)
