@@ -39,6 +39,13 @@ class FaceShapekeyComparetor(object):
 
             d0 = datetime.now()
             img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
+            if img_org is None:
+                if not cv2.haveImageReader(filename):
+                    print("ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
+                else:
+                    print("ERROR: failed to load image file {}".format(filename))
+                continue
+
             img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
             img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
             img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
