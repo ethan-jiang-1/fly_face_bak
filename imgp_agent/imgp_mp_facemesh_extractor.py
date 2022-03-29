@@ -38,7 +38,7 @@ class ImgpFacemeshExtractor():
 
         img_facemesh = cls._draw_meshes(image, mesh_results)
         img_facepaint = cls._paint_meshes(image, mesh_results)
-        img_facebeard = cls._locate_beard(image, mesh_results)
+        img_facebeard = cls._locate_beard(img_org, mesh_results)
 
         fme_result = FME_RESULT(img_org=img_org,
                                 img_facemesh=img_facemesh,
@@ -105,13 +105,14 @@ def _mark_facemesh_imgs(src_dir, selected_names=None):
             print("not image file", filename)
             continue
 
-        image_m, image_p = ImgpFacemeshExtractor.extract_mesh_features(image)
+        image_m, fme_result = ImgpFacemeshExtractor.extract_mesh_features(image)
         if image_m is None:
             print("not able to mark facemesh on", filename)
 
         FileHelper.save_output_image(image_m, src_dir, filename, "facemesh")
-        FileHelper.save_output_image(image_p, src_dir, filename, "paintmesh")
-        PlotHelper.plot_img(image_p)
+        FileHelper.save_output_image(fme_result.img_facepaint, src_dir, filename, "paintmesh")
+        FileHelper.save_output_image(fme_result.img_facebeard, src_dir, filename, "bread")
+        PlotHelper.plot_imgs([fme_result.img_facepaint, fme_result.img_facebeard])
 
     ImgpFacemeshExtractor.close_imgp()
     print("done")
