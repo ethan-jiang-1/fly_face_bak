@@ -15,6 +15,8 @@ FA_SUM = namedtuple('FA_SUM', 'img_org img_name img_ratoted_unified dt')
 
 FA_BG_COLOR = (192, 192, 192)
 
+UNIFIED_OFFSET_EYE_RATIO = 2.4  
+
 def euclidean_distance(a, b):
     x1 = a[0]; y1 = a[1]
     x2 = b[0]; y2 = b[1]
@@ -173,30 +175,49 @@ class ImgTransformAgent():
         return img_moved_rotated_center   
 
     @classmethod
-    def _unifiy_aligned_img(cls, img_moved_rotated_center, distance_of_eyes, debug=False):
+    def _create_square_img_to_crop(cls, img_moved_rotated_center, distance_of_eyes):
         height_input, width_input = img_moved_rotated_center.shape[0], img_moved_rotated_center.shape[1]
-        square_size = max(height_input, width_input)
+
+        offset_to_eye_center = int(UNIFIED_OFFSET_EYE_RATIO * distance_of_eyes + 0.5)
+        hw_max = max(height_input, width_input)
+        square_size = max(hw_max,  offset_to_eye_center * 2)    
+
+        int((square_size / 2) - offset_to_eye_center)
         img_square = cls._make_np_bg((square_size, square_size, img_moved_rotated_center.shape[2]), img_moved_rotated_center.dtype)
 
-        if height_input > width_input:
-            width_gap = int((square_size - width_input) /2)
-            img_square[ :, width_gap:width_gap + width_input] = img_moved_rotated_center
-        elif width_input > height_input:
-            height_gap = int((square_size - height_input) /2)
-            img_square[ height_gap: height_gap + height_input, :] = img_moved_rotated_center
+        if offset_to_eye_center * 2 < hw_max:
+            if height_input > width_input:
+                width_gap = int((square_size - width_input) /2)
+                img_square[ :, width_gap:width_gap + width_input] = img_moved_rotated_center
+            elif width_input > height_input:
+                height_gap = int((square_size - height_input) /2)
+                img_square[ height_gap: height_gap + height_input, :] = img_moved_rotated_center
+            else:
+                img_square = img_moved_rotated_center
         else:
-            img_square = img_moved_rotated_center
+            if height_input > width_input:
+                width_gap = int((square_size - width_input) /2)
+                heigh_gap = int((square_size - height_input) / 2)
+                img_square[heigh_gap: heigh_gap+height_input, width_gap:width_gap + width_input] = img_moved_rotated_center
+            elif width_input > height_input:
+                height_gap = int((square_size - height_input) /2)
+                width_gap = int((square_size - width_input) /2)
+                img_square[ height_gap: height_gap + height_input, width_gap:width_gap + width_input] = img_moved_rotated_center
+            else:
+                img_square = img_moved_rotated_center            
 
-        #scale_ration = float(distance_of_eyes / FA_EYE_DIS)
-        #scale_size = int(scale_ration * 512)
-        #img_square_resized = cv2.resize(img_square, (scale_size, scale_size))
-        #print("img_square_resized.shape", img_square_resized.shape)
+        return img_square, offset_to_eye_center
 
-        off_center = 2.4 * distance_of_eyes
-        x0 = int((square_size / 2) - off_center)
+    @classmethod
+    def _unifiy_aligned_img(cls, img_moved_rotated_center, distance_of_eyes, debug=False):
+
+        img_square, offset_to_eye_center = cls._create_square_img_to_crop(img_moved_rotated_center, distance_of_eyes)
+        square_size = img_square.shape[0]
+
+        x0 = int((square_size / 2) - offset_to_eye_center)
         if x0 < 0:
             x0 = 0
-        xw = int(2 * off_center)
+        xw = int(2 * offset_to_eye_center)
         if xw > square_size:
             xw = square_size
 
@@ -247,9 +268,9 @@ class FaceAligmentBase(ABC):
 
     def align_face(self, img_org, img_name=None):
         d0 = datetime.now()
-        img_raw = img_org.copy()
+        img_raw_center = self.crop_center_img(img_org)
         
-        bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop = self.detect_face_and_eyes(img_raw)
+        bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop = self.detect_face_and_eyes(img_raw_center)
 
         if img_crop is None:
             return FA_RESULT(img_org=img_org,
@@ -268,13 +289,13 @@ class FaceAligmentBase(ABC):
                               dt=datetime.now() - d0) 
         
         #rotate image
-        fti = ImgTransformAgent.cal_transform_info(img_org, bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop)
+        fti = ImgTransformAgent.cal_transform_info(img_raw_center, bbox_crop_in_org, img_crop, left_eye_in_crop, right_eye_in_crop)
         if self.debug:
             ImgTransformAgent.plot_transinfo_keypoints(img_crop, fti)
 
-        img_rotated = ImgTransformAgent.tranform_to_img_rotated(img_raw, fti, debug=self.debug)
+        img_rotated = ImgTransformAgent.tranform_to_img_rotated(img_raw_center, fti, debug=self.debug)
 
-        img_ratoted_unified = ImgTransformAgent.transfer_to_img_unified(img_raw, fti, debug=self.debug)
+        img_ratoted_unified = ImgTransformAgent.transfer_to_img_unified(img_raw_center, fti, debug=self.debug)
 
         dt = dt=datetime.now() - d0
         print("inference time: {:.3f}".format(dt.total_seconds()))
@@ -284,6 +305,20 @@ class FaceAligmentBase(ABC):
                          img_rotated=img_rotated, 
                          img_ratoted_unified=img_ratoted_unified,
                          dt=dt)
+
+    def crop_center_img(self, img_org):
+        height, width = img_org.shape[0], img_org.shape[1]
+        hw_ratio = height / width
+        if hw_ratio > 0.5 and hw_ratio < 2:
+            return img_org.copy()
+
+        if height > width:
+            img_center = np.array((width, width, img_org.shape[2]), dtype=img_org.dtype)
+            img_center = img_org[int((height-width) /2): width, : ]
+        else:
+            img_center = np.array((height, height, img_org.shape[2]), dtype=img_org.dtype)
+            img_center = img_org[:,int((width-height) /2): height]
+        return img_center
 
     def plot_fa_result(self, fa_ret, img_name):
         if fa_ret is None:
