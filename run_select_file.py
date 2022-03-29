@@ -2,7 +2,7 @@ from turtle import color
 import PySimpleGUI as sg
 from numpy import pad
 
-from face_shapekey_comparetor import FaceShapekeyComparetor
+from imgp_agent.face_shapekey_comparetor import FaceShapekeyComparetor
 
 sg.theme('Light Blue 2')
 
