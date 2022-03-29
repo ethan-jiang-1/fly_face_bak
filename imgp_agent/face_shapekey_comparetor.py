@@ -1,13 +1,18 @@
 
 import os
 import cv2 
+import sys
+from datetime import datetime
+
+dir_this = os.path.dirname(__file__)
+if dir_this not in sys.path:
+    sys.path.append(dir_this)
 
 from imgp_face_aligment import ImgpFaceAligment
 from imgp_mp_selfie import ImgpSelfieMarker
 from imgp_mp_hair import ImgpHairMarker
-from imgp_mp_facemesh import ImgpFacemeshMarker
+from imgp_mp_facemesh import ImgpFacemeshExtractor
 from imgp_common import FileHelper, PlotHelper
-from datetime import datetime
 
 
 class FaceShapekeyComparetor(object):
@@ -16,13 +21,13 @@ class FaceShapekeyComparetor(object):
         ImgpFaceAligment.init_imgp()
         ImgpSelfieMarker.init_imgp()
         ImgpHairMarker.init_imgp()
-        ImgpFacemeshMarker.init_imgp()
+        ImgpFacemeshExtractor.init_imgp()
 
     def __del__(self):
         ImgpFaceAligment.close_imgp()
         ImgpSelfieMarker.close_imgp()
         ImgpHairMarker.close_imgp()
-        ImgpFacemeshMarker.close_imgp()
+        ImgpFacemeshExtractor.close_imgp()
 
     def process(self, filenames):
 
@@ -36,12 +41,12 @@ class FaceShapekeyComparetor(object):
             img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
             img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
             img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
-            img_facemesh, img_facepaint = ImgpFacemeshMarker.mark_face_mesh(img_selfie)
+            img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
             img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
             dt = datetime.now() - d0
             print("total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
-            imgs.extend([img_org, img_facemesh, img_facepaint, img_hair])
+            imgs.extend([img_org, img_facemesh, fme_result.img_facepaint, img_hair])
             names.extend(["org", "facemesh", "facepaint", "hair"])
 
         PlotHelper.plot_imgs_grid(imgs, names, mod_num=4)

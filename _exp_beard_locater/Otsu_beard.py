@@ -53,7 +53,6 @@ def _mark_beard_imgs(src_dir, selected_names=None):
     from imgp_agent.imgp_common import FileHelper
     filenames = FileHelper.find_all_images(src_dir)
 
-
     for filename in filenames:
         if selected_names is not None:
             if os.path.basename(filename) not in selected_names:
