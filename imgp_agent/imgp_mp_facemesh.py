@@ -37,49 +37,6 @@ FMC_LEFT_EYEBROW = (0, 0, 255)
 FMC_RIGHT_EYEBROW = (0, 0, 255)
 FMC_NOSE = (0, 0, 128)
 
-class FaceMeshConnections():
-    @classmethod
-    def check_mesh_connections(cls, connections):
-        cts_ordered = []
-        cts = list(connections)
-
-        ct = cts.pop()
-        cts_ordered.append(ct)
-
-        while len(cts) != 0:
-            vt1 = cts_ordered[-1][1]
-
-            added = False
-            for idx, ct in enumerate(cts):
-                if ct[0] == vt1 or ct[1] == vt1:
-                    cts_ordered.append(cts.pop(idx))
-                    added = True
-                    break
-            if not added:
-                vt0= cts_ordered[-1][0]
-                for idx, ct in enumerate(cts):
-                    if ct[0] == vt0 or ct[1] == vt0:
-                        cts_ordered.append(cts.pop(idx))
-                        added = True
-                        break                
-        
-            if not added:
-                cts_ordered.append((-1, -1))
-                cts_ordered.append(cts.pop()) 
-
-        vts = []
-        vt = []
-        vts.append(vt)
-        for ct in cts_ordered:
-            ct0 = ct[0]
-            if vt == -1:
-                vt = []
-                vts.append(ct0)
-            else:
-                vt.append(ct0)
-        for vt in vts:
-            print(vt)
-        return vts
 
 class ImgpFacemeshMarker():
     slt_facemesh = None 
@@ -128,8 +85,8 @@ class ImgpFacemeshMarker():
         image.flags.writeable = True
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
-        image_with_paint = cls._paint_meshes(image, results)
         image_with_mesh = cls._draw_meshes(image, results)
+        image_with_paint = cls._paint_meshes(image, results)
         return image_with_mesh, image_with_paint
 
     @classmethod
@@ -149,7 +106,7 @@ class ImgpFacemeshMarker():
 
         print("len(results.multi_face_landmarks)", len(results.multi_face_landmarks))
         for face_landmarks in results.multi_face_landmarks:
-            cls._inpect_landmarks(image, mp_face_mesh, face_landmarks)
+            cls._inpect_landmarks(image, face_landmarks)
             mp_drawing.draw_landmarks(
                 image=image,
                 landmark_list=face_landmarks,
@@ -212,7 +169,7 @@ class ImgpFacemeshMarker():
 
         print("len(results.multi_face_landmarks)", len(results.multi_face_landmarks))
         for face_landmarks in results.multi_face_landmarks:
-            cls._inpect_landmarks(image, mp_face_mesh, face_landmarks)
+            cls._inpect_landmarks(image, face_landmarks)
 
             cls._draw_ploypoints(image, face_landmarks, FMV_FACE_OVAL, FMC_FACE_OVAL)
 
@@ -261,7 +218,7 @@ class ImgpFacemeshMarker():
         return image
 
     @classmethod
-    def _inpect_landmarks(cls, image, mp_face_mesh, face_landmarks):
+    def _inpect_landmarks(cls, image, face_landmarks):
         lms = face_landmarks.landmark
         print("len(lms)", len(lms))
 
@@ -320,11 +277,6 @@ def do_exp():
     _mark_facemesh_imgs(src_dir, selected_names=selected_names)
 
 
-def do_check_mesh_connections():
-    mp_face_mesh = mp.solutions.face_mesh
-    FaceMeshConnections.check_mesh_connections(mp_face_mesh.FACEMESH_RIGHT_EYEBROW)
-
 if __name__ == '__main__':
     _add_root_in_sys_path()
     do_exp()
-    #do_check_mesh_connections()
