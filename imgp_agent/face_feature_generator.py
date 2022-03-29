@@ -10,9 +10,9 @@ if dir_this not in sys.path:
     sys.path.append(dir_this)
 
 from imgp_face_aligment import ImgpFaceAligment
-from imgp_mp_selfie import ImgpSelfieMarker
-from imgp_mp_hair import ImgpHairMarker
-from imgp_mp_facemesh import ImgpFacemeshExtractor
+from imgp_mp_selfie_marker import ImgpSelfieMarker
+from imgp_mp_hair_marker import ImgpHairMarker
+from imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
 from imgp_common import FileHelper, PlotHelper
 
 FFA_IMGS = namedtuple('FFA_IMGS', 'img_name img_org img_aligned img_selfie img_facemesh img_hair') 
