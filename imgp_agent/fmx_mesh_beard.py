@@ -71,17 +71,21 @@ class FmxMeshBeard():
 
         cls._flood_fill(img_bread_color, pt_seed=(0, 0), color_fill=FF_FILL_COLOR)
         if pt_mouth_inner is not None:
-            # color_pt_month_inner = img_bread_color[pt_mouth_inner[1], pt_mouth_inner[0]]
-            # if np.not_equal(np.array(FF_FILL_COLOR, dtype=np.uint8).all(), color_pt_month_inner.all()):
+            #color_pt_month_inner = img_bread_color[pt_mouth_inner[0], pt_mouth_inner[1]]
+            #cv2.circle(img_bread_color, [pt_mouth_inner[0], pt_mouth_inner[1]],  20, _GREEN)
+            #if np.not_equal(np.array(FF_FILL_COLOR, dtype=np.uint8).all(), color_pt_month_inner.all()):
+                #cv2.circle(img_bread_color, [pt_mouth_inner[0], pt_mouth_inner[1]],  30, _RED)
+                #cls._flood_fill(img_bread_color, pt_seed=pt_mouth_inner, color_fill=FF_FILL_COLOR)
             cls._flood_fill(img_bread_color, pt_seed=pt_mouth_inner, color_fill=FF_FILL_COLOR)
 
-        img_bread = cls._filter_bread(img_bread_color)
+        img_bread_black = cls._filter_bread(img_bread_color)
+        img_bread_white = cv2.bitwise_not(img_bread_black)
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image_mask_outter, image_mask_inner, img_bread_color0, img_bread_color, img_bread])            
+            PlotHelper.plot_imgs([image_mask_outter, image_mask_inner, img_bread_color0, img_bread_color, img_bread_white])            
 
-        print(img_bread.shape, img_bread.dtype)
-        return img_bread
+        print(img_bread_white.shape, img_bread_white.dtype)
+        return img_bread_white
 
     @classmethod
     def _get_beard_masks(cls, image, mesh_results):
