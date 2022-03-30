@@ -138,11 +138,14 @@ class FmxMeshBeard():
 
     @classmethod
     def _filter_beard(cls, img_beard_color):
-        img_beard_gray = cv2.cvtColor(img_beard_color, cv2.COLOR_BGR2GRAY)
+        img_beard_color_blur = cv2.blur(img_beard_color, (9,9))
+        img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
 
         _, th1 = cv2.threshold(img_beard_gray, 100, 255, cv2.THRESH_BINARY)
+        img_beard = th1
 
         #img_blur = cv2.GaussianBlur(img_beard_gray, (5, 5), 0)
         #_, th3 = cv2.threshold(img_blur, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
-        img_beard = th1
+        #img_beard = th3
+
         return img_beard
