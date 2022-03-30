@@ -34,7 +34,44 @@ class FaceFeatureGenerator(object):
         ImgpFacemeshExtractor.close_imgp()
         ImgpBeardEyebrow.close_imgp()
 
-    def process(self, filename, show=True):
+    def show_results(self, filename,  selected_img_types=None):
+        imgs, names, title, dt = self._process_core(filename)
+
+        imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
+
+        PlotHelper.plot_imgs_grid(imgs, names, title=title)  
+
+    def save_results(self, filename, output_dir=None, selected_img_types=None):
+        imgs, names, title, dt = self._process_core(filename)
+        if output_dir is None:
+            output_dir = os.path.dirname(os.path.dirname(__file__)) + os.sep + "_reserved_output_feature_gen"
+            os.makedirs(output_dir, exist_ok=True)
+
+        imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
+
+        fname = os.path.basename(filename).split(".")[0]
+        for img, name in zip(imgs, names):
+            if img is not None:
+                continue 
+            if selected_img_types is not None:
+                if name not in selected_img_types:
+                    continue
+            filename = "{}{}{}_{}.jpg".format(output_dir, os.sep, fname, name)
+            cv2.imwrite(filename, img)
+            print("{} saved".format(filename))
+
+    def _filter_selected_types(self, imgs, names, selected_img_types):
+        if selected_img_types is None:
+            return imgs, names 
+        new_imgs = []
+        new_names = []
+        for img, name in zip(imgs, names):
+            if name in selected_img_types:
+                new_imgs.append(imgs)
+                new_names.append(name)
+        return new_imgs, new_names   
+
+    def _process_core(self, filename):
         if not os.path.isfile(filename):
             return None, None, None, None 
 
@@ -50,8 +87,8 @@ class FaceFeatureGenerator(object):
         img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org)
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-        img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
-        img_beard, img_eyebrow = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, img_hair, fme_result.mesh_results)
+        img_hair, hsi_ret = ImgpHairMarker.mark_hair(img_aligned)
+        img_beard, img_eyebrow = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, hsi_ret.mask_black_sharp, fme_result.mesh_results)
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
@@ -60,9 +97,8 @@ class FaceFeatureGenerator(object):
         imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, img_beard, img_hair]
         names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "beard", "hair"]
         title = os.path.basename(filename)
-        if show:
-            PlotHelper.plot_imgs_grid(imgs, names, title=basename)
         return imgs, names, title, dt
+
 
 def do_exp():
     selected_names = None
@@ -80,7 +116,8 @@ def do_exp():
             if bname not in selected_names:
                 continue
 
-        ffg.process(filename) 
+        #ffg.show_results(filename) 
+        ffg.save_results(filename) 
 
     del ffg 
 

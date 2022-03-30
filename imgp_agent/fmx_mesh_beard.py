@@ -18,6 +18,8 @@ FMB_LEFT_B2T = (135, 138, 215, 177)
 
 FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
 
+FF_FILL_COLOR = (216, 216, 216)
+
 class FmxMeshBeard():
     @classmethod
     def normalized_to_pixel_coordinates(cls, normalized_x, normalized_y, image_width, image_height):
@@ -58,7 +60,7 @@ class FmxMeshBeard():
         return None       
 
     @classmethod
-    def process_img(cls, image, mesh_results):
+    def process_img(cls, image, mesh_results, debug=False):
         if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
             print("no face_landmarks found")
             return None 
@@ -67,19 +69,24 @@ class FmxMeshBeard():
         img_bread_color0 = cv2.bitwise_and(image, image, mask = image_mask_outter)
         img_bread_color = cv2.bitwise_and(img_bread_color0, img_bread_color0, mask = image_mask_inner)
 
-        cls._flood_fill(img_bread_color, pt_seed=(0, 0))
+        cls._flood_fill(img_bread_color, pt_seed=(0, 0), color_fill=FF_FILL_COLOR)
         if pt_mouth_inner is not None:
-            cls._flood_fill(img_bread_color, pt_seed=pt_mouth_inner)
+            # color_pt_month_inner = img_bread_color[pt_mouth_inner[1], pt_mouth_inner[0]]
+            # if np.not_equal(np.array(FF_FILL_COLOR, dtype=np.uint8).all(), color_pt_month_inner.all()):
+            cls._flood_fill(img_bread_color, pt_seed=pt_mouth_inner, color_fill=FF_FILL_COLOR)
 
         img_bread = cls._filter_bread(img_bread_color)
+        if debug:
+            from imgp_common import PlotHelper
+            PlotHelper.plot_imgs([image_mask_outter, image_mask_inner, img_bread_color0, img_bread_color, img_bread])            
 
         print(img_bread.shape, img_bread.dtype)
         return img_bread
 
     @classmethod
     def _get_beard_masks(cls, image, mesh_results):
-        image_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.int8)
-        image_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.int8)
+        image_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+        image_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
         image_mask_inner[:] = (255)
         print("len(mesh_results.multi_face_landmarks)", len(mesh_results.multi_face_landmarks))
         pt_mouth_inner = None
@@ -98,7 +105,7 @@ class FmxMeshBeard():
         return image_mask_outter, image_mask_inner, pt_mouth_inner
 
     @classmethod
-    def _flood_fill(cls, image, pt_seed=(0, 0), color_fill=(216, 216, 216)):
+    def _flood_fill(cls, image, pt_seed=(0, 0), color_fill=FF_FILL_COLOR):
         h, w = image.shape[:2]
         mask_flood = np.zeros([h+2, w+2],np.uint8)
         cv2.floodFill(image, mask_flood, pt_seed, color_fill, flags=cv2.FLOODFILL_FIXED_RANGE)
