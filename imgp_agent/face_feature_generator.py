@@ -110,14 +110,15 @@ def do_exp():
     src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
 
     filenames = FileHelper.find_all_images(src_dir)
+    filenames = sorted(filenames)
     for filename in filenames:
         if selected_names is not None:
             bname = os.path.basename(filename)
             if bname not in selected_names:
                 continue
 
-        #ffg.show_results(filename) 
-        ffg.save_results(filename) 
+        ffg.show_results(filename) 
+        #ffg.save_results(filename) 
 
     del ffg 
 
