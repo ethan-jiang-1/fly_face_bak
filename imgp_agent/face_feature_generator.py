@@ -88,7 +88,7 @@ class FaceFeatureGenerator(object):
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
         img_hair, hsi_ret = ImgpHairMarker.mark_hair(img_aligned)
-        img_beard, img_eyebrow = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, hsi_ret.mask_black_sharp, fme_result.mesh_results)
+        img_beard, img_eyebrow, _ = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, hsi_ret.mask_black_sharp, fme_result.mesh_results)
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
