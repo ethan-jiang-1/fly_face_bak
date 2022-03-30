@@ -3,6 +3,8 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+# check https://blog.csdn.net/wsp_1138886114/article/details/84841370
+
 # THETA_RADIUS_GROUP = [0.0, np.pi*1/4, np.pi*2/4, np.pi*3/4] #gabor方向，0°，45°，90°，135°，共四个
 # GK_SIZES = [7,9,11,13,15,17]
 
