@@ -13,6 +13,7 @@ from imgp_face_aligment import ImgpFaceAligment
 from imgp_mp_selfie_marker import ImgpSelfieMarker
 from imgp_mp_hair_marker import ImgpHairMarker
 from imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
+from imgp_cv_beard_eyebrow import ImgpBeardEyebrow
 from imgp_common import FileHelper, PlotHelper
 
 FFA_IMGS = namedtuple('FFA_IMGS', 'img_name img_org img_aligned img_selfie img_facemesh img_hair') 
@@ -24,12 +25,14 @@ class FaceFeatureGenerator(object):
         ImgpSelfieMarker.init_imgp()
         ImgpHairMarker.init_imgp()
         ImgpFacemeshExtractor.init_imgp()
+        ImgpBeardEyebrow.init_imgp()
 
     def __del__(self):
         ImgpFaceAligment.close_imgp()
         ImgpSelfieMarker.close_imgp()
         ImgpHairMarker.close_imgp()
         ImgpFacemeshExtractor.close_imgp()
+        ImgpBeardEyebrow.close_imgp()
 
     def process(self, filename, show=True):
         if not os.path.isfile(filename):
@@ -48,11 +51,13 @@ class FaceFeatureGenerator(object):
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
         img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
+        img_beard, img_eyebrow = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, img_hair, fme_result.mesh_results)
+
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
         print("total inference time: for {}: {:.3f}".format(basename, dt.total_seconds()))
 
-        imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, fme_result.img_facebeard, img_hair]
+        imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, img_beard, img_hair]
         names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "beard", "hair"]
         title = os.path.basename(filename)
         if show:

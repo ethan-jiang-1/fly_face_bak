@@ -4,7 +4,7 @@ import os
 import mediapipe as mp
 from collections import namedtuple
 
-FME_RESULT = namedtuple('FME_RESULT', "img_org img_facemesh, img_facepaint, img_facebeard") 
+FME_RESULT = namedtuple('FME_RESULT', "img_org img_facemesh, img_facepaint, mesh_results") 
 
 class ImgpFacemeshExtractor():
     slt_facemesh = None 
@@ -38,12 +38,11 @@ class ImgpFacemeshExtractor():
 
         img_facemesh = cls._draw_meshes(image, mesh_results)
         img_facepaint = cls._paint_meshes(image, mesh_results)
-        img_facebeard = cls._locate_beard(img_org, mesh_results)
 
         fme_result = FME_RESULT(img_org=img_org,
                                 img_facemesh=img_facemesh,
                                 img_facepaint=img_facepaint,
-                                img_facebeard=img_facebeard)
+                                mesh_results=mesh_results)
         return img_facemesh, fme_result
 
     @classmethod
@@ -77,11 +76,6 @@ class ImgpFacemeshExtractor():
     def _paint_meshes(cls, image, mesh_results):
         from fmx_mesh_paint import FmxMeshPaint
         return FmxMeshPaint.process_img(image, mesh_results)
-
-    @classmethod
-    def _locate_beard(cls, image, mesh_results):
-        from fmx_mesh_beard import FmxMeshBeard
-        return FmxMeshBeard.process_img(image, mesh_results)
 
     @classmethod
     def _inpect_landmarks(cls, image, face_landmarks):

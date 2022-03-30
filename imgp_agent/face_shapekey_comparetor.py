@@ -12,6 +12,7 @@ from imgp_face_aligment import ImgpFaceAligment
 from imgp_mp_selfie_marker import ImgpSelfieMarker
 from imgp_mp_hair_marker import ImgpHairMarker
 from imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
+from imgp_cv_beard_eyebrow import ImgpBeardEyebrow
 from imgp_common import FileHelper, PlotHelper
 
 
@@ -22,15 +23,16 @@ class FaceShapekeyComparetor(object):
         ImgpSelfieMarker.init_imgp()
         ImgpHairMarker.init_imgp()
         ImgpFacemeshExtractor.init_imgp()
+        ImgpBeardEyebrow.init_imgp()
 
     def __del__(self):
         ImgpFaceAligment.close_imgp()
         ImgpSelfieMarker.close_imgp()
         ImgpHairMarker.close_imgp()
         ImgpFacemeshExtractor.close_imgp()
+        ImgpBeardEyebrow.close_imgp()
 
     def process(self, filenames):
-
         imgs = []
         names = []
         for filename in filenames:
@@ -50,6 +52,8 @@ class FaceShapekeyComparetor(object):
             img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
             img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
             img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
+            img_beard, img_eyebrow = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, img_hair, fme_result.mesh_results)
+
             dt = datetime.now() - d0
             print("total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
