@@ -67,7 +67,7 @@ class FaceFeatureGenerator(object):
         new_names = []
         for img, name in zip(imgs, names):
             if name in selected_img_types:
-                new_imgs.append(imgs)
+                new_imgs.append(img)
                 new_names.append(name)
         return new_imgs, new_names   
 
@@ -92,7 +92,7 @@ class FaceFeatureGenerator(object):
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
-        print("total inference time: for {}: {:.3f}".format(basename, dt.total_seconds()))
+        print("total inference time: for {}: {:.3f}sec\n".format(basename, dt.total_seconds()))
 
         imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, img_beard, img_hair]
         names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "beard", "hair"]
