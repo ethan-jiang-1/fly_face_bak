@@ -33,6 +33,8 @@ class FaceShapekeyComparetor(object):
         ImgpBeardEyebrow.close_imgp()
 
     def process(self, filenames):
+        from utils.colorstr import log_colorstr
+
         imgs = []
         names = []
         for filename in filenames:
@@ -43,9 +45,9 @@ class FaceShapekeyComparetor(object):
             img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
             if img_org is None:
                 if not cv2.haveImageReader(filename):
-                    print("ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
+                    log_colorstr("red", "ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
                 else:
-                    print("ERROR: failed to load image file {}".format(filename))
+                    log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
                 continue
 
             img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
@@ -55,7 +57,7 @@ class FaceShapekeyComparetor(object):
             img_beard, img_eyebrow, _ = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, img_hair, fme_result.mesh_results)
 
             dt = datetime.now() - d0
-            print("total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
+            log_colorstr("blue", "total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
             imgs.extend([img_org, img_facemesh, fme_result.img_facepaint, img_hair])
             names.extend(["org", "facemesh", "facepaint", "hair"])

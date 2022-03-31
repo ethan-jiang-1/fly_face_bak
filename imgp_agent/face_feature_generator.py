@@ -72,6 +72,7 @@ class FaceFeatureGenerator(object):
         return new_imgs, new_names   
 
     def _process_core(self, filename):
+        from utils.colorstr import log_colorstr
         if not os.path.isfile(filename):
             return None, None, None, None 
 
@@ -79,9 +80,9 @@ class FaceFeatureGenerator(object):
         img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img_org is None:
             if not cv2.haveImageReader(filename):
-                print("ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
+                log_colorstr("red", "ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
             else:
-                print("ERROR: failed to load image file {}".format(filename))
+                log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
             return None, None, None, None
 
         img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org)
@@ -92,7 +93,7 @@ class FaceFeatureGenerator(object):
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
-        print("total inference time: for {}: {:.3f}sec\n".format(basename, dt.total_seconds()))
+        log_colorstr("blue", "total inference time: for {}: {:.3f}sec\n".format(basename, dt.total_seconds()))
 
         imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, img_beard, img_hair]
         names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "beard", "hair"]
