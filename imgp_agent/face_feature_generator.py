@@ -51,7 +51,7 @@ class FaceFeatureGenerator(object):
 
         fname = os.path.basename(filename).split(".")[0]
         for img, name in zip(imgs, names):
-            if img is not None:
+            if img is None:
                 continue 
             if selected_img_types is not None:
                 if name not in selected_img_types:
