@@ -75,13 +75,13 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def _locate_beard_old(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard_old import FcxBeard
-        return FcxBeard.process_img(image, mesh_results, debug=debug)
+        from fcx_hair.fcx_beard_old import FcxBeardOld
+        return FcxBeardOld.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_beard_new(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard import FcxBeard
-        return FcxBeard.process_img(image, mesh_results, debug=debug)
+        from fcx_hair.fcx_beard_new import FcxBeardNew
+        return FcxBeardNew.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_eyebrow(cls, image, mesh_results, debug=False):

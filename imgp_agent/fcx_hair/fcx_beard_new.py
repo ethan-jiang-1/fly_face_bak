@@ -5,7 +5,7 @@ import cv2
 FMB_FILL_COLOR = (216, 216, 216)
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 
-class FcxBeard():
+class FcxBeardNew():
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
         img_beard_region = cls._clean_region(image)
