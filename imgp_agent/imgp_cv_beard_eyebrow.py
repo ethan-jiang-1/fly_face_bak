@@ -5,7 +5,7 @@ import numpy as np
 from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
-BER_DEBUG = True
+BER_DEBUG = False
 BER_MODE = "new"
 
 class ImgpBeardEyebrow():
@@ -99,7 +99,7 @@ def do_exp():
     #selected_names = ["hsi_image8.jpeg"]
     #selected_names = ["icl_image5.jpeg"]
     #selected_names = ["ctn_cartoon2.jpeg"]
-    selected_names = ["brd_image1.jpeg"]
+    #selected_names = ["brd_image1.jpeg"]
 
     from face_feature_generator import FaceFeatureGenerator
     from imgp_common import FileHelper
@@ -117,8 +117,8 @@ def do_exp():
             if bname not in selected_names:
                 continue
 
-        #ffg.show_results(filename) 
-        ffg.save_results(filename) 
+        ffg.show_results(filename) 
+        #ffg.save_results(filename) 
 
     del ffg 
 
