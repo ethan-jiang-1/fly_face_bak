@@ -7,7 +7,7 @@ FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
 
 
-class FcxBeardNew():
+class FcxBeardGabor():
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
         img_beard_region = cls._clean_region(image, mesh_results)

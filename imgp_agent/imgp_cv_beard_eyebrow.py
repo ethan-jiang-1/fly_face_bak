@@ -6,7 +6,7 @@ from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
 BER_DEBUG = False
-BER_MODE = "new"
+BER_MODE = "GABOR"
 
 class ImgpBeardEyebrow():
     hsi_klass = None 
@@ -21,18 +21,18 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def extract_beard_eyebrow(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
-        if BER_MODE == "new":
+        if BER_MODE == "GABOR":
             img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=False, debug=debug) 
             img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
-            img_beard = cls._locate_beard_new(img_selfie_wb_no_hair, mesh_results, debug=debug)
+            img_beard = cls._locate_beard_gabor(img_selfie_wb_no_hair, mesh_results, debug=debug)
             #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
             img_eyebrow = None            
         else:
             img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=True, debug=debug) 
             img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
-            img_beard = cls._locate_beard_old(img_selfie_wb_no_hair, mesh_results, debug=debug)
+            img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
             #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
             img_eyebrow = None
 
@@ -80,14 +80,14 @@ class ImgpBeardEyebrow():
         return img_selfie
 
     @classmethod
-    def _locate_beard_old(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard_old import FcxBeardOld
-        return FcxBeardOld.process_img(image, mesh_results, debug=debug)
+    def _locate_beard_gabor(cls, image, mesh_results, debug=False):
+        from fcx_hair.fcx_beard_gabor import FcxBeardGabor
+        return FcxBeardGabor.process_img(image, mesh_results, debug=debug)
 
     @classmethod
-    def _locate_beard_new(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard_new import FcxBeardNew
-        return FcxBeardNew.process_img(image, mesh_results, debug=debug)
+    def _locate_beard_otsu(cls, image, mesh_results, debug=False):
+        from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
+        return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_eyebrow(cls, image, mesh_results, debug=False):
@@ -103,7 +103,7 @@ def do_exp():
     #selected_names = ["hsi_image1.jpeg"]
     #selected_names = ["hsi_image3.jpeg"]
     #selected_names = ["hsi_image8.jpeg"]
-    selected_names = ["icl_image4.jpeg"]
+    #selected_names = ["icl_image4.jpeg"]
     #selected_names = ["icl_image5.jpeg"]
     #selected_names = ["ctn_cartoon2.jpeg"]
     #selected_names = ["ctn_cartoon3.jpeg"]

@@ -118,8 +118,8 @@ def do_exp():
             if bname not in selected_names:
                 continue
 
-        ffg.show_results(filename) 
-        #ffg.save_results(filename) 
+        #ffg.show_results(filename) 
+        ffg.save_results(filename) 
 
     del ffg 
 
