@@ -8,9 +8,11 @@ import matplotlib.pyplot as plt
 # THETA_RADIUS_GROUP = [0.0, np.pi*1/4, np.pi*2/4, np.pi*3/4] #gabor方向，0°，45°，90°，135°，共四个
 # GK_SIZES = [7,9,11,13,15,17]
 
-THETA_RADIUS_GROUP = [0, np.pi*2/4] # gabor方向，0°，45°，90°，135°，共四个
-GK_SIZES = [7,11,15]
+#THETA_RADIUS_GROUP = [0, np.pi*2/4] # gabor方向，0°，45°，90°，135°，共四个
+#GK_SIZES = [7,11,15]
 
+THETA_RADIUS_GROUP = [np.pi*2/4] # gabor方向，0°，45°，90°，135°，共四个
+GK_SIZES = [11]
 
 # 构建Gabor滤波器
 def build_filters():
@@ -21,6 +23,7 @@ def build_filters():
          for KSIZE in GK_SIZES:
              kern = cv2.getGaborKernel((KSIZE, KSIZE), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
              kern /= 1.5*kern.sum()
+             print(kern)
              filters.append(kern)
      plt.figure(1)
 
@@ -46,6 +49,7 @@ def getGabor(img,filters):
     plt.figure(2)
     for temp in range(len(res)):
         plt.subplot(len(THETA_RADIUS_GROUP), len(GK_SIZES),temp+1)
+        #plt.imshow(res[temp])
         plt.imshow(res[temp], cmap='gray')
     plt.show()
     return res  # 返回滤波结果,结果为24幅图，按照gabor角度排列

@@ -2,14 +2,14 @@ import numpy as np
 import math
 import cv2
 
-_RED = (48, 48, 255)
-_GREEN = (48, 255, 48)
-_BLUE = (192, 101, 21)
-_YELLOW = (0, 204, 255)
-_GRAY = (128, 128, 128)
-_PURPLE = (128, 64, 128)
-_PEACH = (180, 229, 255)
-_WHITE = (224, 224, 224)
+# _RED = (48, 48, 255)
+# _GREEN = (48, 255, 48)
+# _BLUE = (192, 101, 21)
+# _YELLOW = (0, 204, 255)
+# _GRAY = (128, 128, 128)
+# _PURPLE = (128, 64, 128)
+# _PEACH = (180, 229, 255)
+# _WHITE = (224, 224, 224)
 
 FMB_UPPER_L2R = (147, 187, 205, 36, 203, 98, 97, 2, 326, 327, 423, 266, 425, 411, 376)
 FMB_RIGHT_T2B = (401, 435, 367, 364)
@@ -22,8 +22,62 @@ FMB_FILL_COLOR = (216, 216, 216)
 
 FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 
+FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 
 class FmxMeshBeard():
+    @classmethod
+    def process_img(cls, image, mesh_results, debug=False):
+        image_flood = image.copy()
+        cls._flood_fill(image_flood, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
+
+        ksize = 11  # kernal size
+        lamda = np.pi / 2.0  # length of wave
+        theta = np.pi * 0.5  # 90 degree
+        #theta = np.pi * 0.0  # 0 degree
+        kern = cv2.getGaborKernel((ksize, ksize), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
+        kern /= 1.5 * kern.sum()
+        gabor_filter = kern 
+
+        accum = np.zeros_like(image_flood)
+        img_fimg = cv2.filter2D(image_flood, cv2.CV_8UC1, gabor_filter)
+        img_accum = np.maximum(accum, img_fimg, accum)
+
+        img_beard_color_blur = cv2.blur(img_accum, (9,9))
+        img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
+        
+        img_beard_black = img_beard_gray
+        img_beard_white = cv2.bitwise_not(img_beard_black)
+
+        if debug:
+            from imgp_common import PlotHelper
+            PlotHelper.plot_imgs([image, image_flood, img_fimg, img_accum, img_beard_black, img_beard_white])            
+
+        print(img_beard_white.shape, img_beard_white.dtype)
+        return img_beard_white
+
+    @classmethod
+    def process_img_old(cls, image, mesh_results, debug=False):
+        if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
+            print("no face_landmarks found")
+            return None 
+
+        image_beard_mask_outter, pt_beard_mask_outter_seed = cls._get_beard_mask_outter(image, mesh_results)
+        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls._get_beard_mouth_inner(image, mesh_results)
+        img_beard_color0 = cv2.bitwise_and(image, image, mask = image_beard_mask_outter)
+        img_beard_color = cv2.bitwise_and(img_beard_color0, img_beard_color0, mask = image_mouth_mask_inner)
+
+        cls._flood_fill(img_beard_color, pt_seed=pt_beard_mask_outter_seed, color_fill=FMB_FILL_COLOR)
+        cls._flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
+
+        img_beard_black = cls._filter_beard_to_gray_by_threshold(img_beard_color)
+        img_beard_white = cv2.bitwise_not(img_beard_black)
+        if debug:
+            from imgp_common import PlotHelper
+            PlotHelper.plot_imgs([image_beard_mask_outter, image_mouth_mask_inner, img_beard_color0, img_beard_color, img_beard_white])            
+
+        print(img_beard_white.shape, img_beard_white.dtype)
+        return img_beard_white
+
     @classmethod
     def normalized_to_pixel_coordinates(cls, normalized_x, normalized_y, image_width, image_height):
         # Checks if the float value is between 0 and 1.
@@ -78,40 +132,8 @@ class FmxMeshBeard():
         return None       
 
     @classmethod
-    def process_img(cls, image, mesh_results, debug=False):
-        if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
-            print("no face_landmarks found")
-            return None 
-
-        image_mask_outter, image_mask_inner, pt_mouth_inner = cls._get_beard_masks(image, mesh_results)
-        img_beard_color0 = cv2.bitwise_and(image, image, mask = image_mask_outter)
-        img_beard_color = cv2.bitwise_and(img_beard_color0, img_beard_color0, mask = image_mask_inner)
-
-        cls._flood_fill(img_beard_color, pt_seed=(0, 0), color_fill=FMB_FILL_COLOR)
-        if pt_mouth_inner is not None:
-            #color_pt_month_inner = img_beard_color[pt_mouth_inner[0], pt_mouth_inner[1]]
-            #cv2.circle(img_beard_color, [pt_mouth_inner[0], pt_mouth_inner[1]],  20, _GREEN)
-            #if np.not_equal(np.array(FF_FILL_COLOR, dtype=np.uint8).all(), color_pt_month_inner.all()):
-                #cv2.circle(img_beard_color, [pt_mouth_inner[0], pt_mouth_inner[1]],  30, _RED)
-                #cls._flood_fill(img_beard_color, pt_seed=pt_mouth_inner, color_fill=FF_FILL_COLOR)
-            cls._flood_fill(img_beard_color, pt_seed=pt_mouth_inner, color_fill=FMB_FILL_COLOR)
-
-        img_beard_black = cls._filter_beard(img_beard_color)
-        img_beard_white = cv2.bitwise_not(img_beard_black)
-        if debug:
-            from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image_mask_outter, image_mask_inner, img_beard_color0, img_beard_color, img_beard_white])            
-
-        print(img_beard_white.shape, img_beard_white.dtype)
-        return img_beard_white
-
-    @classmethod
-    def _get_beard_masks(cls, image, mesh_results):
-        image_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        image_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        image_mask_inner[:] = (255)
-        print("len(mesh_results.multi_face_landmarks)", len(mesh_results.multi_face_landmarks))
-        pt_mouth_inner = None
+    def _get_beard_mask_outter(cls, image, mesh_results):
+        image_beard_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
         for face_landmarks in mesh_results.multi_face_landmarks:
             pts = []
             for n in FMB_UPPER_L2R:
@@ -123,12 +145,21 @@ class FmxMeshBeard():
             for n in FMB_LEFT_B2T:
                 pts.append((n, "L"))
 
-            cls.draw_ploypoints_alter(image_mask_outter, face_landmarks, pts, (255))
+            cls.draw_ploypoints_alter(image_beard_mask_outter, face_landmarks, pts, (255))
 
-            cls.draw_ploypoints_alter(image_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
+        pt_beard_mask_outter_seed = (0, 0)
+        return image_beard_mask_outter, pt_beard_mask_outter_seed
 
-            pt_mouth_inner = cls._get_vt_coord(image, face_landmarks, 14)
-        return image_mask_outter, image_mask_inner, pt_mouth_inner
+    @classmethod
+    def _get_beard_mouth_inner(cls, image, mesh_results):
+        image_mouth_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+        image_mouth_mask_inner[:] = (255)
+        pt_mouth_mask_inner_seed = None
+        for face_landmarks in mesh_results.multi_face_landmarks:
+            cls.draw_ploypoints_alter(image_mouth_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
+
+        pt_mouth_mask_inner_seed = cls._get_vt_coord(image, face_landmarks, 14)
+        return image_mouth_mask_inner, pt_mouth_mask_inner_seed
 
     @classmethod
     def _flood_fill(cls, image, pt_seed=(0, 0), color_fill=FMB_FILL_COLOR):
@@ -137,7 +168,7 @@ class FmxMeshBeard():
         cv2.floodFill(image, mask_flood, pt_seed, color_fill, flags=cv2.FLOODFILL_FIXED_RANGE)
 
     @classmethod
-    def _filter_beard(cls, img_beard_color):
+    def _filter_beard_to_gray_by_threshold(cls, img_beard_color):
         img_beard_color_blur = cv2.blur(img_beard_color, (9,9))
         img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
 

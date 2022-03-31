@@ -5,7 +5,7 @@ import numpy as np
 from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
-BER_DEBUG = False
+BER_DEBUG = True
 
 class ImgpBeardEyebrow():
     hsi_klass = None 
@@ -20,11 +20,11 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def extract_beard_eyebrow(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
-        img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, debug=debug) 
-        img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
+        #img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, debug=debug) 
+        #img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
-        img_beard = cls._locate_beard(img_selfie_wb_no_hair, mesh_results, debug=debug)
-        img_eyebrow = cls._locate_eyebrow(img_selfie_wb_no_hair, mesh_results, debug=debug)
+        img_beard = cls._locate_beard(img_selfie, mesh_results, debug=debug)
+        img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
 
         ber_result = BER_RESULT(img_beard=img_beard,
                                 img_eyebrow=img_eyebrow)
@@ -87,7 +87,7 @@ def do_exp():
     #selected_names = ["hsi_image8.jpeg"]
     #selected_names = ["icl_image5.jpeg"]
     #selected_names = ["ctn_cartoon2.jpeg"]
-    #selected_names = ["brd_image1.jpeg"]
+    selected_names = ["brd_image1.jpeg"]
 
     from face_feature_generator import FaceFeatureGenerator
     from imgp_common import FileHelper
@@ -105,7 +105,8 @@ def do_exp():
             if bname not in selected_names:
                 continue
 
-        ffg.show_results(filename) 
+        #ffg.show_results(filename) 
+        ffg.save_results(filename) 
 
     del ffg 
 
