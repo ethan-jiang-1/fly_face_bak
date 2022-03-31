@@ -6,6 +6,7 @@ from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
 BER_DEBUG = False
+BER_MODE = "GABOR"
 
 class ImgpBeardEyebrow():
     hsi_klass = None 
@@ -20,26 +21,38 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def extract_beard_eyebrow(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
-        #img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, debug=debug) 
-        #img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
+        if BER_MODE == "GABOR":
+            img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=False, debug=debug) 
+            img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
-        img_beard = cls._locate_beard(img_selfie, mesh_results, debug=debug)
-        img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
+            img_beard = cls._locate_beard_gabor(img_selfie_wb_no_hair, mesh_results, debug=debug)
+            #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
+            img_eyebrow = None            
+        else:
+            img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=True, debug=debug) 
+            img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
+
+            img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
+            #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
+            img_eyebrow = None
 
         ber_result = BER_RESULT(img_beard=img_beard,
                                 img_eyebrow=img_eyebrow)
         return img_beard, img_eyebrow, ber_result
 
     @classmethod
-    def _remove_hair(cls, img_selfie, img_hair_black, debug=False):
+    def _remove_hair(cls, img_selfie, img_hair_black, half=True, debug=False):
         if img_hair_black.max() == 0:
             img_selfie_without_hair = img_selfie  # no hair to remove
         else:
-            img_hair_black_upper = np.zeros(img_hair_black.shape, dtype=img_hair_black.dtype)
-            img_hair_black_upper += 255
-            h = img_hair_black.shape[0] 
-            img_hair_black_upper[0:int(h/2),:] = img_hair_black[0:int(h/2),:]
-            img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black_upper)
+            if half:
+                img_hair_black_upper = np.zeros(img_hair_black.shape, dtype=img_hair_black.dtype)
+                img_hair_black_upper += 255
+                h = img_hair_black.shape[0] 
+                img_hair_black_upper[0:int(h/2),:] = img_hair_black[0:int(h/2),:]
+                img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black_upper)
+            else:
+                img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black)
         if debug:
             from imgp_common import PlotHelper
             PlotHelper.plot_imgs([img_selfie, img_hair_black, img_selfie_without_hair])
@@ -67,9 +80,14 @@ class ImgpBeardEyebrow():
         return img_selfie
 
     @classmethod
-    def _locate_beard(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard import FcxBeard
-        return FcxBeard.process_img(image, mesh_results, debug=debug)
+    def _locate_beard_gabor(cls, image, mesh_results, debug=False):
+        from fcx_hair.fcx_beard_gabor import FcxBeardGabor
+        return FcxBeardGabor.process_img(image, mesh_results, debug=debug)
+
+    @classmethod
+    def _locate_beard_otsu(cls, image, mesh_results, debug=False):
+        from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
+        return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_eyebrow(cls, image, mesh_results, debug=False):
@@ -85,9 +103,11 @@ def do_exp():
     #selected_names = ["hsi_image1.jpeg"]
     #selected_names = ["hsi_image3.jpeg"]
     #selected_names = ["hsi_image8.jpeg"]
+    #selected_names = ["icl_image4.jpeg"]
     #selected_names = ["icl_image5.jpeg"]
     #selected_names = ["ctn_cartoon2.jpeg"]
-    selected_names = ["brd_image1.jpeg"]
+    #selected_names = ["ctn_cartoon3.jpeg"]
+    #selected_names = ["brd_image1.jpeg"]
 
     from face_feature_generator import FaceFeatureGenerator
     from imgp_common import FileHelper
@@ -105,8 +125,8 @@ def do_exp():
             if bname not in selected_names:
                 continue
 
-        #ffg.show_results(filename) 
-        ffg.save_results(filename) 
+        ffg.show_results(filename) 
+        #ffg.save_results(filename) 
 
     del ffg 
 

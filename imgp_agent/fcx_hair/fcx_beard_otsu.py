@@ -24,39 +24,9 @@ FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 
-class FcxBeard():
+class FcxBeardOtsu():
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
-        image_flood = image.copy()
-        cls._flood_fill(image_flood, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
-
-        ksize = 11  # kernal size
-        lamda = np.pi / 2.0  # length of wave
-        theta = np.pi * 0.5  # 90 degree
-        #theta = np.pi * 0.0  # 0 degree
-        kern = cv2.getGaborKernel((ksize, ksize), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
-        kern /= 1.5 * kern.sum()
-        gabor_filter = kern 
-
-        accum = np.zeros_like(image_flood)
-        img_fimg = cv2.filter2D(image_flood, cv2.CV_8UC1, gabor_filter)
-        img_accum = np.maximum(accum, img_fimg, accum)
-
-        img_beard_color_blur = cv2.blur(img_accum, (9,9))
-        img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
-        
-        img_beard_black = img_beard_gray
-        img_beard_white = cv2.bitwise_not(img_beard_black)
-
-        if debug:
-            from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, image_flood, img_fimg, img_accum, img_beard_black, img_beard_white])            
-
-        print(img_beard_white.shape, img_beard_white.dtype)
-        return img_beard_white
-
-    @classmethod
-    def process_img_old(cls, image, mesh_results, debug=False):
         if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
             print("no face_landmarks found")
             return None 
@@ -129,7 +99,7 @@ class FcxBeard():
         px, py = cls.normalized_to_pixel_coordinates(llm[vt].x, llm[vt].y, image_width, image_height) 
         if px is not None:
             return px, py
-        return None       
+        return None      
 
     @classmethod
     def _get_beard_mask_outter(cls, image, mesh_results):
