@@ -99,7 +99,7 @@ class FcxBeardOld():
         px, py = cls.normalized_to_pixel_coordinates(llm[vt].x, llm[vt].y, image_width, image_height) 
         if px is not None:
             return px, py
-        return None       
+        return None      
 
     @classmethod
     def _get_beard_mask_outter(cls, image, mesh_results):

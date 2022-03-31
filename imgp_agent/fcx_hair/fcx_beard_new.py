@@ -17,7 +17,11 @@ class FcxBeardNew():
         img_beard_color_blur = cv2.blur(img_gabor_filtered, (5,5))
         img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
         
-        img_beard_black = img_beard_gray
+        if cls._has_beard_at_keypoints(img_beard_gray, mesh_results):
+            _, img_beard_gray_th = cv2.threshold(img_beard_gray, 255-16, 255, cv2.THRESH_BINARY)
+            img_beard_black = img_beard_gray_th
+        else:
+            img_beard_black = np.zeros_like(img_beard_gray)
         img_beard_white = cv2.bitwise_not(img_beard_black)
 
         if debug:
@@ -27,6 +31,30 @@ class FcxBeardNew():
 
         print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
+
+    @classmethod
+    def _has_beard_at_keypoints(cls, img_beard_gray, mesh_results):
+        vts = [165, 167, 164, 393, 391, 182, 18, 406, 200, 199]
+        face_landmarks = mesh_results.multi_face_landmarks[0]
+
+        COLOR_HAS_BEARD = 255 - 16
+        beard_cnt = 0
+        beard_vals = []
+        for vt in vts:
+            pt = cls._get_vt_coord(img_beard_gray, face_landmarks, vt)
+            if pt is None:
+                continue
+            pt_x, pt_y = pt
+            val = int(img_beard_gray[pt_y, pt_x])
+            beard_vals.append(val)
+            if val < COLOR_HAS_BEARD:
+                beard_cnt += 1
+        if beard_cnt >= 5:
+            return True
+        val_mean = np.array(beard_vals).mean()
+        if val_mean < COLOR_HAS_BEARD + 8:
+            return True
+        return False
 
     @classmethod
     def _clean_region(cls, image, mesh_results):

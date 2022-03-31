@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 #GK_SIZES = [7,11,15]
 
 THETA_RADIUS_GROUP = [np.pi*2/4] # gabor方向，0°，45°，90°，135°，共四个
-GK_SIZES = [11]
+GK_SIZES = [7,9,11,13,15,17]
 
 # 构建Gabor滤波器
 def build_filters():
@@ -91,8 +91,8 @@ def _filter_imgs(src_dir, selected_names=None):
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
 
-    #filters = build_filters()
-    filter = build_filter_one()
+    filters = build_filters()
+    #filter = build_filter_one()
 
     for filename in filenames:
         if selected_names is not None:
@@ -104,11 +104,11 @@ def _filter_imgs(src_dir, selected_names=None):
             print("not image file", filename)
             continue
 
-        imgs = do_filter(image, filter)
+        #imgs = do_filter(image, filter)
         #imgs = do_filter(image, filters[0])
-        show_imgs(imgs)
+        #show_imgs(imgs)
         
-        #getGabor(image, [filters[0]])
+        getGabor(image, filters)
 
         # if image is None:
         #     print("not able to mark hair on", filename)
@@ -130,8 +130,8 @@ def _add_root_in_sys_path():
         sys.path.append(dir_root)
 
 def do_exp():
-    selected_names = None 
-    #selected_names = ["icl_image5.jpeg"]
+    #selected_names = None 
+    selected_names = ["icl_image4.jpeg"]
 
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
