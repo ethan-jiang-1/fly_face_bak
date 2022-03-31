@@ -12,7 +12,7 @@ from imgp_face_aligment import ImgpFaceAligment
 from imgp_mp_selfie_marker import ImgpSelfieMarker
 from imgp_mp_hair_marker import ImgpHairMarker
 from imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
-from imgp_cv_beard_eyebrow import ImgpBeardEyebrow
+from imgp_cv_beard_extractor import ImgpCvBeardExtractor
 from imgp_common import FileHelper, PlotHelper
 
 
@@ -23,14 +23,14 @@ class FaceShapekeyComparetor(object):
         ImgpSelfieMarker.init_imgp()
         ImgpHairMarker.init_imgp()
         ImgpFacemeshExtractor.init_imgp()
-        ImgpBeardEyebrow.init_imgp()
+        ImgpCvBeardExtractor.init_imgp()
 
     def __del__(self):
         ImgpFaceAligment.close_imgp()
         ImgpSelfieMarker.close_imgp()
         ImgpHairMarker.close_imgp()
         ImgpFacemeshExtractor.close_imgp()
-        ImgpBeardEyebrow.close_imgp()
+        ImgpCvBeardExtractor.close_imgp()
 
     def process(self, filenames):
         from utils.colorstr import log_colorstr
@@ -51,18 +51,18 @@ class FaceShapekeyComparetor(object):
                 continue
 
             img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-            img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
+            img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
             img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-            img_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
-            img_beard, img_eyebrow, _ = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, img_hair, fme_result.mesh_results)
+            img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
+            img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
 
             dt = datetime.now() - d0
             log_colorstr("blue", "total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
-            imgs.extend([img_org, img_facemesh, fme_result.img_facepaint, img_hair])
-            names.extend(["org", "facemesh", "facepaint", "hair"])
+            imgs.extend([img_org, img_facemesh, fme_result.img_facepaint, img_beard, img_hair])
+            names.extend(["org", "facemesh", "facepaint", "beard", "hair"])
 
-        PlotHelper.plot_imgs_grid(imgs, names, mod_num=4)
+        PlotHelper.plot_imgs_grid(imgs, names, mod_num=5)
 
 
 def do_exp():

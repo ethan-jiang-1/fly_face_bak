@@ -13,7 +13,7 @@ from imgp_face_aligment import ImgpFaceAligment
 from imgp_mp_selfie_marker import ImgpSelfieMarker
 from imgp_mp_hair_marker import ImgpHairMarker
 from imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
-from imgp_cv_beard_eyebrow import ImgpBeardEyebrow
+from imgp_cv_beard_extractor import ImgpCvBeardExtractor
 from imgp_common import FileHelper, PlotHelper
 
 FFA_IMGS = namedtuple('FFA_IMGS', 'img_name img_org img_aligned img_selfie img_facemesh img_hair') 
@@ -25,14 +25,14 @@ class FaceFeatureGenerator(object):
         ImgpSelfieMarker.init_imgp()
         ImgpHairMarker.init_imgp()
         ImgpFacemeshExtractor.init_imgp()
-        ImgpBeardEyebrow.init_imgp()
+        ImgpCvBeardExtractor.init_imgp()
 
     def __del__(self):
         ImgpFaceAligment.close_imgp()
         ImgpSelfieMarker.close_imgp()
         ImgpHairMarker.close_imgp()
         ImgpFacemeshExtractor.close_imgp()
-        ImgpBeardEyebrow.close_imgp()
+        ImgpCvBeardExtractor.close_imgp()
 
     def show_results(self, filename,  selected_img_types=None):
         imgs, names, title, dt = self._process_core(filename)
@@ -85,11 +85,11 @@ class FaceFeatureGenerator(object):
                 log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
             return None, None, None, None
 
-        img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org)
+        img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-        img_hair, hsi_ret = ImgpHairMarker.mark_hair(img_aligned)
-        img_beard, img_eyebrow, _ = ImgpBeardEyebrow.extract_beard_eyebrow(img_selfie, hsi_ret.mask_black_sharp, fme_result.mesh_results)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
+        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)

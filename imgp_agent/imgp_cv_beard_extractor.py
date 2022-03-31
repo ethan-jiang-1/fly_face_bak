@@ -4,41 +4,36 @@ import cv2
 import numpy as np
 from collections import namedtuple
 
-BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
+BER_RESULT = namedtuple('BER_RESULT', "img_beard") 
 BER_DEBUG = False
 BER_MODE = "GABOR"
 
-class ImgpBeardEyebrow():
+class ImgpCvBeardExtractor():
     hsi_klass = None 
 
     @classmethod
     def init_imgp(cls):
-        print("ImgpBeardEyebrow inited")
+        print("ImgpCvBeardExtractor inited")
 
     @classmethod
     def close_imgp(cls):
-        print("ImgpBeardEyebrow closed")
+        print("ImgpCvBeardExtractor closed")
 
     @classmethod
-    def extract_beard_eyebrow(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
+    def extract_beard(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
         if BER_MODE == "GABOR":
             img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=False, debug=debug) 
             img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
             img_beard = cls._locate_beard_gabor(img_selfie_wb_no_hair, mesh_results, debug=debug)
-            #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
-            img_eyebrow = None            
         else:
             img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=True, debug=debug) 
             img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
             img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
-            #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
-            img_eyebrow = None
 
-        ber_result = BER_RESULT(img_beard=img_beard,
-                                img_eyebrow=img_eyebrow)
-        return img_beard, img_eyebrow, ber_result
+        ber_result = BER_RESULT(img_beard=img_beard)
+        return img_beard, ber_result
 
     @classmethod
     def _remove_hair(cls, img_selfie, img_hair_black, half=True, debug=False):
@@ -88,11 +83,6 @@ class ImgpBeardEyebrow():
     def _locate_beard_otsu(cls, image, mesh_results, debug=False):
         from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
         return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
-
-    @classmethod
-    def _locate_eyebrow(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_eyebrow import FcxEyebrow
-        return FcxEyebrow.process_img(image, mesh_results, debug=debug)
 
 def do_exp():
     dir_this = os.path.dirname(__file__)
