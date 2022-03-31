@@ -24,7 +24,7 @@ FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 
-class FcxCvBeard():
+class FcxEyebrow():
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
         image_flood = image.copy()

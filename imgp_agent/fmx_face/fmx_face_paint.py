@@ -36,7 +36,7 @@ FMC_RIGHT_EYEBROW = (0, 0, 255)
 FMC_NOSE = (0, 0, 128)
 
 
-class FmxMeshPaint():
+class FmxFacePaint():
     @classmethod
     def normalized_to_pixel_coordinates(cls, normalized_x, normalized_y, image_width, image_height):
         # Checks if the float value is between 0 and 1.

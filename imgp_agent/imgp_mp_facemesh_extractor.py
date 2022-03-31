@@ -69,13 +69,13 @@ class ImgpFacemeshExtractor():
 
     @classmethod
     def _draw_meshes(cls, image, mesh_results):
-        from fmx_mesh.fmx_mesh_grid import FmxMeshGrid
-        return FmxMeshGrid.process_img(image, mesh_results)
+        from fmx_face.fmx_face_mesh import FmxFaceMesh
+        return FmxFaceMesh.process_img(image, mesh_results)
 
     @classmethod
     def _paint_meshes(cls, image, mesh_results):
-        from fmx_mesh.fmx_mesh_paint import FmxMeshPaint
-        return FmxMeshPaint.process_img(image, mesh_results)
+        from fmx_face.fmx_face_paint import FmxFacePaint
+        return FmxFacePaint.process_img(image, mesh_results)
 
     @classmethod
     def _inpect_landmarks(cls, image, face_landmarks):

@@ -68,13 +68,13 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def _locate_beard(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_cv_beard import FcxCvBeard
-        return FcxCvBeard.process_img(image, mesh_results, debug=debug)
+        from fcx_hair.fcx_beard import FcxBeard
+        return FcxBeard.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_eyebrow(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_cv_beard import FcxCvBeard
-        return FcxCvBeard.process_img(image, mesh_results, debug=debug)
+        from fcx_hair.fcx_eyebrow import FcxEyebrow
+        return FcxEyebrow.process_img(image, mesh_results, debug=debug)
 
 def do_exp():
     dir_this = os.path.dirname(__file__)
