@@ -1,4 +1,4 @@
-import numpy as np
+# import numpy as np
 import cv2
 
 try:
@@ -6,17 +6,10 @@ try:
 except:
     from .fcx_base import FcxBase
 
-
-FMB_UPPER_L2R = (147, 187, 205, 36, 203, 98, 97, 2, 326, 327, 423, 266, 425, 411, 376)
-FMB_RIGHT_T2B = (401, 435, 367, 364)
-FMB_BUTTOM_R2L = (394, 395, 369, 396, 175, 171, 140, 170, 169)
-FMB_LEFT_B2T = (135, 138, 215, 177)
-
-FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
-
 FMB_FILL_COLOR = (216, 216, 216)
 
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
+FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 
 class FcxBeardOtsu(FcxBase):
     @classmethod
@@ -25,8 +18,8 @@ class FcxBeardOtsu(FcxBase):
             print("no face_landmarks found")
             return None 
 
-        image_beard_mask_outter, pt_beard_mask_outter_seed = cls._get_beard_mask_outter(image, mesh_results)
-        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls._get_beard_mouth_inner(image, mesh_results)
+        image_beard_mask_outter, pt_beard_mask_outter_seed = cls.get_beard_mask_outter(image, mesh_results, FMB_PX_ALTER)
+        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image, mesh_results)
         img_beard_color0 = cv2.bitwise_and(image, image, mask = image_beard_mask_outter)
         img_beard_color = cv2.bitwise_and(img_beard_color0, img_beard_color0, mask = image_mouth_mask_inner)
 
@@ -41,36 +34,6 @@ class FcxBeardOtsu(FcxBase):
 
         print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
-
-    @classmethod
-    def _get_beard_mask_outter(cls, image, mesh_results):
-        image_beard_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        for face_landmarks in mesh_results.multi_face_landmarks:
-            pts = []
-            for n in FMB_UPPER_L2R:
-                pts.append((n, "U"))
-            for n in FMB_RIGHT_T2B:
-                pts.append((n, "R"))
-            for n in FMB_BUTTOM_R2L:
-                pts.append((n, "B"))
-            for n in FMB_LEFT_B2T:
-                pts.append((n, "L"))
-
-            cls.draw_ploypoints_alter(image_beard_mask_outter, face_landmarks, pts, (255))
-
-        pt_beard_mask_outter_seed = (0, 0)
-        return image_beard_mask_outter, pt_beard_mask_outter_seed
-
-    @classmethod
-    def _get_beard_mouth_inner(cls, image, mesh_results):
-        image_mouth_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        image_mouth_mask_inner[:] = (255)
-        pt_mouth_mask_inner_seed = None
-        for face_landmarks in mesh_results.multi_face_landmarks:
-            cls.draw_ploypoints_alter(image_mouth_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
-
-        pt_mouth_mask_inner_seed = cls.get_vt_coord(image, face_landmarks, 14)
-        return image_mouth_mask_inner, pt_mouth_mask_inner_seed
 
     @classmethod
     def _filter_beard_to_gray_by_threshold(cls, img_beard_color):

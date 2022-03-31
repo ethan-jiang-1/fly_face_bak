@@ -65,7 +65,7 @@ class FcxBeardGabor(FcxBase):
         image_flood = image.copy()
         cls.flood_fill(image_flood, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
   
-        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls._get_beard_mouth_inner(image, mesh_results)
+        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image, mesh_results)
         img_beard_color = cv2.bitwise_and(image_flood, image_flood, mask = image_mouth_mask_inner)
         cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
 
@@ -93,14 +93,3 @@ class FcxBeardGabor(FcxBase):
             img_fimg = cv2.filter2D(image, cv2.CV_8UC1, gabor_filter)
             img_accum = np.maximum(img_accum, img_fimg, img_accum)
         return img_accum
-
-    @classmethod
-    def _get_beard_mouth_inner(cls, image, mesh_results):
-        image_mouth_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        image_mouth_mask_inner[:] = (255)
-        pt_mouth_mask_inner_seed = None
-        for face_landmarks in mesh_results.multi_face_landmarks:
-            cls.draw_ploypoints(image_mouth_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
-
-        pt_mouth_mask_inner_seed = cls.get_vt_coord(image, face_landmarks, 14)
-        return image_mouth_mask_inner, pt_mouth_mask_inner_seed
