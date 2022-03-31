@@ -5,7 +5,7 @@ import numpy as np
 from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
-BER_DEBUG = True
+BER_DEBUG = False
 
 class ImgpBeardEyebrow():
     hsi_klass = None 
@@ -68,13 +68,13 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def _locate_beard(cls, image, mesh_results, debug=False):
-        from fmx_mesh_beard import FmxMeshBeard
-        return FmxMeshBeard.process_img(image, mesh_results, debug=debug)
+        from fcx_hair.fcx_cv_beard import FcxCvBeard
+        return FcxCvBeard.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_eyebrow(cls, image, mesh_results, debug=False):
-        from fmx_mesh_beard import FmxMeshBeard
-        return FmxMeshBeard.process_img(image, mesh_results, debug=debug)
+        from fcx_hair.fcx_cv_beard import FcxCvBeard
+        return FcxCvBeard.process_img(image, mesh_results, debug=debug)
 
 def do_exp():
     dir_this = os.path.dirname(__file__)

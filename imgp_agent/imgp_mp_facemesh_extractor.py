@@ -69,12 +69,12 @@ class ImgpFacemeshExtractor():
 
     @classmethod
     def _draw_meshes(cls, image, mesh_results):
-        from fmx_mesh_grid import FmxMeshGrid
+        from fmx_mesh.fmx_mesh_grid import FmxMeshGrid
         return FmxMeshGrid.process_img(image, mesh_results)
 
     @classmethod
     def _paint_meshes(cls, image, mesh_results):
-        from fmx_mesh_paint import FmxMeshPaint
+        from fmx_mesh.fmx_mesh_paint import FmxMeshPaint
         return FmxMeshPaint.process_img(image, mesh_results)
 
     @classmethod
@@ -105,8 +105,7 @@ def _mark_facemesh_imgs(src_dir, selected_names=None):
 
         FileHelper.save_output_image(image_m, src_dir, filename, "facemesh")
         FileHelper.save_output_image(fme_result.img_facepaint, src_dir, filename, "paintmesh")
-        FileHelper.save_output_image(fme_result.img_facebeard, src_dir, filename, "bread")
-        PlotHelper.plot_imgs([fme_result.img_facepaint, fme_result.img_facebeard])
+        PlotHelper.plot_imgs([image_m, fme_result.img_facepaint])
 
     ImgpFacemeshExtractor.close_imgp()
     print("done")

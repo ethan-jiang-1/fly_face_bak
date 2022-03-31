@@ -10,7 +10,7 @@ def _do_exp_on_dir(src_dir):
     #print(filenames)
 
     for filename in filenames:
-        ffg.process(filename)
+        ffg.save_results(filename)
 
     del ffg
 
