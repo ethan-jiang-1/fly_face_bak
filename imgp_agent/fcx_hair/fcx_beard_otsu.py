@@ -1,15 +1,11 @@
 import numpy as np
-import math
 import cv2
 
-# _RED = (48, 48, 255)
-# _GREEN = (48, 255, 48)
-# _BLUE = (192, 101, 21)
-# _YELLOW = (0, 204, 255)
-# _GRAY = (128, 128, 128)
-# _PURPLE = (128, 64, 128)
-# _PEACH = (180, 229, 255)
-# _WHITE = (224, 224, 224)
+try:
+    from fcx_base import FcxBase
+except:
+    from .fcx_base import FcxBase
+
 
 FMB_UPPER_L2R = (147, 187, 205, 36, 203, 98, 97, 2, 326, 327, 423, 266, 425, 411, 376)
 FMB_RIGHT_T2B = (401, 435, 367, 364)
@@ -20,11 +16,9 @@ FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 9
 
 FMB_FILL_COLOR = (216, 216, 216)
 
-FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
-
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 
-class FcxBeardOtsu():
+class FcxBeardOtsu(FcxBase):
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
         if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
@@ -36,8 +30,8 @@ class FcxBeardOtsu():
         img_beard_color0 = cv2.bitwise_and(image, image, mask = image_beard_mask_outter)
         img_beard_color = cv2.bitwise_and(img_beard_color0, img_beard_color0, mask = image_mouth_mask_inner)
 
-        cls._flood_fill(img_beard_color, pt_seed=pt_beard_mask_outter_seed, color_fill=FMB_FILL_COLOR)
-        cls._flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
+        cls.flood_fill(img_beard_color, pt_seed=pt_beard_mask_outter_seed, color_fill=FMB_FILL_COLOR)
+        cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
 
         img_beard_black = cls._filter_beard_to_gray_by_threshold(img_beard_color)
         img_beard_white = cv2.bitwise_not(img_beard_black)
@@ -47,59 +41,6 @@ class FcxBeardOtsu():
 
         print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
-
-    @classmethod
-    def normalized_to_pixel_coordinates(cls, normalized_x, normalized_y, image_width, image_height):
-        # Checks if the float value is between 0 and 1.
-        def is_valid_normalized_value(value: float) -> bool:
-            return (value > 0 or math.isclose(0, value)) and (value < 1 or math.isclose(1, value))
-
-        if not (is_valid_normalized_value(normalized_x) and
-                is_valid_normalized_value(normalized_y)):
-            # TODO: Draw coordinates even if it's outside of the image bounds.
-            return None, None
-        x_px = min(math.floor(normalized_x * image_width), image_width - 1)
-        y_px = min(math.floor(normalized_y * image_height), image_height - 1)
-        return x_px, y_px
-
-    @classmethod
-    def draw_ploypoints_alter(cls, image, face_landmarks, fmv_vertices, fmc_color):
-        image_width, image_height = image.shape[1], image.shape[0]
-
-        contour = []
-        llm = face_landmarks.landmark
-        for vt in fmv_vertices:
-            num = vt
-            alter_direction = None 
-            if hasattr(vt, "__len__"):
-                num = vt[0]
-                alter_direction = vt[1]
-
-            rx, ry = llm[num].x, llm[num].y,
-            if alter_direction is not None: 
-                if alter_direction in FMB_PX_ALTER:
-                    dx, dy = FMB_PX_ALTER[alter_direction]
-                    rx += dx 
-                    ry += dy
-                else:
-                    print("unknown direction", alter_direction)
-
-            px, py = cls.normalized_to_pixel_coordinates(rx, ry,  image_width, image_height) 
-            if px is not None and py is not None:
-                contour.append([px, py])
-
-        np_contour = np.array(contour)
-        #cv2.polylines(image, [np_contour], 10, fmc_color)
-        cv2.fillPoly(image, [np_contour], fmc_color) 
-
-    @classmethod
-    def _get_vt_coord(cls, image, face_landmarks, vt):
-        image_width, image_height = image.shape[1], image.shape[0]
-        llm = face_landmarks.landmark 
-        px, py = cls.normalized_to_pixel_coordinates(llm[vt].x, llm[vt].y, image_width, image_height) 
-        if px is not None:
-            return px, py
-        return None      
 
     @classmethod
     def _get_beard_mask_outter(cls, image, mesh_results):
@@ -128,14 +69,8 @@ class FcxBeardOtsu():
         for face_landmarks in mesh_results.multi_face_landmarks:
             cls.draw_ploypoints_alter(image_mouth_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
 
-        pt_mouth_mask_inner_seed = cls._get_vt_coord(image, face_landmarks, 14)
+        pt_mouth_mask_inner_seed = cls.get_vt_coord(image, face_landmarks, 14)
         return image_mouth_mask_inner, pt_mouth_mask_inner_seed
-
-    @classmethod
-    def _flood_fill(cls, image, pt_seed=(0, 0), color_fill=FMB_FILL_COLOR):
-        h, w = image.shape[:2]
-        mask_flood = np.zeros([h+2, w+2],np.uint8)
-        cv2.floodFill(image, mask_flood, pt_seed, color_fill, flags=cv2.FLOODFILL_FIXED_RANGE)
 
     @classmethod
     def _filter_beard_to_gray_by_threshold(cls, img_beard_color):
