@@ -5,7 +5,8 @@ import numpy as np
 from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard img_eyebrow") 
-BER_DEBUG = False
+BER_DEBUG = True
+BER_MODE = "new"
 
 class ImgpBeardEyebrow():
     hsi_klass = None 
@@ -20,11 +21,17 @@ class ImgpBeardEyebrow():
 
     @classmethod
     def extract_beard_eyebrow(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
-        #img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, debug=debug) 
-        #img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
+        if BER_MODE == "new":
+            img_beard = cls._locate_beard_new(img_selfie, mesh_results, debug=debug)
+            #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
+            img_eyebrow = None            
+        else:
+            img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, debug=debug) 
+            img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
-        img_beard = cls._locate_beard(img_selfie, mesh_results, debug=debug)
-        img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
+            img_beard = cls._locate_beard_old(img_selfie_wb_no_hair, mesh_results, debug=debug)
+            #img_eyebrow = cls._locate_eyebrow(img_selfie, mesh_results, debug=debug)
+            img_eyebrow = None
 
         ber_result = BER_RESULT(img_beard=img_beard,
                                 img_eyebrow=img_eyebrow)
@@ -67,7 +74,12 @@ class ImgpBeardEyebrow():
         return img_selfie
 
     @classmethod
-    def _locate_beard(cls, image, mesh_results, debug=False):
+    def _locate_beard_old(cls, image, mesh_results, debug=False):
+        from fcx_hair.fcx_beard_old import FcxBeard
+        return FcxBeard.process_img(image, mesh_results, debug=debug)
+
+    @classmethod
+    def _locate_beard_new(cls, image, mesh_results, debug=False):
         from fcx_hair.fcx_beard import FcxBeard
         return FcxBeard.process_img(image, mesh_results, debug=debug)
 

@@ -16,23 +16,34 @@ GK_SIZES = [11]
 
 # 构建Gabor滤波器
 def build_filters():
-     filters = []
-     # ksize = [7,9,11,13,15,17] # gabor尺度，6个
-     lamda = np.pi/2.0         # 波长
-     for theta in THETA_RADIUS_GROUP:
-         for KSIZE in GK_SIZES:
-             kern = cv2.getGaborKernel((KSIZE, KSIZE), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
-             kern /= 1.5*kern.sum()
-             print(kern)
-             filters.append(kern)
-     plt.figure(1)
+    filters = []
+    # ksize = [7,9,11,13,15,17] # gabor尺度，6个
+    lamda = np.pi/2.0         # 波长
+    for theta in THETA_RADIUS_GROUP:
+        for KSIZE in GK_SIZES:
+            kern = cv2.getGaborKernel((KSIZE, KSIZE), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
+            kern /= 1.5*kern.sum()
+            print(kern)
+            filters.append(kern)
 
-     # 用于绘制滤波器
-     for temp in range(len(filters)):
-         plt.subplot(len(THETA_RADIUS_GROUP), len(GK_SIZES), temp + 1)
-         plt.imshow(filters[temp])
-     plt.show()
-     return filters
+    # 用于绘制滤波器
+    #  plt.figure(1)
+    #  for temp in range(len(filters)):
+    #      plt.subplot(len(THETA_RADIUS_GROUP), len(GK_SIZES), temp + 1)
+    #      plt.imshow(filters[temp])
+    #  plt.show()
+    return filters
+
+def build_filter_one():
+    ksize = 11  # kernal size
+    lamda = np.pi / 2.0  # length of wave
+    theta = np.pi * 0.5  # 90 degree
+    #theta = np.pi * 0.0  # 0 degree
+    kern = cv2.getGaborKernel((ksize, ksize), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
+    kern /= 1.5 * kern.sum()
+    gabor_filter = kern 
+
+    return gabor_filter
 
 # Gabor特征提取
 def getGabor(img,filters):
@@ -54,13 +65,34 @@ def getGabor(img,filters):
     plt.show()
     return res  # 返回滤波结果,结果为24幅图，按照gabor角度排列
 
+def do_filter(img, filter):
+    img_accum = np.zeros_like(img)
+    for sub_filter in filter:
+        img_fimg = cv2.filter2D(img, cv2.CV_8UC1, sub_filter)
+        img_accum = np.maximum(img_accum, img_fimg, img_accum)
+    img_af_np = np.asarray(img_accum)
+
+    imgs = [img, img_accum, img_af_np]
+    return imgs
+
+def show_imgs(imgs):
+    #用于绘制滤波效果
+    plt.figure(2)
+    for ndx, img in enumerate(imgs):
+        plt.subplot(1, len(imgs), ndx+1)
+        #plt.imshow(res[temp])
+        plt.imshow(img, cmap='gray')
+    plt.show()
+    return imgs  # 返回滤波结果,结果为24幅图，按照gabor角度排列
+
 
 def _filter_imgs(src_dir, selected_names=None):
     from imgp_agent.imgp_common import FileHelper
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
 
-    filters = build_filters()
+    #filters = build_filters()
+    filter = build_filter_one()
 
     for filename in filenames:
         if selected_names is not None:
@@ -72,7 +104,12 @@ def _filter_imgs(src_dir, selected_names=None):
             print("not image file", filename)
             continue
 
-        getGabor(image, filters)
+        imgs = do_filter(image, filter)
+        #imgs = do_filter(image, filters[0])
+        show_imgs(imgs)
+        
+        #getGabor(image, [filters[0]])
+
         # if image is None:
         #     print("not able to mark hair on", filename)
 
