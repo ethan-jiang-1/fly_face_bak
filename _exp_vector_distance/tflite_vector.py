@@ -38,7 +38,7 @@ if __name__ == "__main__":
             full_path = os.path.join(test_image_dir, file)
             print('full_path:{}'.format(full_path))
 
-            # 只要黑白的，大小控制在(28,28)
+            #
             img = cv2.imread(full_path)
             res_img = cv2.resize(img, (112, 112), interpolation=cv2.INTER_CUBIC)
 

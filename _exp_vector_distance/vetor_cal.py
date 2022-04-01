@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 def get_cos_similar(v1: list, v2: list):
     num = float(np.dot(v1, v2))  # 向量点乘
@@ -24,8 +25,9 @@ def get_uni_vector(A):
     return out
 
 if __name__ == "__main__":
-    name1 = r'./npy/cancan_facepaint.npy'
-    name2 = r'./npy/me_facepaint.npy'
+    dir_this = os.path.dirname(__file__)
+    name1 = r'{}}/npy/cancan_facepaint.npy'.format(dir_this)
+    name2 = r'.{}/npy/me_facepaint.npy'.format(dir_this)
     n1 = np.load(name1,allow_pickle=True)
     n2 = np.load(name2,allow_pickle=True)
     n1 = get_uni_vector(n1)
