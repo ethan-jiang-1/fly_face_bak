@@ -134,8 +134,21 @@ absltest_mediapipe_python/solutions/resultdata
 _npy*
 _test_*
 _reserved_*
+_gen_render_*
 
 !hsi_tflite_interpeter/tflite_custom.macos/tflite_runtime/_pywrap_tensorflow_interpreter_wrapper.so
 !hsi_tflite_interpeter/tflite_custom.linux/tflite_runtime/_pywrap_tensorflow_interpreter_wrapper.so
 
 *.blend1
+
+__pycache__
+
+*.blend1
+z_*.blend
+z_*.*
+
+*.blend.txt
+new_inspect.txt
+
+.history
+**/.history/
