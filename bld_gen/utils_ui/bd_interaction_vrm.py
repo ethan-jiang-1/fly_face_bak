@@ -1,10 +1,10 @@
-from bld_utils_ui.bd_interaction import BdInteraction
+from bld_gen.utils_ui.bd_interaction import BdInteraction
 
 
 class BdInteractionVrm(BdInteraction):
     @classmethod
     def get_vrm_info(cls, bpy_data, debug=True):
-        from bld_utils_model.finder_vrm_info import FinderVrmInfo
+        from bld_gen.utils_model.finder_vrm_info import FinderVrmInfo
         return FinderVrmInfo.find_info(bpy_data)
 
     @classmethod
@@ -43,7 +43,7 @@ class BdInteractionVrm(BdInteraction):
 
     @classmethod
     def play_vrm_eye_movement(cls, renv, vrm_info):
-        from bld_utils_ui.bd_interaction_eye import BdInteractionEye
+        from bld_gen.utils_ui.bd_interaction_eye import BdInteractionEye
 
         pose_bone_eye_left = vrm_info.eye_left_pose_bone_in_vrm0
         pose_bone_eye_right = vrm_info.eye_right_pose_bone_in_vrm0

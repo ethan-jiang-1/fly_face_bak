@@ -20,7 +20,7 @@ class _RunEnv(object):
 
     @classmethod
     def _pop_last_sub_folder(cls, root_dir):
-        subfolders = ["_reserved_", "exp_render_", "exp_draw_", "exp_chk_", "exp_mocap_", "bldmc_"]
+        subfolders = ["_reserved_", "bldmc_"]
         names = root_dir.split(os.sep)
         for subfolder in subfolders:
             if names[-1].startswith(subfolder):
@@ -38,6 +38,7 @@ class _RunEnv(object):
         else:
             raise ValueError("blend need to be open first")
         root_dir = cls._pop_last_sub_folder(root_dir)
+        root_dir = os.path.dirname(root_dir)
         print("root_dir", root_dir)
         return root_dir
 
@@ -65,13 +66,13 @@ def _prepare_run_env():
     return _RunEnv
 
 def _dyn_load_to_run(renv, action):
-    import bld_utils_core.exp_run_core_selection as exp_run_core_selection
+    import bld_gen.utils_core.exp_run_core_selection as exp_run_core_selection
     print("reload main from main_debug")
     importlib.reload(exp_run_core_selection)
     exp_run_core_selection.select_core_to_run(renv, action=action)
 
 def _reload_all_modules(renv):
-    import bld_utils_core.reload_all_modules as reload_all_modules
+    import bld_gen.utils_core.reload_all_modules as reload_all_modules
     print("reload reload_all_modules", reload_all_modules)
     importlib.reload(reload_all_modules)
     root_dir = renv.get_root_dir()

@@ -1,4 +1,4 @@
-from bld_utils_model.easy_dict import EasyDict
+from bld_gen.utils_model.easy_dict import EasyDict
 
 VT_VAL_MAX = 10000
 VT_VAL_MIN = -VT_VAL_MAX

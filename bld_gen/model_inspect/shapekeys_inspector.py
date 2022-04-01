@@ -1,7 +1,7 @@
 import os
-from bld_utils_ui.bd_interaction import BdInteraction 
-from bld_utils_ui.bd_interaction_shapekeys import BdInteractionShapeKeys
-from bld_utils_ui.bd_interaction_vrm import BdInteractionVrm
+from bld_gen.utils_ui.bd_interaction import BdInteraction 
+from bld_gen.utils_ui.bd_interaction_shapekeys import BdInteractionShapeKeys
+from bld_gen.utils_ui.bd_interaction_vrm import BdInteractionVrm
 
 DEFAULT_BS_STRENGTH = 0.0
 DEFAULT_PLAY_MODE = "NATIVE|VRM|ARKIT",

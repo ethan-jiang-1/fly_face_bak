@@ -1,5 +1,5 @@
 import mathutils
-from bld_utils_ui.bd_interaction import BdInteraction
+from bld_gen.utils_ui.bd_interaction import BdInteraction
 
 
 class BdInteractionEye(BdInteraction):

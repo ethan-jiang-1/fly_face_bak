@@ -1,4 +1,4 @@
-from bld_utils_model.easy_dict import EasyDict
+from bld_gen.utils_model.easy_dict import EasyDict
 import pprint 
 
 class ShapekeysInfo(EasyDict):

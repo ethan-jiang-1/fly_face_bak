@@ -1,4 +1,4 @@
-from bld_utils_model.easy_dict import EasyDict
+from bld_gen.utils_model.easy_dict import EasyDict
 from collections import OrderedDict
 import pprint
 
@@ -205,7 +205,7 @@ class FinderVrmInfo(object):
 
     @classmethod
     def _fill_vrm_eye_bones(cls, bpy_data, left_eye_value, right_eye_value, vrm_info):
-        from bld_utils_model.finder_bones_eye import FinderBonesEye
+        from bld_gen.utils_model.finder_bones_eye import FinderBonesEye
         right_eye_bone, left_eye_bone, right_eye_pose_bone, left_eye_pose_bone = FinderBonesEye.find_eye_bones(bpy_data, left_eye_value, right_eye_value)
         
         vrm_info.eye_left_value_in_vrm0 = left_eye_value

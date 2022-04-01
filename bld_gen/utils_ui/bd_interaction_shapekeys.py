@@ -1,10 +1,10 @@
-from bld_utils_ui.bd_interaction import BdInteraction
+from bld_gen.utils_ui.bd_interaction import BdInteraction
 
 
 class BdInteractionShapeKeys(BdInteraction):
     @classmethod
     def get_shapekeys_info(cls, bpy_data, debug=True):
-        from bld_utils_model.finder_shapekeys_info import FinderShapekeysInfo
+        from bld_gen.utils_model.finder_shapekeys_info import FinderShapekeysInfo
         return FinderShapekeysInfo.find_grouped_shapekeys_info(bpy_data)
 
     @classmethod

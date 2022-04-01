@@ -47,7 +47,7 @@ class MY_PT_DevMsgPanel(bpy.types.Panel):
 
     @classmethod
     def _ensure_refresh_region(cls):
-        from bld_utils_ui.wnd_finder import WndFinder
+        from bld_gen.utils_ui.wnd_finder import WndFinder
         if cls.g_region_refresh is None:
             region = WndFinder.find_wnd_region(area_type="VIEW_3D", region_type="UI")
             print("find refresh region", region)

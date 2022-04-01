@@ -11,15 +11,15 @@ ADDON_DEV_MODULE = "dev_modal"
 
 def _find_register_module():
     if ADDON_DEV_MODULE == "dev_confirmation":
-        import bld_utils_core.addon_dev_confirmation as addon_dev_confirmation
+        import bld_gen.utils_core.addon_dev_confirmation as addon_dev_confirmation
         importlib.reload(addon_dev_confirmation)
         return addon_dev_confirmation
     elif ADDON_DEV_MODULE == "dev_msg_panel":
-        import bld_utils_core.addon_dev_msg_panel as addon_dev_msg_panel
+        import bld_gen.utils_core.addon_dev_msg_panel as addon_dev_msg_panel
         importlib.reload(addon_dev_msg_panel)
         return addon_dev_msg_panel
     elif ADDON_DEV_MODULE == "dev_modal":
-        import bld_utils_core.addon_dev_modal as addon_dev_modal
+        import bld_gen.utils_core.addon_dev_modal as addon_dev_modal
         importlib.reload(addon_dev_modal)
         return addon_dev_modal
     return None

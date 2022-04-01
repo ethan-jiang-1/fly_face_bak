@@ -14,7 +14,7 @@ def _find_sub_folder(root_dir, unified_name):
     for leading in ["exp_", "bldmc_"]:
         rel_sub_exp_folder_name = "{}{}".format(leading, unified_name)
 
-        sub_folder = "{}{}{}".format(root_dir, os.sep, rel_sub_exp_folder_name)
+        sub_folder = "{}/bld_gen/{}{}".format(root_dir, os.sep, rel_sub_exp_folder_name)
         if os.path.isdir(sub_folder):
             return sub_folder, rel_sub_exp_folder_name
     return None, None

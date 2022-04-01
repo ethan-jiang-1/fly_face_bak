@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from bld_tools_mp4.mp4_maker import Mp4Maker
+from bld_gen.tools_mp4.mp4_maker import Mp4Maker
 
 #IMGS_FOLDER = "_gen_render_little_star"
 #IMGS_FOLDER = "_gen_render_green_plant"

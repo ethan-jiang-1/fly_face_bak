@@ -10,15 +10,15 @@ RELOAD_ALL_MODULES = True
 
 def _handle_dev_msg(sender, **kwargs):
     print("*hm:", sender, kwargs)
-    from bld_utils_core.addon_dev_msg_panel import MY_PT_DevMsgPanel
+    from bld_gen.utils_core.addon_dev_msg_panel import MY_PT_DevMsgPanel
     MY_PT_DevMsgPanel.receive_dev_msg(sender, kwargs["message"])
 
 class _InterfaceDevMsg(object):
     def __init__(self):
-        from bld_utils_core.dev_signal_msg import get_sig_msg
+        from bld_gen.utils_core.dev_signal_msg import get_sig_msg
         self.sig_msg = get_sig_msg()
 
-        from bld_utils_core.addon_dev_msg_panel import MY_PT_DevMsgPanel
+        from bld_gen.utils_core.addon_dev_msg_panel import MY_PT_DevMsgPanel
         MY_PT_DevMsgPanel.init()
 
     def send_dev_msg(self, msg):
@@ -52,7 +52,7 @@ class _RunEnv(object):
 
     @classmethod
     def _pop_last_sub_folder(cls, root_dir):
-        subfolders = ["_reserved_", "exp_render_", "exp_draw_", "exp_chk_", "exp_mocap_"]
+        subfolders = ["_reserved_", "bldmc_"]
         names = root_dir.split(os.sep)
         for subfolder in subfolders:
             if names[-1].startswith(subfolder):
@@ -70,6 +70,7 @@ class _RunEnv(object):
         else:
             raise ValueError("blend need to be open first")
         root_dir = cls._pop_last_sub_folder(root_dir)
+        root_dir = os.path.dirname(root_dir)        
         print("root_dir", root_dir)
         return root_dir
 
@@ -104,12 +105,12 @@ def _prepare_run_env():
 
 def _prepare_to_run(renv):
     print("prepare to run")
-    from bld_utils_core.addon_dev_msg_panel import register
+    from bld_gen.utils_core.addon_dev_msg_panel import register
     register()
 
 def _prepare_to_exit(renv):
     print("prepare to exit")
-    #from bld_utils_core.dev_msg_panel import unregister
+    #from bld_gen.utils_core.dev_msg_panel import unregister
     #unregister()
     inf_dev_msg = renv.get_interface_dev_msg()
     if inf_dev_msg is not None:
@@ -117,13 +118,13 @@ def _prepare_to_exit(renv):
 
 
 def _dyn_load_to_run(renv, action):
-    import bld_utils_core.exp_run_core_selection as exp_run_core_selection
+    import bld_gen.utils_core.exp_run_core_selection as exp_run_core_selection
     print("reload main from main_debug")
     importlib.reload(exp_run_core_selection)
     exp_run_core_selection.select_core_to_run(renv, action=action)
 
 def _reload_all_modules(renv):
-    import bld_utils_core.reload_all_modules as reload_all_modules
+    import bld_gen.utils_core.reload_all_modules as reload_all_modules
     print("reload reload_all_modules", reload_all_modules)
     importlib.reload(reload_all_modules)
     root_dir = renv.get_root_dir()

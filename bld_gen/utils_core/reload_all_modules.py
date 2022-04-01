@@ -2,8 +2,8 @@ import os
 import sys # we use sys.path
 import importlib # we use importlib.import_module
 
-MODLES_EXCLUED = ["bld_utils_core.reload_all_modules",
-                  "bld_utils_model.easy_dict"]
+MODLES_EXCLUED = ["bld_gen.utils_core.reload_all_modules",
+                  "bld_gen.utils_model.easy_dict"]
 
 def _reload_all_py_in_subfolder(root_dir, subfolder):
     import_folder = "{}{}{}".format(root_dir, os.sep, subfolder)
@@ -36,7 +36,7 @@ def _reload_all_py_in_subfolder(root_dir, subfolder):
             importlib.import_module(mod_name)
 
 def _find_sub_folders(root_dir):
-    reserved_folders = ["bld_model_inspect", "bld_utils_core", "bld_utils_model", "bld_utils_ui"]
+    reserved_folders = ["bld_gen/model_inspect", "bld_gen/utils_core", "bld_gen/utils_model", "bld_gen/utils_ui"]
     names = os.listdir(root_dir)
 
     exp_folders = []
@@ -45,7 +45,7 @@ def _find_sub_folders(root_dir):
         if not os.path.isdir(dir_name):
             continue
 
-        if name.startswith("exp_"):
+        if name.startswith("exp_") or name.startswith("bldmc_"):
             exp_folders.append(name)
 
     return reserved_folders + exp_folders

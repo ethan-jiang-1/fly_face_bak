@@ -1,6 +1,6 @@
 import os
-from bld_utils_ui.bd_interaction import BdInteraction
-from bld_utils_ui.bd_interaction_shapekeys import BdInteractionShapeKeys
+from bld_gen.utils_ui.bd_interaction import BdInteraction
+from bld_gen.utils_ui.bd_interaction_shapekeys import BdInteractionShapeKeys
 
 class BpyDataInsbase(object):
     def __init__(self, bpy_data, renv=None, inspect_flags="ALL"):
@@ -153,7 +153,7 @@ class BpyDataInsbase(object):
         return gen_img_folder
 
     def take_shot(self, shot_info):
-        from bld_utils_ui.bd_render import BdRender
+        from bld_gen.utils_ui.bd_render import BdRender
         if shot_info is not None:
             img_pathname = "{}{}{}_{:06d}.png".format(shot_info.gen_img_folder, os.sep, shot_info.prefix, shot_info.ndx)
             BdRender.render_scene_to_img(img_pathname)  
