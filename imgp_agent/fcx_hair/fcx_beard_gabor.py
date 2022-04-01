@@ -80,7 +80,8 @@ class FcxBeardGabor(FcxBase):
 
     @classmethod
     def _filter_by_gabor_filter(cls, image):
-        ksize = 11  # kernal size
+        #ksize = 11  # kernal size
+        ksize = 5  # kernal size
         lamda = np.pi / 2.0  # length of wave
         theta = np.pi * 0.5  # 90 degree
         #theta = np.pi * 0.0  # 0 degree
