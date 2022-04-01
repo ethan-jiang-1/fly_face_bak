@@ -5,12 +5,16 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 import cv2
 import numpy as np
 import time
+from datetime import datetime 
 
 import tflite_runtime.interpreter as tflite
 
 if __name__ == "__main__":
-    test_image_dir = '../_reserved_output_feature_gen'
-    model_path = "MobileFaceNet_epoch_4_iter_16000.tflite"
+    dir_this = os.path.dirname(__file__)
+    test_image_dir = '{}/../_reserved_output_feature_gen'.format(dir_this)
+    model_path = "{}/MobileFaceNet_epoch_4_iter_16000.tflite".format(dir_this)
+    dir_npy = "{}/_npy".format(dir_this)
+    os.makedirs(dir_npy, exist_ok=True)
 
     # Load TFLite model and allocate tensors.
     interpreter = tflite.Interpreter(model_path=model_path)
@@ -48,14 +52,17 @@ if __name__ == "__main__":
             interpreter.set_tensor(input_details[0]['index'], image_np_expanded)
 
             # 调用模型
+            d0 = datetime.now()
             interpreter.invoke()
             output_data = interpreter.get_tensor(output_details[0]['index'])
             model_interpreter_time += time.time() - model_interpreter_start_time
+            dt = datetime.now() - d0
+            print("interence time: {:.3}sec".format(dt.total_seconds()))
 
             # 出来的结果去掉没用的维度
             result = np.squeeze(output_data)
             # save
-            np.save('./npy/{}.npy'.format(file.split('.')[0]),result)
+            np.save('{}/{}.npy'.format(dir_npy, file.split('.')[0]),result)
 
             # print('result:{}'.format(result))
             # print('result:{}'.format(sess.run(output, feed_dict={newInput_X: image_np_expanded})))

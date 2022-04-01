@@ -131,6 +131,7 @@ dmypy.json
 .vscode
 absltest_mediapipe_python/solutions/resultdata
 
+_npy*
 _test_*
 _reserved_*
 
