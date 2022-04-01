@@ -21,9 +21,9 @@ class Mp4Maker(object):
         return resolution
 
     @classmethod
-    def create_mp4_file(cls, dst_dir, filenames, src_dir, fps=24.0):
+    def create_mp4_file(cls, dst_dir, filenames, src_name, fps=24.0):
         import cv2
-        output_pathname = "output{}.mp4".format(src_dir)
+        output_pathname = "output{}.mp4".format(src_name)
         dst_path = "{}{}{}".format(dst_dir, os.sep, output_pathname)
 
         resolution = cls.get_resolution(filenames[0])
