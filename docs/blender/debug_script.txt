@@ -1,0 +1,16 @@
+
+1. Open Visual code with this project open
+    from visual code: View -> Command Pallete.. -> Blender: start
+
+    this will kick off blender in Visual code debugging mode so that you are able to debug the python code 
+
+
+
+2.  Follow "Blender: start"  you will open blender 
+    select a blend project in blenlder:  such as  x_monkey.blender
+    2.1) go script and open main_debug.py in text editor  (reopen again if previous session is ended,  this will reload all scripts)
+    2.2) switch to visual code setup break points different submodule (for example, src_monkey/run_core_monkey.py)
+    2.3) hit run in blender to run the main_debug.py 
+    2.4) the main_debug.py will reload run_core_selection to pick up the right script to run
+    2.4) you are able to stop somewhere in you break points
+

@@ -1,0 +1,25 @@
+1) create exp_oooo folder for handle x_oooo.blender project
+
+    exp_chk_xxx     experiments for checking different 3D model etc
+    exp_draw_xxx    experiements for blender drawing 
+    exp_mocap_xxx   experiments for motion capture
+    exp_render_xxx  experiements for blender image rendering 
+
+
+2) make run_core.py to expose differnet experiment
+
+    function exposed by run_core.py should looks like 
+    
+    do_exp
+        if no particular actoin needed
+
+    do_exp_xxxx
+        xxxx is the selected action name
+
+3) the do_exp / do_exp_ooo will accept renv (running enviroment to expose host env)
+
+    def do_exp(renv)
+
+    or 
+
+    def do_exp_oooo(renv)
