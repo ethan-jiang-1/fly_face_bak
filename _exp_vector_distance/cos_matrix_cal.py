@@ -31,13 +31,14 @@ def get_uni_vector(A):
 
 
 if __name__ == "__main__":
-    files_path = "./npy"
+    dir_this = os.path.dirname(__file__)
+    files_path = "{}/_npy".format(dir_this)
     file_list = os.listdir(files_path)
     
     # filter name 
     new_file_list = []
     for file in file_list:
-        if 'beard'  in file:
+        if 'beard' in file:
             new_file_list.append(file)
     
     cos_matrix = []
@@ -49,8 +50,8 @@ if __name__ == "__main__":
         
         for file2 in new_file_list:            
             
-            n1 = np.load("./npy/"+file,allow_pickle=True)
-            n2 = np.load("./npy/"+file2,allow_pickle=True)
+            n1 = np.load("{}/_npy/".format(dir_this)+file,allow_pickle=True)
+            n2 = np.load("{}/_npy/".format(dir_this)+file2,allow_pickle=True)
             cos = get_cos_similar(n1,n2)            
             # distance = get_vectorDistance(n1,n2)            
             c_list.append(cos)
@@ -58,5 +59,5 @@ if __name__ == "__main__":
         cos_matrix.append(c_list)
         
     df = pd.DataFrame(cos_matrix, columns = new_file_list, index = new_file_list)
-    df.to_excel('./output/beard_matrix.xlsx',index=True)
+    df.to_excel('{}/_output/beard_matrix.xlsx'.format(dir_this),index=True)
      
