@@ -26,7 +26,7 @@ def get_uni_vector(A):
 
 if __name__ == "__main__":
     dir_this = os.path.dirname(__file__)
-    name1 = r'{}}/npy/cancan_facepaint.npy'.format(dir_this)
+    name1 = r'{}/npy/cancan_facepaint.npy'.format(dir_this)
     name2 = r'.{}/npy/me_facepaint.npy'.format(dir_this)
     n1 = np.load(name1,allow_pickle=True)
     n2 = np.load(name2,allow_pickle=True)

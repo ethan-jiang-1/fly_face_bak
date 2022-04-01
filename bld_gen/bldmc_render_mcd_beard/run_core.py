@@ -88,7 +88,8 @@ def do_exp_capture(renv):
     return bd.adjust_capture_imgs()
 
 def do_exp(renv):
-    return do_exp_show(renv)
+    #return do_exp_show(renv)
+    return do_exp_capture(renv)
 
 
 if __name__ == '__main__':

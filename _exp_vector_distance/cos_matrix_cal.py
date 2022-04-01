@@ -60,4 +60,3 @@ if __name__ == "__main__":
         
     df = pd.DataFrame(cos_matrix, columns = new_file_list, index = new_file_list)
     df.to_excel('{}/_output/beard_matrix.xlsx'.format(dir_this),index=True)
-     
