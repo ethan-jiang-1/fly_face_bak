@@ -1,0 +1,16 @@
+1.  Setup visual code:
+
+    1.1) Install Blender Development extension in visual code 
+         go to visual code find "Blender Development" by Jacques Lucke and install the extension
+
+    1.2) follow Blender Development to create an new addon in fresh new subfolder 
+         this will help to setup a dev addon in blender to hook the debugging enviornment 
+         ignore the __init__.py generated
+
+
+2. Setup Blender:
+    2.1  make sure you have Blender 3.0+ installed 
+
+
+
+

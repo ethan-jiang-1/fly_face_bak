@@ -1,0 +1,16 @@
+1) using load_xxx_addon to register/unregister your addon -- remove the one register previously 
+
+2) open blender project and setup where the root folder script is for visual code,  i.e  visual code knows where the source code is for tracking
+
+    https://github.com/AlansCodeLog/blender-debugger-for-vscode
+    Setup up your Addon 
+
+    In 3.0: Preferences > File > Script 
+        select the root folder of where fly_plant is 
+
+
+3) once 1/2 are done,  open load_xxx_adon.py,  run script to register (or unregister and then register)
+   the new addon should be appeared in blender
+
+4) you are able to set break point in whereever you like to stop,  even the code is in modal mode. 
+

@@ -1,0 +1,63 @@
+make sure you have blender 3.0 installed 
+
+1. there are two python pip package need installed:
+  1) flask
+  2) debugpy
+  # 3) blinker  -- if you need msgpanel addon
+
+2. setup example in windows 
+    https://blog.csdn.net/G2yyyy/article/details/113820119
+    copy below script into script editor and run 
+
+
+3.A  Setup in blender console
+    # 1. setup 
+    import subprocess
+    import sys
+    import os
+
+    # 2. path to python.exe (only works for windows for macos change to python.m)
+    python_exe = os.path.join(sys.prefix,'bin', 'python.exe')
+
+
+    # 3. upgrade pip
+    subprocess.call([python_exe, "-m", "ensurepip"])
+    subprocess.call([python_exe, "-m", "pip", "install", "--upgrade", "pip"])
+
+    # 4. install required packages
+    subprocess.call([python_exe, "-m", "pip", "install", "requests"])
+    subprocess.call([python_exe, "-m", "pip", "install", "flask"])
+
+3.B Setup in console 
+    find where you blender's python interpretuer is:
+
+    B.1) for macos 
+    for example for macos,  the python is located somewhere like:
+    /Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9
+
+    using full path to:
+    /Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9 -m ensurepip
+    /Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9 -m pip install --upgrade pip
+    /Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9 -m pip install requests
+    /Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9 -m pip install flask
+    /Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9 -m pip install debugpy
+    #/Applications/Blender.app/Contents/Resources/3.0/python/bin/python3.9 -m pip install blinker
+
+
+    B.2) for windows
+    for example for macos,  the python is located somewhere like:
+    C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe
+
+    using fill path to: 
+    C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe -m ensurepip
+    C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe insall --upgrade pip
+    C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe installrequests
+    C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe install flask
+    C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe install debugpy
+    #C:\Program Files\Blender Foundation\Blender 2.93\2.93\python\bin\python.exe install blinker
+
+
+    B.3) for linux 
+    find where blender installed in liux... do the same above 
+
+
