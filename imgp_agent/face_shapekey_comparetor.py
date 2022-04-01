@@ -59,10 +59,10 @@ class FaceShapekeyComparetor(object):
             dt = datetime.now() - d0
             log_colorstr("blue", "total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
-            imgs.extend([img_org, img_facemesh, fme_result.img_facepaint, img_beard, img_hair])
-            names.extend(["org", "facemesh", "facepaint", "beard", "hair"])
+            imgs.extend([img_org, img_facemesh, fme_result.img_facepaint, fme_result.img_outline, img_beard, img_hair])
+            names.extend(["org", "facemesh", "facepaint", "outline", "beard", "hair"])
 
-        PlotHelper.plot_imgs_grid(imgs, names, mod_num=5)
+        PlotHelper.plot_imgs_grid(imgs, names, mod_num=6)
 
 
 def do_exp():

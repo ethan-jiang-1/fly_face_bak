@@ -4,13 +4,6 @@ import cv2
 import numpy as np
 
 _RED = (48, 48, 255)
-_GREEN = (48, 255, 48)
-_BLUE = (192, 101, 21)
-_YELLOW = (0, 204, 255)
-_GRAY = (128, 128, 128)
-_PURPLE = (128, 64, 128)
-_PEACH = (180, 229, 255)
-_WHITE = (224, 224, 224)
 
 FMV_FACE_OVAL = (127, 162, 21, 54, 103, 67, 109, 10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234)
 FMV_LEFT_EYE = (382, 398, 384, 385, 386, 387, 388, 466, 263, 263, 249, 390, 373, 374, 380, 381)
@@ -70,7 +63,11 @@ class FmxFacePaint():
         if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
             print("no face_landmarks found")
             return None 
+        
+        return cls.paint_face_core(image, mesh_results, paint_mode="all")
 
+    @classmethod
+    def paint_face_core(cls, image, mesh_results, paint_mode="all"):
         image = np.zeros(image.shape, dtype=image.dtype)
         mp_face_mesh = mp.solutions.face_mesh
         mp_drawing = mp.solutions.drawing_utils
@@ -79,48 +76,33 @@ class FmxFacePaint():
         print("len(mesh_results.multi_face_landmarks)", len(mesh_results.multi_face_landmarks))
         for face_landmarks in mesh_results.multi_face_landmarks:
 
-            cls.draw_ploypoints(image, face_landmarks, FMV_FACE_OVAL, FMC_FACE_OVAL)
+            if paint_mode == "all":
+                cls.draw_ploypoints(image, face_landmarks, FMV_FACE_OVAL, FMC_FACE_OVAL)
+            elif paint_mode == "outline":
+                cls.draw_ploypoints(image, face_landmarks, FMV_FACE_OVAL, (255, 255, 255))                
 
-            landmark_ds = mp_drawing_styles.DrawingSpec(color=_RED, thickness=1, circle_radius=2)
-            connection_ds = mp_drawing_styles.DrawingSpec(color=FMC_FACE_OVAL, thickness=1)
-            mp_drawing.draw_landmarks(
-                image=image,
-                landmark_list=face_landmarks,
-                connections=mp_face_mesh.FACEMESH_TESSELATION,
-                landmark_drawing_spec=landmark_ds,
-                connection_drawing_spec=connection_ds)
+            if paint_mode == "all":
+                landmark_ds = mp_drawing_styles.DrawingSpec(color=_RED, thickness=1, circle_radius=2)
+                connection_ds = mp_drawing_styles.DrawingSpec(color=FMC_FACE_OVAL, thickness=1)
+                mp_drawing.draw_landmarks(
+                    image=image,
+                    landmark_list=face_landmarks,
+                    connections=mp_face_mesh.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=landmark_ds,
+                    connection_drawing_spec=connection_ds)
 
-            cls.draw_ploypoints(image, face_landmarks, FMV_LEFT_EYE, FMC_LEFT_EYE)
-            cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYE, FMC_RIGHT_EYE)
+                cls.draw_ploypoints(image, face_landmarks, FMV_LEFT_EYE, FMC_LEFT_EYE)
+                cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYE, FMC_RIGHT_EYE)
 
-            cls.draw_ploypoints(image, face_landmarks, FMV_LEFT_IRIS, FMC_LEFT_IRIS)
-            cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_IRIS, FMC_RIGHT_IRIS)
+                cls.draw_ploypoints(image, face_landmarks, FMV_LEFT_IRIS, FMC_LEFT_IRIS)
+                cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_IRIS, FMC_RIGHT_IRIS)
 
-            cls.draw_ploypoints(image, face_landmarks, FMV_MOUTH_OUTTER, FMC_MOUTH_OUTTER)
-            cls.draw_ploypoints(image, face_landmarks, FMV_MOUTH_INNER, FMC_MOUTH_INNER)
+                cls.draw_ploypoints(image, face_landmarks, FMV_MOUTH_OUTTER, FMC_MOUTH_OUTTER)
+                cls.draw_ploypoints(image, face_landmarks, FMV_MOUTH_INNER, FMC_MOUTH_INNER)
 
-            cls.draw_ploypoints(image, face_landmarks, FMV_LEFT_EYEBROW, FMC_LEFT_EYEBROW)
-            cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYEBROW, FMC_RIGHT_EYEBROW)
-            cls.draw_ploypoints(image, face_landmarks, FMV_NOSE, FMC_NOSE)
+                cls.draw_ploypoints(image, face_landmarks, FMV_LEFT_EYEBROW, FMC_LEFT_EYEBROW)
+                cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYEBROW, FMC_RIGHT_EYEBROW)
+                cls.draw_ploypoints(image, face_landmarks, FMV_NOSE, FMC_NOSE)
 
-            # ds_tesselation = mp_drawing_styles.DrawingSpec(color=_GRAY, thickness=1)
-            # mp_drawing.draw_landmarks(
-            #     image=image,
-            #     landmark_list=face_landmarks,
-            #     connections=mp_face_mesh.FACEMESH_TESSELATION,
-            #     landmark_drawing_spec=None,
-            #     connection_drawing_spec=ds_tesselation)
-            # mp_drawing.draw_landmarks(
-            #     image=image,
-            #     landmark_list=face_landmarks,
-            #     connections=mp_face_mesh.FACEMESH_CONTOURS,
-            #     landmark_drawing_spec=None,
-            #     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style())
-            # mp_drawing.draw_landmarks(
-            #     image=image,
-            #     landmark_list=face_landmarks,
-            #     connections=mp_face_mesh.FACEMESH_IRISES,
-            #     landmark_drawing_spec=None,
-            #     connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
         print(image.shape, image.dtype)
         return image

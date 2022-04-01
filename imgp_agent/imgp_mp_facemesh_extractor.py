@@ -4,7 +4,7 @@ import os
 import mediapipe as mp
 from collections import namedtuple
 
-FME_RESULT = namedtuple('FME_RESULT', "img_org img_facemesh, img_facepaint, mesh_results") 
+FME_RESULT = namedtuple('FME_RESULT', "img_org img_facemesh img_facepaint img_outline mesh_results") 
 
 class ImgpFacemeshExtractor():
     slt_facemesh = None 
@@ -38,10 +38,12 @@ class ImgpFacemeshExtractor():
 
         img_facemesh = cls._draw_meshes(image, mesh_results)
         img_facepaint = cls._paint_meshes(image, mesh_results)
+        img_outline = cls._paint_outline(image, mesh_results)
 
         fme_result = FME_RESULT(img_org=img_org,
                                 img_facemesh=img_facemesh,
                                 img_facepaint=img_facepaint,
+                                img_outline = img_outline,
                                 mesh_results=mesh_results)
         return img_facemesh, fme_result
 
@@ -76,6 +78,11 @@ class ImgpFacemeshExtractor():
     def _paint_meshes(cls, image, mesh_results):
         from fmx_face.fmx_face_paint import FmxFacePaint
         return FmxFacePaint.process_img(image, mesh_results)
+
+    @classmethod
+    def _paint_outline(cls, image, mesh_results):
+        from fmx_face.fmx_face_outline import FmxFaceOutline
+        return FmxFaceOutline.process_img(image, mesh_results)
 
     @classmethod
     def _inpect_landmarks(cls, image, face_landmarks):

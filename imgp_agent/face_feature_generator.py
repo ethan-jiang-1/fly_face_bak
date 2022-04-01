@@ -86,7 +86,7 @@ class FaceFeatureGenerator(object):
             return None, None, None, None
 
         img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-        img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned)
+        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
         img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
         img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
@@ -95,8 +95,8 @@ class FaceFeatureGenerator(object):
         basename = os.path.basename(filename)
         log_colorstr("blue", "total inference time: for {}: {:.3f}sec\n".format(basename, dt.total_seconds()))
 
-        imgs = [img_org, img_aligned, img_selfie, img_selfie_mask, img_facemesh, fme_result.img_facepaint, img_beard, img_hair]
-        names = ["org", "aligned", "selfie", "selfie_mask", "facemesh", "facepaint", "beard", "hair"]
+        imgs = [img_org, img_aligned, img_selfie,  img_facemesh, fme_result.img_facepaint, fme_result.img_outline, img_beard, img_hair]
+        names = ["org", "aligned", "selfie", "facemesh", "facepaint", "outline", "beard", "hair"]
         title = os.path.basename(filename)
         return imgs, names, title, dt
 
