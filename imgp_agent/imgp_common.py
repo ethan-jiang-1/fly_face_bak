@@ -13,6 +13,7 @@ class FileHelper(object):
         for name in names:
             if name.endswith(".jpg") or name.endswith(".jpeg"):
                 filenames.append(os.sep.join([src_dir, name]))
+        filenames = sorted(filenames)
         return filenames
 
     @classmethod
@@ -76,8 +77,8 @@ class PlotHelper(object):
         plt.show()    
 
     @classmethod
-    def plot_imgs_grid(cls, imgs, names=None, title=None, mod_num=4):
-        fig = plt.figure(figsize=(10, 8))    
+    def plot_imgs_grid(cls, imgs, names=None, title=None, mod_num=4, figsize=(10, 8)):
+        fig = plt.figure(figsize=figsize)    
         if title is not None:
             ax = plt.gca()
             ax.set_axis_off()

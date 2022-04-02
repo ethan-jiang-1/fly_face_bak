@@ -35,14 +35,14 @@ class FaceFeatureGenerator(object):
         ImgpCvBeardExtractor.close_imgp()
 
     def show_results(self, filename,  selected_img_types=None):
-        imgs, names, title, dt = self._process_core(filename)
+        imgs, names, title, dt = self.process_image(filename)
 
         imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
 
         PlotHelper.plot_imgs_grid(imgs, names, title=title)  
 
     def save_results(self, filename, output_dir=None, selected_img_types=None):
-        imgs, names, title, dt = self._process_core(filename)
+        imgs, names, title, dt = self.process_image(filename)
         if output_dir is None:
             output_dir = os.path.dirname(os.path.dirname(__file__)) + os.sep + "_reserved_output_feature_gen"
             os.makedirs(output_dir, exist_ok=True)
@@ -71,7 +71,7 @@ class FaceFeatureGenerator(object):
                 new_names.append(name)
         return new_imgs, new_names   
 
-    def _process_core(self, filename):
+    def process_image(self, filename):
         from utils.colorstr import log_colorstr
         if not os.path.isfile(filename):
             return None, None, None, None 
