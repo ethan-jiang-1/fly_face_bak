@@ -23,7 +23,7 @@ def _plot_all_imgs(all_hair_imgs):
             names.append(name)
             imgs.append(img)
 
-    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=min, figsize=(10, 8))
+    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=min, figsize=(10, 8), set_axis_off=True)
 
 def _do_exp_on_dir(src_dirs):
     ffg = FaceFeatureGenerator()

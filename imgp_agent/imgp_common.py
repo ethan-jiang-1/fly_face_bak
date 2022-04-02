@@ -77,7 +77,7 @@ class PlotHelper(object):
         plt.show()    
 
     @classmethod
-    def plot_imgs_grid(cls, imgs, names=None, title=None, mod_num=4, figsize=(10, 8)):
+    def plot_imgs_grid(cls, imgs, names=None, title=None, mod_num=4, figsize=(10, 8), set_axis_off=False):
         fig = plt.figure(figsize=figsize)    
         if title is not None:
             ax = plt.gca()
@@ -90,6 +90,8 @@ class PlotHelper(object):
         for i, img in enumerate(imgs):
             ax = fig.add_subplot(row, mod_num, i + 1)
 
+            if set_axis_off:
+                ax.set_axis_off()
             if names is not None:
                 ax.set_title(names[i])
             if img is not None:
