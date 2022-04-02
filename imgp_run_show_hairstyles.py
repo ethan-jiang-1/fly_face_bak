@@ -10,7 +10,7 @@ def _plot_all_imgs(all_hair_imgs):
     # for key, tis in all_hair_imgs.items():
     #     ti_len.append(len(tis))
     # #min = np.array(ti_len).min()
-    min = 8
+    min = 10
 
     imgs = []
     names = []
