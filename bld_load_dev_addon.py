@@ -5,8 +5,8 @@ ACTION = "register"
 #ACTION = "unregister"
 
 #ADDON_DEV_MODULE = "dev_confirmation"
-#MODULE = "dev_msg_panel"
-ADDON_DEV_MODULE = "dev_modal"
+ADDON_DEV_MODULE = "dev_msg_panel"
+#ADDON_DEV_MODULE = "dev_modal"
 
 
 def _find_register_module():

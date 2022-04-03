@@ -32,6 +32,8 @@ class BpyDataMcdBurger(BpyDataInsbase):
 
     def _select_visible_obj_only(self, sel_obj, objs):
         for obj in objs:
+            if obj is None:
+                continue
             if obj == sel_obj:
                 obj.hide_render = False
                 obj.hide_viewport = False
@@ -39,26 +41,54 @@ class BpyDataMcdBurger(BpyDataInsbase):
                 obj.hide_render = True
                 obj.hide_viewport = True
 
+    def _deselect_all_obj(self, objs):
+        for obj in objs:
+            if obj is None:
+                continue
+            obj.hide_render = True
+            obj.hide_viewport = True        
+
     def _adjust_shapekeys(self, map_skm, shot_info=None):
         beard_objs = self.cltname2objs["Collection beard"]
-        for beard in beard_objs:
-            self._select_visible_obj_only(beard, beard_objs)
-            self.refresh_screen()    
+        hair_objs = self.cltname2objs["Collection hair"]
 
-            print(map_skm.keys())
-            for key, lst_skm in map_skm.items():
-                print("key", key)
-                for val in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 0.0]:
-                    for skm in lst_skm:            
-                        _, key, mesh, _ = skm
-                        kb = mesh.shape_keys.key_blocks[key]
-                        kb.value = val
-                        if shot_info:
-                            self.take_shot(shot_info)
-                        else:
-                            self.refresh_screen()
-                        if val == 0.0:
-                            self.refresh_screen()
+        self._deselect_all_obj(beard_objs)
+        self._deselect_all_obj(hair_objs)
+        self.refresh_screen()
+
+        beard_objs.insert(0, None)
+        hair_objs.insert(0, None)
+
+        for beard in beard_objs:
+            for hair in hair_objs:
+                self._select_visible_obj_only(hair, hair_objs)
+                self._select_visible_obj_only(beard, beard_objs)
+                self.refresh_screen()    
+
+                print(map_skm.keys())
+                for key, lst_skm in map_skm.items():
+                    key_lower = key.lower()
+                    if key_lower == "basis":
+                        continue
+                    if hair is None:
+                        if key_lower.startswith("hair"):
+                            continue
+                    if beard is None:
+                        if key_lower.startswith("beard"):
+                            continue 
+                    print("play key", key, key_lower)
+                    self.send_dev_msg(key)                    
+                    for val in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 0.0]:
+                        for skm in lst_skm:            
+                            _, key, mesh, _ = skm
+                            kb = mesh.shape_keys.key_blocks[key]
+                            kb.value = val
+                            if shot_info:
+                                self.take_shot(shot_info)
+                            else:
+                                self.refresh_screen()
+                            if val == 0.0:
+                                self.refresh_screen()
 
     def adjust(self):
         map_skm = self._find_all_shapekeys()
@@ -88,9 +118,11 @@ def do_exp_capture(renv):
     return bd.adjust_capture_imgs()
 
 def do_exp(renv):
-    #return do_exp_show(renv)
-    return do_exp_capture(renv)
+    return do_exp_show(renv)
+    #return do_exp_capture(renv)
 
+def do_exp_auto_render(renv):
+    return do_exp_capture(renv)
 
 if __name__ == '__main__':
     do_exp(None)

@@ -4,10 +4,7 @@ import importlib
 def _find_unified_name(blender_prj_pathname):
     basename = os.path.basename(blender_prj_pathname)
     basename = basename.replace(".blend", "")
-    if basename.startswith("x_") or basename.startswith("y_"):
-        unified_name = basename[2:-1]
-    else:
-        unified_name = basename
+    unified_name = basename
     return unified_name
 
 def _find_sub_folder(root_dir, unified_name):
@@ -51,15 +48,22 @@ def _find_and_load_module(renv, blender_prj_pathname):
     return mod_run_core
 
 def _find_entry_func(mod_run_core, action):
-    best_name = "do_exp_{}".format(action)
+    from bld_gen.utils_ui.colorstr import log_colorstr
+    if action is None or len(action) == 0:
+        best_name = "do_exp"
+    else:
+        best_name = "do_exp_{}".format(action)
     for name in dir(mod_run_core):
         if name.startswith("do_exp"):
             if name == best_name:
                 return getattr(mod_run_core, name)
-    print("\n## no function found by name of {} exposed by {}, using do_exp now\n".format(best_name, mod_run_core))
-    return getattr(mod_run_core, "do_exp")
+    msg = "ERROR: No do_exp_{} function exposed by module {}".format(action, mod_run_core)
+    log_colorstr("red", msg)
+    log_colorstr("red", "ERROR: Please make sure you have selected right SELECTED_ACTION and also the run_core.py module has related do_exp_xxx exposed")
+    raise ValueError(msg)
 
 def _dyna_load_and_run(renv, action, blender_prj_pathname):
+    from bld_gen.utils_ui.colorstr import log_colorstr
     import gc
     gc.collect(generation=2)
 
@@ -75,9 +79,9 @@ def _dyna_load_and_run(renv, action, blender_prj_pathname):
         raise ValueError("{} is not callable".format(func_do_exp))
 
     gc.collect(generation=2)
-    print("### Run {} ...".format(func_do_exp))
+    log_colorstr("yellow", "### Run {} ...".format(func_do_exp))
     ret = func_do_exp(renv)
-    print("### End {} ret: {}".format(func_do_exp, ret))
+    log_colorstr("yellow", "### End {} ret: {}".format(func_do_exp, ret))
     print()
     return ret
 

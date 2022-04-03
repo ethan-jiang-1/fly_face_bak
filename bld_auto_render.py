@@ -2,7 +2,7 @@ import os
 import sys
 import importlib 
 
-SELECTED_ACTION = "capture_music"  # show caputure 
+SELECTED_ACTION = "auto_render"  # show caputure 
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
            "RENDER_MAX_CNT": "400",
            "AUX_FILE":"mw_key2.wav.json"}

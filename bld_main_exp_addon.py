@@ -77,6 +77,7 @@ class _RunEnv(object):
 def _update_sys_paths(renv):
     import bpy
 
+    #print("__file__", __file__)
     blend_dir = os.path.dirname(bpy.data.filepath)
     if blend_dir not in sys.path:
         sys.path.append(blend_dir)
@@ -85,6 +86,10 @@ def _update_sys_paths(renv):
     if root_dir not in sys.path:
         sys.path.append(root_dir)
 
+    app_dir = root_dir + "/bld_gen"
+    if app_dir not in sys.path:
+        sys.path.append(app_dir)
+        
     print("updated sys.path")
     for path in sys.path:
         print(path)
