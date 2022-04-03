@@ -11,10 +11,17 @@ class FileHelper(object):
         names = os.listdir(src_dir)
         filenames = []
         for name in names:
-            if name.endswith(".jpg") or name.endswith(".jpeg"):
-                filenames.append(os.sep.join([src_dir, name]))
+            if cls.is_supported_img_filename(name):
+                filenames.append(os.sep.join([src_dir, name]))                
         filenames = sorted(filenames)
         return filenames
+
+    @classmethod
+    def is_supported_img_filename(cls, filename):
+        name = filename.lower()
+        if name.endswith(".jpg") or name.endswith(".jpeg") or name.endswith(".png"):
+            return True
+        return False
 
     @classmethod
     def save_output_image(cls, image, src_dir, filename, suffix):

@@ -40,6 +40,7 @@ def _save_all_imgs(all_hair_imgs, dst_dir):
 
 
 def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
+    from utils.colorstr import log_colorstr
     ffg = FaceFeatureGenerator()
 
     all_hair_imgs = {}
@@ -48,6 +49,9 @@ def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
         all_hair_imgs[os.path.basename(src_dir)] = hair_imgs
 
         filenames = FileHelper.find_all_images(src_dir)
+        if len(filenames) == 0:
+            log_colorstr("red", "no files find in {}".format(src_dir))
+            
         #print(filenames)
         filenames = sorted(filenames)
         for filename in filenames:
@@ -67,11 +71,11 @@ def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
 def do_exp():
     #dir_root = os.path.dirname(__file__)
     src_dirs = [] 
-    src_dirs.append("_reserved_hair_styles/Version 1.1/01")
-    src_dirs.append("_reserved_hair_styles/Version 1.1/02")
-    src_dirs.append("_reserved_hair_styles/Version 1.1/03")
-    src_dirs.append("_reserved_hair_styles/Version 1.1/04")
-    src_dirs.append("_reserved_hair_styles/Version 1.1/05")
+    src_dirs.append("_dataset_org_hair_styles/Version 1.1/01")
+    src_dirs.append("_dataset_org_hair_styles/Version 1.1/02")
+    src_dirs.append("_dataset_org_hair_styles/Version 1.1/03")
+    src_dirs.append("_dataset_org_hair_styles/Version 1.1/04")
+    src_dirs.append("_dataset_org_hair_styles/Version 1.1/05")
 
     dst_dir = "_reserved_output_hair_styles"
 
