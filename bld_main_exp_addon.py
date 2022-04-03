@@ -6,7 +6,7 @@ SELECTED_ACTION = ""  # show caputure
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
            "RENDER_MAX_CNT": "200",
            "AUX_FILE":"mw_key2.wav.json",
-           "DISABLE_REFRESH":"true"}
+           "DISABLE_REFRESH":"false"}
 
 RELOAD_ALL_MODULES = True
 
