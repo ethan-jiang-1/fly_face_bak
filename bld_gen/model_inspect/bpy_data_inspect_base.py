@@ -2,6 +2,9 @@ import os
 from bld_gen.utils_ui.bd_interaction import BdInteraction
 from bld_gen.utils_ui.bd_interaction_shapekeys import BdInteractionShapeKeys
 
+ENV_DISABLE_REFRESH = "DISABLE_REFRESH"
+ENV_DISABLE_RENDER = "DISABLE_RENDER"
+
 class BpyDataInsbase(object):
     def __init__(self, bpy_data, renv=None, inspect_flags="ALL"):
         self.bpy_data = bpy_data
@@ -155,10 +158,24 @@ class BpyDataInsbase(object):
     def take_shot(self, shot_info):
         from bld_gen.utils_ui.bd_render import BdRender
         if shot_info is not None:
+            if ENV_DISABLE_RENDER in os.environ.keys():
+                if os.environ[ENV_DISABLE_RENDER].lower() == "true":
+                    print("SKIP render - {}={}".format(ENV_DISABLE_RENDER,  os.environ[ENV_DISABLE_RENDER]))
+                    return self.refresh_screen()
             img_pathname = "{}{}{}_{:06d}.png".format(shot_info.gen_img_folder, os.sep, shot_info.prefix, shot_info.ndx)
             BdRender.render_scene_to_img(img_pathname)  
-            shot_info.ndx += 1  
+            shot_info.ndx += 1
+            return True
+        else:
+            print("SKIP render - not shot info")
+            self.refresh_screen()  
+            return False
 
     def refresh_screen(self):
+        if ENV_DISABLE_REFRESH in os.environ.keys():
+            if os.environ[ENV_DISABLE_REFRESH].lower() == "true":
+                print("SKIP refresh - {}={}".format(ENV_DISABLE_REFRESH,  os.environ[ENV_DISABLE_REFRESH]))
+                return False
         import bpy
         bpy.ops.wm.redraw_timer(type='DRAW_WIN_SWAP', iterations=1)
+        return True

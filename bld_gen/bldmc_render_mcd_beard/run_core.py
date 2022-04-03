@@ -30,57 +30,87 @@ class BpyDataMcdBurger(BpyDataInsbase):
         importlib.reload(finder_shapekeys_info)
         return finder_shapekeys_info.FinderShapekeysInfo.find_all_shapekeys_info(self.bpy_data)
 
-    def _select_visible_obj_only(self, sel_obj, objs):
+    def _alter_obj_hide(self, obj, hide):
+        #import bpy
+        if obj.hide_render != hide:
+            obj.hide_render = hide
+            #bpy.ops.object.hide_render_set(hide)
+            self.refresh_screen()
+        if obj.hide_viewport != hide:
+            obj.hide_viewport = hide
+            #bpy.ops.object.hide_view_set(hide) 
+            self.refresh_screen()
+
+    def _select_one_visible_obj_only(self, sel_obj, objs):
         for obj in objs:
             if obj is None:
                 continue
             if obj == sel_obj:
-                obj.hide_render = False
-                obj.hide_viewport = False
+                self._alter_obj_hide(obj, False)
             else:
-                obj.hide_render = True
-                obj.hide_viewport = True
+                self._alter_obj_hide(obj, True)
+        self.refresh_screen()
 
     def _deselect_all_obj(self, objs):
         for obj in objs:
             if obj is None:
                 continue
-            obj.hide_render = True
-            obj.hide_viewport = True        
+            self._alter_obj_hide(obj, True)
+
+    def _should_skip_shapekey(self, key, beard, hair):
+        key_lower = key.lower()
+        if key_lower == "basis":
+            return True
+        if hair is None:
+            if key_lower.startswith("hair"):
+                return True
+        if beard is None:
+            if key_lower.startswith("beard"):
+                return True
+        return False        
 
     def _adjust_shapekeys(self, map_skm, shot_info=None):
         beard_objs = self.cltname2objs["Collection beard"]
-        hair_objs = self.cltname2objs["Collection hair"]
+        hair_male_objs = self.cltname2objs["Collection hair_male"]
+        hair_female_objs = self.cltname2objs["Collection hair_female"]
 
         self._deselect_all_obj(beard_objs)
-        self._deselect_all_obj(hair_objs)
-        self.refresh_screen()
+        self._deselect_all_obj(hair_male_objs)
+        self._deselect_all_obj(hair_female_objs)
 
         beard_objs.insert(0, None)
-        hair_objs.insert(0, None)
+        hair_objs = []
+        hair_objs.append(None)
+        hair_objs.extend(hair_male_objs)
+        hair_objs.extend(hair_female_objs)
+        total_loop = len(beard_objs) * len(hair_objs)
+        vals = [0.2, 0.4, 0.6, 0.8, 1.0, 0.0]
+        total_shot = total_loop * len(vals) * len(map_skm.keys())
+        print("total loop: {}, total_shot?: {}", total_loop, total_shot)
 
-        for beard in beard_objs:
-            for hair in hair_objs:
-                self._select_visible_obj_only(hair, hair_objs)
-                self._select_visible_obj_only(beard, beard_objs)
-                self.refresh_screen()    
+        for bidx, beard in enumerate(beard_objs):
+            for hidx, hair in enumerate(hair_objs):
+                if hair in hair_female_objs:
+                    if beard is not None:
+                        continue
 
+                loop_name = "{:03d}/{:03d}:b{}h{}".format(bidx*len(beard_objs) + hidx, total_loop, bidx, hidx)
+                self._select_one_visible_obj_only(hair, hair_objs)
+                self._select_one_visible_obj_only(beard, beard_objs)
+                self.send_dev_msg(loop_name)   
+                print()
+                print(loop_name)
                 print(map_skm.keys())
                 for key, lst_skm in map_skm.items():
-                    key_lower = key.lower()
-                    if key_lower == "basis":
+                    if self._should_skip_shapekey(key, beard, hair):
                         continue
-                    if hair is None:
-                        if key_lower.startswith("hair"):
-                            continue
-                    if beard is None:
-                        if key_lower.startswith("beard"):
-                            continue 
-                    print("play key", key, key_lower)
-                    self.send_dev_msg(key)                    
-                    for val in [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 0.0]:
+                    print("play key", key)
+                    self.send_dev_msg("{}:{}".format(loop_name, key))                    
+                    for val in vals:
                         for skm in lst_skm:            
                             _, key, mesh, _ = skm
+                            if self._should_skip_shapekey(key, beard, hair):
+                                continue
                             kb = mesh.shape_keys.key_blocks[key]
                             kb.value = val
                             if shot_info:

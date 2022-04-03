@@ -2,10 +2,12 @@ import importlib
 import sys
 import os
 
-SELECTED_ACTION = "capturex"  # show caputure 
+SELECTED_ACTION = ""  # show caputure 
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
            "RENDER_MAX_CNT": "200",
-           "AUX_FILE":"mw_key2.wav.json"}
+           "AUX_FILE":"mw_key2.wav.json",
+           "DISABLE_REFRESH":"true"}
+
 RELOAD_ALL_MODULES = True
 
 def _handle_dev_msg(sender, **kwargs):
