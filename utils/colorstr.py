@@ -26,3 +26,9 @@ def colorstr(*input):
 def log_colorstr(*input):
     cinput = colorstr(*input)
     print(cinput)
+
+if __name__ == '__main__':
+    log_colorstr("yellow", "hello world")
+    log_colorstr("bright_yellow", "hello world")
+    log_colorstr("yellow", "bold", "hello world")
+    log_colorstr("yellow", "underline", "hello world")
