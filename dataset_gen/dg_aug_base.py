@@ -105,7 +105,7 @@ class EdgeShifterMixIn(object):
         return img_edge
 
 
-class DgBase(ABC, EdgeShifterMixIn):
+class DgAugBase(ABC, EdgeShifterMixIn):
     def __init__(self):
         pass
 

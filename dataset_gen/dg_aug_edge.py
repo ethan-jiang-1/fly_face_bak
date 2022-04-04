@@ -6,14 +6,14 @@ import cv2
 import numpy as np
 
 try:
-    from dg_base import DgBase
+    from dg_aug_base import DgAugBase
 except:
-    from .dg_base import DgBase
+    from .dg_aug_base import DgAugBase
 
 
-class DgEdge(DgBase):
+class DgAugEdge(DgAugBase):
     def __init__(self, debug=True):
-        super(DgEdge, self).__init__()
+        super(DgAugEdge, self).__init__()
         self.debug = debug
 
     def _make_aug_edge_shift(self, img_unified, aug_types=["shift_full", "shift_right", "shift_left"]):
@@ -104,7 +104,7 @@ def do_exp(filename):
         filename = "{}/{}".format(dir_root, filename)
     
     img = cv2.imread(filename, cv2.IMREAD_ANYCOLOR)
-    dg = DgEdge(debug=True)
+    dg = DgAugEdge(debug=True)
     imgs_aug = dg.make_aug_images(img)
     print(len(imgs_aug))
 
