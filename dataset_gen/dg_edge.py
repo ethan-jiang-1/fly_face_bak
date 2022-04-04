@@ -16,82 +16,7 @@ class DgEdge(DgBase):
         super(DgEdge, self).__init__()
         self.debug = debug
 
-    def _shift_edge_full(self, img, img_edged):
-        imgs = []
-
-        height = img.shape[0]
-        width = img.shape[1]
-        img_core = np.zeros((height - 2, width -2), dtype=img.dtype)
-        img_core[:, :] = img[1:height-1, 1:width-1]
-
-        for hc in [0, 1, 2]:
-            for wc in [0, 1, 2]:
-                if hc == 1 and wc == 1:
-                    continue 
-                img_overlap = img.copy()
-                img_overlap[hc:height-2+hc, wc:width-2+wc] += img_core
-                _, img_overlap = cv2.threshold(img_overlap, 127, 255, cv2.THRESH_BINARY)
-                imgs.append(img_overlap)
-        return imgs
-
-    def _shift_edge_half_left(self, img, img_edged):
-        imgs = []
-
-        height = img.shape[0]
-        width = int(img.shape[1] / 2)
-        img_core = np.zeros((height - 2, width - 2), dtype=img.dtype)
-        img_core[:, :] = img[1:height-1, 1:width-1]
-
-        for hc in [0, 1, 2]:
-            for wc in [0, 1, 2]:
-                if hc == 1 and wc == 1:
-                    continue 
-                img_overlap = img.copy()
-                img_overlap[hc:height-2+hc, wc:width-2+wc] += img_core
-                _, img_overlap = cv2.threshold(img_overlap, 127, 255, cv2.THRESH_BINARY)
-                imgs.append(img_overlap)
-        return imgs
-
-    def _shift_edge_half_right(self, img, img_edged):
-        imgs = []
-
-        height = img.shape[0]
-        width = int(img.shape[1] / 2)
-        img_core = np.zeros((height - 2, width - 2), dtype=img.dtype)
-        img_core[:, :] = img[1:height-1, width+1:width+width-1]
-
-        for hc in [0, 1, 2]:
-            for wc in [0, 1, 2]:
-                if hc == 1 and wc == 1:
-                    continue 
-                img_overlap = img.copy()
-                img_overlap[hc:height-2+hc, width+wc:width+width-2+wc] += img_core
-                _, img_overlap = cv2.threshold(img_overlap, 127, 255, cv2.THRESH_BINARY)
-                imgs.append(img_overlap)
-        return imgs
-
-    def _get_edge_b2w(self, img, edge_type):
-        if edge_type == "3L2":
-            img_edge = cv2.Canny(img, 127, 255, L2gradient=True)
-        elif edge_type == "5L2":
-            img_edge = cv2.Canny(img, 127, 255, apertureSize=5, L2gradient=True)
-        elif edge_type == "7L2":
-            img_edge = cv2.Canny(img, 127, 255, apertureSize=5, L2gradient=True)
-        return img_edge
-
-    def _get_edge_w2b(self, img, edge_type):
-        img_w2b = cv2.bitwise_not(img)
-
-        if edge_type == "3L2":
-            img_edge = cv2.Canny(img_w2b, 127, 255, L2gradient=True)
-        elif edge_type == "5L2":
-            img_edge = cv2.Canny(img_w2b, 127, 255, apertureSize=5, L2gradient=True)
-        elif edge_type == "7L2":
-            img_edge = cv2.Canny(img_w2b, 127, 255, apertureSize=5, L2gradient=True)
-        return img_edge
-
-    def make_aug_images(self, img):
-        img_unified = self.resize_to_unified(img)
+    def _make_aug_edge_shift(self, img_unified, aug_types=["shift_full", "shift_right", "shift_left"]):
         img_blur3 = cv2.GaussianBlur(img_unified, (3,3), cv2.BORDER_DEFAULT)
         _, img_blur3 = cv2.threshold(img_blur3, 127, 255, cv2.THRESH_BINARY)
         img_blur5 = cv2.GaussianBlur(img_unified, (5,5), cv2.BORDER_DEFAULT)
@@ -104,32 +29,58 @@ class DgEdge(DgBase):
         imgs_org = [img_unified, img_blur3, img_blur5, img_blur7, img_blur9]
         names_org = ["unified", "blur3", "blur5", "blur7", "blur9"]
 
-        imgs_aug = []
-        imgs_map = {}
+        imgs_aug_map = {}
 
         for img, name in zip(imgs_org, names_org):
-            img_edge = self._get_edge_b2w(img, edge_type="7L2")
-            imgs_edged_full = self._shift_edge_full(img, img_edge)
+            if "shift_full" in aug_types:
+                imgs_edged_full = self.shift_edge_full(img)
+                imgs_aug_map[name + "_shift_full"] = imgs_edged_full
 
-            #imgs_edged_half_right = self._shift_edge_half_right(img, img_edge)
-            #imgs_edged_half_left = self._shift_edge_half_left(img, img_edge)
-            imgs_map[name] = imgs_edged_full
-            imgs_aug.extend(imgs_edged_full)
+            if "shift_right" in aug_types:
+                imgs_edged_half_right = self.shift_edge_half_right(img)
+                imgs_aug_map[name + "_shift_right"] = imgs_edged_half_right
 
+            if "shift_left" in aug_types:
+                imgs_edged_half_left = self.shift_edge_half_left(img)
+                imgs_aug_map[name + "_shift_left"] = imgs_edged_half_left
+
+        return imgs_aug_map
+
+    def _plot_aug_imags(self, imgs_map, min_len):
+        names = []
+        imgs_aug = []
+        for _, imgs in imgs_map.items():
+            for idx, img in enumerate(imgs):
+                if idx <= min_len-1:
+                    area = cv2.countNonZero(img)
+                    names.append(str(area))
+                    imgs_aug.append(img)
+
+        self.plot_imgs_grid(imgs_aug, names=names, mod_num=min_len, set_axis_off=True)
+
+    def make_aug_images(self, img, aug_types=["shift_full", "shift_right", "shift_left"]):
+        img_unified = self.resize_to_unified(img)
+
+        imgs_map = self._make_aug_edge_shift(img_unified, aug_types=aug_types)
+        #imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_right"])
+        #imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_left"])
+
+        imgs_aug = []
+        imgs_len = []
+        for _, imgs in imgs_map.items():
+            imgs_aug.extend(imgs)
+            imgs_len.append(len(imgs))
+        np_imgs_len = np.array(imgs_len)
+        min_len = np_imgs_len.min()
+        total_len = np_imgs_len.sum()
+        print("total_len: {} min_len {} for {}".format(total_len, min_len, aug_types))
+    
         if self.debug:
-            names = []
-            for img in imgs_aug:
-                area = cv2.countNonZero(img)
-                names.append(str(area))
-
-            self.plot_imgs_grid(imgs_aug, names=names, mod_num=len(imgs_map["unified"]), set_axis_off=True)
-
-            # self.plot_imgs_grid([imgs_edged_full[0], imgs_edged_half_right[0], imgs_edged_half_left[0],
-            #                     imgs_edged_full[-1], imgs_edged_half_right[-1], imgs_edged_half_left[-1]], mod_num=3)
+            self._plot_aug_imags(imgs_map, min_len)
 
         return imgs_aug
 
-    def check_edges_1(self, img):
+    def check_edges(self, img):
 
         img_org = self.resize_to_unified(img)
         img_blur1 = cv2.GaussianBlur(img_org, (5,5), cv2.BORDER_DEFAULT)
@@ -137,44 +88,11 @@ class DgEdge(DgBase):
         img_blur2 = cv2.GaussianBlur(img_org, (9,9), cv2.BORDER_DEFAULT)
         _, img_blur2 = cv2.threshold(img_blur2, 127, 255, cv2.THRESH_BINARY)
 
-        img_edge0 = self._get_edge_b2w(img_org, edge_type="7L2")
-        img_edge1 = self._get_edge_b2w(img_blur1, edge_type="7L2")
-        img_edge2 = self._get_edge_b2w(img_blur2, edge_type="7L2")
+        img_edge0 = self.get_edge_b2w(img_org, edge_type=self.ET_3L2)
+        img_edge1 = self.get_edge_b2w(img_blur1, edge_type=self.ET_5L2)
+        img_edge2 = self.get_edge_b2w(img_blur2, edge_type=self.ET_7L2)
 
         self.plot_imgs([img_org, img_edge0, img_blur1, img_edge1, img_blur2, img_edge2])
-
-    def check_edges_2(self, img):
-        imgs = []
-        names = []
-        img_unified = self.resize_to_unified(img)
-        imgs.append(img_unified)
-        names.append("org")
-        
-        img_edged1 = cv2.Canny(img_unified, 127, 255)
-        imgs.append(img_edged1)
-        names.append("3")
-
-        img_edged2 = cv2.Canny(img_unified, 127, 255, apertureSize=5)
-        imgs.append(img_edged2)
-        names.append("5")
-
-        img_edged3 = cv2.Canny(img_unified, 127, 255, apertureSize=7)
-        imgs.append(img_edged3)
-        names.append("7")
-
-        img_edged11 = cv2.Canny(img_unified, 127, 255, L2gradient=True)
-        imgs.append(img_edged11)
-        names.append("3,L3")
-
-        img_edged12 = cv2.Canny(img_unified, 127, 255, apertureSize=5, L2gradient=True)
-        imgs.append(img_edged12)
-        names.append("5,L2")
-
-        img_edged13 = cv2.Canny(img_unified, 127, 255, apertureSize=7, L2gradient=True)
-        imgs.append(img_edged13)
-        names.append("7,L2")
-
-        self.plot_imgs(imgs, names=names)
 
 def do_exp(filename):
     dir_this = os.path.dirname(__file__)
@@ -189,8 +107,9 @@ def do_exp(filename):
     dg = DgEdge(debug=True)
     imgs_aug = dg.make_aug_images(img)
     print(len(imgs_aug))
+
     #dg.check_edges(img)
-    #dg.check_edges_1(img)
+
     del dg 
 
 
