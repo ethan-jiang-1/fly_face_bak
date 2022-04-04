@@ -18,7 +18,7 @@ class FileHelper(object):
     @classmethod
     def is_supported_img_filename(cls, filename):
         name = filename.lower()
-        if name.endswith(".jpg") or name.endswith(".jpeg") or name.endswith(".png"):
+        if name.endswith(".jpg") or name.endswith(".jpeg"): # or name.endswith(".png"):
             return True
         return False
 

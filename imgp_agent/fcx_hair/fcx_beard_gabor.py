@@ -14,6 +14,9 @@ except:
 class FcxBeardGabor(FcxBase):
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
+        if mesh_results is None or mesh_results.multi_face_landmarks is None:
+            return None 
+            
         img_beard_region = cls._clean_region(image, mesh_results)
 
         img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region)
@@ -38,6 +41,9 @@ class FcxBeardGabor(FcxBase):
 
     @classmethod
     def _has_beard_at_keypoints(cls, img_beard_gray, mesh_results):
+        if mesh_results is None or mesh_results.multi_face_landmarks is None:
+            return False 
+
         vts = [165, 167, 164, 393, 391, 182, 18, 406, 200, 199]
         face_landmarks = mesh_results.multi_face_landmarks[0]
 

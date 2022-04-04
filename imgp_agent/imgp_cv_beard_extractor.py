@@ -32,6 +32,9 @@ class ImgpCvBeardExtractor():
 
             img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
 
+        if img_beard is not None:
+            if img_beard.max() == img_beard.min():
+                img_beard[:] = (0)
         ber_result = BER_RESULT(img_beard=img_beard)
         return img_beard, ber_result
 
@@ -60,14 +63,16 @@ class ImgpCvBeardExtractor():
         r_avg = cv2.mean(r)[0]
         g_avg = cv2.mean(g)[0]
         b_avg = cv2.mean(b)[0]
-        # 求各个通道所占增益
-        k = (r_avg + g_avg + b_avg) / 3
-        kr = k / r_avg
-        kg = k / g_avg
-        kb = k / b_avg
-        r = cv2.addWeighted(src1=r, alpha=kr, src2=0, beta=0, gamma=0)
-        g = cv2.addWeighted(src1=g, alpha=kg, src2=0, beta=0, gamma=0)
-        b = cv2.addWeighted(src1=b, alpha=kb, src2=0, beta=0, gamma=0)
+
+        if r_avg != 0.0 and g_avg != 0.0 and b_avg != 0.0:
+            # 求各个通道所占增益
+            k = (r_avg + g_avg + b_avg) / 3
+            kr = k / r_avg
+            kg = k / g_avg
+            kb = k / b_avg
+            r = cv2.addWeighted(src1=r, alpha=kr, src2=0, beta=0, gamma=0)
+            g = cv2.addWeighted(src1=g, alpha=kg, src2=0, beta=0, gamma=0)
+            b = cv2.addWeighted(src1=b, alpha=kb, src2=0, beta=0, gamma=0)
         img_selfie_wb = cv2.merge([b, g, r])
         if debug:
             from imgp_common import PlotHelper
@@ -96,7 +101,7 @@ def do_exp():
     #selected_names = ["icl_image4.jpeg"]
     #selected_names = ["icl_image5.jpeg"]
     #selected_names = ["ctn_cartoon2.jpeg"]
-    #selected_names = ["ctn_cartoon3.jpeg"]
+    selected_names = ["ctn_cartoon3.jpeg"]
     #selected_names = ["brd_image1.jpeg"]
 
     from face_feature_generator import FaceFeatureGenerator

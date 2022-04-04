@@ -89,6 +89,9 @@ class FcxBase():
 
     @classmethod
     def get_beard_mouth_inner(cls, image, mesh_results):
+        if mesh_results is None or mesh_results.multi_face_landmarks is None:
+            return None, None
+
         image_mouth_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
         image_mouth_mask_inner[:] = (255)
         pt_mouth_mask_inner_seed = None
@@ -100,6 +103,9 @@ class FcxBase():
 
     @classmethod
     def get_beard_mask_outter(cls, image, mesh_results, fmb_px_alter):
+        if mesh_results is None or mesh_results.multi_face_landmarks is None:
+            return None, None 
+         
         image_beard_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
         for face_landmarks in mesh_results.multi_face_landmarks:
             pts_alter = []

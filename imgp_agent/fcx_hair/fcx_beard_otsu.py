@@ -14,7 +14,7 @@ FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 class FcxBeardOtsu(FcxBase):
     @classmethod
     def process_img(cls, image, mesh_results, debug=False):
-        if mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
+        if mesh_results is None or mesh_results.multi_face_landmarks is None or len(mesh_results.multi_face_landmarks) == 0:
             print("no face_landmarks found")
             return None 
 

@@ -68,12 +68,15 @@ class FmxFacePaint():
 
     @classmethod
     def paint_face_core(cls, image, mesh_results, paint_mode="all"):
+        if mesh_results is None or mesh_results.multi_face_landmarks is None:
+            print("no face_landmarks found")
+            return None
+
         image = np.zeros(image.shape, dtype=image.dtype)
         mp_face_mesh = mp.solutions.face_mesh
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
 
-        print("len(mesh_results.multi_face_landmarks)", len(mesh_results.multi_face_landmarks))
         for face_landmarks in mesh_results.multi_face_landmarks:
 
             if paint_mode == "all":
