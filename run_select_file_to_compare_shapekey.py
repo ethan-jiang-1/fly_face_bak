@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import PySimpleGUI as sg
 
 from imgp_agent.face_shapekey_comparetor import FaceShapekeyComparetor
