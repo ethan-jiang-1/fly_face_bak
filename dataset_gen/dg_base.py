@@ -18,7 +18,9 @@ class DgBase():
         pass
 
     def resize_to_unified(self, img):
-        return cv2.resize(img, IMG_SIZE)
+        _, img_b = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+        img_resized = cv2.resize(img_b, IMG_SIZE)
+        return img_resized
 
     def plot_imgs(self, imgs, names=None, title=None):
         return PlotHelper.plot_imgs(imgs, names=names, title=title)

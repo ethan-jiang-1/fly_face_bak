@@ -161,6 +161,8 @@ class HairSegmentationMaskSharpener(object):
                                             cv2.CHAIN_APPROX_SIMPLE) # 得到轮廓信息
             if len(contours) > 10:
                 mask_thresh[:, :] = fallback_val
+            else:
+               _, mask_thresh = cv2.threshold(mask_thresh, 127, 255, cv2.THRESH_BINARY)
 
         return mask_thresh
 
