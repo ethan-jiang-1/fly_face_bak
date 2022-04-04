@@ -7,7 +7,7 @@ class PlotHelper(object):
         ax = fig.add_subplot(1, 1, 1)
         if name is not None:
             ax.set_title(name)
-        ax.imshow(img)
+        ax.imshow(img, interpolation="none")
         plt.show()
 
     @classmethod
@@ -25,7 +25,7 @@ class PlotHelper(object):
             if names is not None:
                 ax.set_title(names[i])
             if img is not None:
-                ax.imshow(img)
+                ax.imshow(img, interpolation="none")
         plt.show()    
 
     @classmethod
@@ -43,7 +43,7 @@ class PlotHelper(object):
             if names is not None:
                 ax.set_title(names[i])
             if img is not None:
-                ax.imshow(img)
+                ax.imshow(img, interpolation="none")
         plt.show()    
 
     @classmethod
@@ -65,6 +65,6 @@ class PlotHelper(object):
             if names is not None:
                 ax.set_title(names[i])
             if img is not None:
-                ax.imshow(img)
+                ax.imshow(img, interpolation="none")
         plt.show()    
 

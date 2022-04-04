@@ -12,6 +12,7 @@ from utils.plot_helper import PlotHelper
 
 
 IMG_SIZE = (112, 112)
+#IMG_SIZE = (64, 32)
 
 class DgBase():
     def __init__(self):
