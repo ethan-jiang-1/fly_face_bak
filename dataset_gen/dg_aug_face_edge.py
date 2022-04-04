@@ -58,27 +58,42 @@ class DgAugFaceEdge(DgAugBase):
 
         self.plot_imgs_grid(imgs_aug, names=names, mod_num=min_len, set_axis_off=True)
 
-    def make_aug_images(self, img, aug_types=["shift_full", "shift_right", "shift_left"]):
+    def make_aug_images(self, img, aug_types=["shift_full", "shift_right", "shift_left", "transform"]):
         img_unified = self.resize_to_unified(img)
 
-        imgs_map = self._make_aug_edge_shift(img_unified, aug_types=aug_types)
-        #imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_right"])
-        #imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_left"])
+        #aug_imgs_map = self._make_aug_edge_shift(img_unified, aug_types=aug_types)
+        #aug_imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_right"])
+        aug_imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_left"])
 
-        imgs_aug = []
-        imgs_len = []
-        for _, imgs in imgs_map.items():
-            imgs_aug.extend(imgs)
-            imgs_len.append(len(imgs))
-        np_imgs_len = np.array(imgs_len)
-        min_len = np_imgs_len.min()
-        total_len = np_imgs_len.sum()
-        print("total_len: {} min_len {} for {}".format(total_len, min_len, aug_types))
+        aug_len = []
+        trs_len = []
+        trs_imgs_map = {}
+        for key, imgs in aug_imgs_map.items():
+            key_trs = "{}_trs".format(key)
+            trs_imgs_map[key_trs] =[]
+            aug_len.append(len(imgs))
+            print("{}: {}".format(key, len(imgs)))
+            if "transform" in aug_types:
+                for img in imgs:
+                    img_transformed = self.transform_img(img, self.TN_COMBINEA)
+                    trs_imgs_map[key_trs].append(img_transformed)
+            trs_len.append(len(trs_imgs_map[key_trs]))
     
-        if self.debug:
-            self._plot_aug_imags(imgs_map, min_len)
+        np_aug_len = np.array(aug_len)
+        min_aug_len = np_aug_len.min()
+        total_aug_len = np_aug_len.sum()
+        print("aug_imgs_map total_len: {}/{} for {}".format(total_aug_len, min_aug_len, aug_types))
+    
+        np_trs_len = np.array(trs_len)
+        min_trs_len = np_trs_len.min()
+        total_trs_len = np_trs_len.sum()
+        print("trs_imgs_map total_len: {}/{} for {}".format(total_trs_len, min_trs_len, aug_types))
 
-        return imgs_aug
+        if self.debug:
+            self._plot_aug_imags(aug_imgs_map, min_aug_len)
+            self._plot_aug_imags(trs_imgs_map, min_trs_len)
+
+        return aug_imgs_map, trs_imgs_map
 
     def check_edges(self, img):
 
@@ -94,6 +109,13 @@ class DgAugFaceEdge(DgAugBase):
 
         self.plot_imgs([img_org, img_edge0, img_blur1, img_edge1, img_blur2, img_edge2])
 
+        imgs = [img_org]
+        for i in range(5):
+            img_transformed = self.transform_img(img_org, self.TN_COMBINEA)
+            imgs.append(img_transformed)
+        self.plot_imgs(imgs)
+
+
 def do_exp(filename):
     dir_this = os.path.dirname(__file__)
     if dir_this not in sys.path:
@@ -105,9 +127,8 @@ def do_exp(filename):
     
     img = cv2.imread(filename, cv2.IMREAD_ANYCOLOR)
     dg = DgAugFaceEdge(debug=True)
-    imgs_aug = dg.make_aug_images(img)
-    print(len(imgs_aug))
 
+    aug_imgs_map, trs_imgs_map = dg.make_aug_images(img)
     #dg.check_edges(img)
 
     del dg 

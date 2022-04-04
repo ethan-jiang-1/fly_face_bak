@@ -4,6 +4,7 @@ import sys
 import os
 import cv2
 import numpy as np
+import albumentations as A
 
 dir_parent = os.path.dirname(os.path.dirname(__file__))
 if dir_parent not in sys.path:
@@ -104,8 +105,29 @@ class EdgeShifterMixIn(object):
             raise ValueError("{} not supported".format(edge_type))
         return img_edge
 
+class AugTransformMixIn():
+    transforms = {}
 
-class DgAugBase(ABC, EdgeShifterMixIn):
+    TN_COMBINEA = "combine_a"
+
+    @classmethod
+    def get_transforms(cls, transform_name):
+        if len(cls.transforms) == 0:
+            transform = A.Compose([A.ShiftScaleRotate(shift_limit=(-0.05, 0.05), rotate_limit=(-5,5), scale_limit=(0.0, 0.0), p=1.0)])
+            cls.transforms[cls.TN_COMBINEA] = transform
+        return cls.transforms[transform_name]
+
+    @classmethod
+    def transform_img(cls, img, transform_name):
+        transform = cls.get_transforms(transform_name)
+        result = transform(image=img)
+        img_transformed = result["image"]
+        _, img_b = cv2.threshold(img_transformed, 127, 255, cv2.THRESH_BINARY)
+        img_resized = cv2.resize(img_b, UNIFIED_IMG_SIZE)
+        return img_resized
+
+
+class DgAugBase(ABC, EdgeShifterMixIn, AugTransformMixIn):
     def __init__(self):
         pass
 
