@@ -11,9 +11,9 @@ except:
     from .dg_aug_base import DgAugBase
 
 
-class DgAugEdge(DgAugBase):
+class DgAugFaceEdge(DgAugBase):
     def __init__(self, debug=True):
-        super(DgAugEdge, self).__init__()
+        super(DgAugFaceEdge, self).__init__()
         self.debug = debug
 
     def _make_aug_edge_shift(self, img_unified, aug_types=["shift_full", "shift_right", "shift_left"]):
@@ -104,7 +104,7 @@ def do_exp(filename):
         filename = "{}/{}".format(dir_root, filename)
     
     img = cv2.imread(filename, cv2.IMREAD_ANYCOLOR)
-    dg = DgAugEdge(debug=True)
+    dg = DgAugFaceEdge(debug=True)
     imgs_aug = dg.make_aug_images(img)
     print(len(imgs_aug))
 
