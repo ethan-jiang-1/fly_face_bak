@@ -48,6 +48,12 @@ class PlotHelper(object):
 
     @classmethod
     def plot_imgs_grid(cls, imgs, names=None, title=None, mod_num=4, figsize=(10, 8), set_axis_off=False):
+        if mod_num == 0 or len(imgs) == 0:
+            return
+        if names is not None:
+            if len(names) != len(imgs):
+                return
+        
         fig = plt.figure(figsize=figsize)    
         if title is not None:
             ax = plt.gca()

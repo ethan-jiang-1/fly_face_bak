@@ -109,12 +109,16 @@ class AugTransformMixIn():
     transforms = {}
 
     TN_COMBINEA = "combine_a"
+    TN_COMBINEB = "combine_b"
 
     @classmethod
     def get_transforms(cls, transform_name):
         if len(cls.transforms) == 0:
             transform = A.Compose([A.ShiftScaleRotate(shift_limit=(-0.05, 0.05), rotate_limit=(-5,5), scale_limit=(0.0, 0.0), p=1.0)])
             cls.transforms[cls.TN_COMBINEA] = transform
+
+            transform = A.Compose([A.GridDistortion(num_steps=1, distort_limit=0.1, p=1.0)])
+            cls.transforms[cls.TN_COMBINEB] = transform
         return cls.transforms[transform_name]
 
     @classmethod
@@ -128,8 +132,8 @@ class AugTransformMixIn():
 
 
 class DgAugBase(ABC, EdgeShifterMixIn, AugTransformMixIn):
-    def __init__(self):
-        pass
+    def __init__(self, debug=False):
+        self.debug = debug
 
     @abstractmethod
     def make_aug_images(self, img):
@@ -146,6 +150,97 @@ class DgAugBase(ABC, EdgeShifterMixIn, AugTransformMixIn):
     def plot_imgs_grid(self, imgs, names=None, title=None, mod_num=4, figsize=(10, 8), set_axis_off=False):
         return PlotHelper.plot_imgs_grid(imgs, names=names, title=title, mod_num=mod_num, figsize=figsize, set_axis_off=set_axis_off)
 
+    def check_edges(self, img):
+        img_org = self.resize_to_unified(img)
+        img_blur1 = cv2.GaussianBlur(img_org, (5,5), cv2.BORDER_DEFAULT)
+        _, img_blur1 = cv2.threshold(img_blur1, 127, 255, cv2.THRESH_BINARY)
+        img_blur2 = cv2.GaussianBlur(img_org, (9,9), cv2.BORDER_DEFAULT)
+        _, img_blur2 = cv2.threshold(img_blur2, 127, 255, cv2.THRESH_BINARY)
+
+        img_edge0 = self.get_edge_b2w(img_org, edge_type=self.ET_3L2)
+        img_edge1 = self.get_edge_b2w(img_blur1, edge_type=self.ET_5L2)
+        img_edge2 = self.get_edge_b2w(img_blur2, edge_type=self.ET_7L2)
+
+        self.plot_imgs([img_org, img_edge0, img_blur1, img_edge1, img_blur2, img_edge2])
+
+        imgs = [img_org]
+        for i in range(5):
+            img_transformed = self.transform_img(img_org, self.TN_COMBINEA)
+            imgs.append(img_transformed)
+        self.plot_imgs(imgs)
+
+    def plot_aug_imags_map(self, imgs_map):
+        _, min_len = self.check_imgs_map_size(imgs_map)
+
+        names = []
+        imgs_aug = []
+        for _, imgs in imgs_map.items():
+            for idx, img in enumerate(imgs):
+                if idx <= min_len-1:
+                    area = cv2.countNonZero(img)
+                    names.append(str(area))
+                    imgs_aug.append(img)
+
+        self.plot_imgs_grid(imgs_aug, names=names, mod_num=min_len, set_axis_off=True)
+
+    def check_imgs_map_size(self, imgs_map):
+        aug_len = []
+        for _, imgs in imgs_map.items():
+            aug_len.append(len(imgs))
+    
+        if len(aug_len) == 0:
+            return 0, 0
+        np_aug_len = np.array(aug_len)
+        min_aug_len = np_aug_len.min()
+        total_aug_len = np_aug_len.sum()
+        return total_aug_len, min_aug_len        
+
+    def make_aug_edge_shift(self, img_unified, aug_types=["shift_full", "shift_right", "shift_left"], num_blur=4):
+        imgs_org = [img_unified]
+        names_org = ["unified"]
+
+        for i in range(num_blur):
+            blur_core = 3 + i * 2
+            
+            img_blur = cv2.GaussianBlur(img_unified, (blur_core, blur_core), cv2.BORDER_DEFAULT)
+            _, img_blur = cv2.threshold(img_blur, 127, 255, cv2.THRESH_BINARY)
+
+            imgs_org.append(img_blur)
+            names_org.append("blur{}".format(blur_core))
+
+        imgs_aug_map = {}
+
+        for img, name in zip(imgs_org, names_org):
+            if "shift_full" in aug_types:
+                imgs_edged_full = self.shift_edge_full(img)
+                imgs_aug_map[name + "_shift_full"] = imgs_edged_full
+
+            if "shift_right" in aug_types:
+                imgs_edged_half_right = self.shift_edge_half_right(img)
+                imgs_aug_map[name + "_shift_right"] = imgs_edged_half_right
+
+            if "shift_left" in aug_types:
+                imgs_edged_half_left = self.shift_edge_half_left(img)
+                imgs_aug_map[name + "_shift_left"] = imgs_edged_half_left
+
+        return imgs_aug_map
+
+    def make_aug_transform(self, aug_imgs_map, aug_types=[]):
+        trs_imgs_map = {}
+        for key, imgs in aug_imgs_map.items():
+            if "transform_a" in aug_types:
+                key_trs = "{}_trsa".format(key)
+                trs_imgs_map[key_trs] =[]
+                for img in imgs:
+                    img_transformed = self.transform_img(img, self.TN_COMBINEA)
+                    trs_imgs_map[key_trs].append(img_transformed)
+            if "transform_b" in aug_types:
+                key_trs = "{}_trsb".format(key)
+                trs_imgs_map[key_trs] =[]
+                for img in imgs:
+                    img_transformed = self.transform_img(img, self.TN_COMBINEB)
+                    trs_imgs_map[key_trs].append(img_transformed)
+        return trs_imgs_map
 
 if __name__ == '__main__':
     print(FileHelper, PlotHelper)

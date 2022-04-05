@@ -1,9 +1,6 @@
-
-# REF https://blog.csdn.net/qq_45769063/article/details/107339132
 import sys
 import os 
 import cv2
-import numpy as np
 
 try:
     from dg_aug_base import DgAugBase
@@ -12,73 +9,28 @@ except:
 
 
 class DgAugBeardEdge(DgAugBase):
-    def __init__(self, debug=True):
-        super(DgAugBeardEdge, self).__init__()
-        self.debug = debug
+    def __init__(self, debug=False):
+        super(DgAugBeardEdge, self).__init__(debug=debug)
 
-    def _make_aug_edge_shift(self, img_unified, aug_types=["shift_full", "shift_right", "shift_left"]):
-        img_blur3 = cv2.GaussianBlur(img_unified, (3,3), cv2.BORDER_DEFAULT)
-        _, img_blur3 = cv2.threshold(img_blur3, 127, 255, cv2.THRESH_BINARY)
-        img_blur5 = cv2.GaussianBlur(img_unified, (5,5), cv2.BORDER_DEFAULT)
-        _, img_blur5 = cv2.threshold(img_blur5, 127, 255, cv2.THRESH_BINARY)        
-        img_blur7 = cv2.GaussianBlur(img_unified, (7,7), cv2.BORDER_DEFAULT)
-        _, img_blur7 = cv2.threshold(img_blur7, 127, 255, cv2.THRESH_BINARY)
-        img_blur9 = cv2.GaussianBlur(img_unified, (9,9), cv2.BORDER_DEFAULT)
-        _, img_blur9 = cv2.threshold(img_blur9, 127, 255, cv2.THRESH_BINARY)
-
-        imgs_org = [img_unified, img_blur3, img_blur5, img_blur7, img_blur9]
-        names_org = ["unified", "blur3", "blur5", "blur7", "blur9"]
-
-        imgs_aug_map = {}
-
-        for img, name in zip(imgs_org, names_org):
-            if "shift_full" in aug_types:
-                imgs_edged_full = self.shift_edge_full(img)
-                imgs_aug_map[name + "_shift_full"] = imgs_edged_full
-
-            if "shift_right" in aug_types:
-                imgs_edged_half_right = self.shift_edge_half_right(img)
-                imgs_aug_map[name + "_shift_right"] = imgs_edged_half_right
-
-            if "shift_left" in aug_types:
-                imgs_edged_half_left = self.shift_edge_half_left(img)
-                imgs_aug_map[name + "_shift_left"] = imgs_edged_half_left
-
-        return imgs_aug_map
-
-    def _plot_aug_imags(self, imgs_map, min_len):
-        names = []
-        imgs_aug = []
-        for _, imgs in imgs_map.items():
-            for idx, img in enumerate(imgs):
-                if idx <= min_len-1:
-                    area = cv2.countNonZero(img)
-                    names.append(str(area))
-                    imgs_aug.append(img)
-
-        self.plot_imgs_grid(imgs_aug, names=names, mod_num=min_len, set_axis_off=True)
-
-    def make_aug_images(self, img, aug_types=["shift_full", "shift_right", "shift_left"]):
+    def make_aug_images(self, img, aug_types=["shift_full", "shift_right", "shift_left", "transform_a"]):
         img_unified = self.resize_to_unified(img)
 
-        #imgs_map = self._make_aug_edge_shift(img_unified, aug_types=aug_types)
-        imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_right"])
-        #imgs_map = self._make_aug_edge_shift(img_unified, aug_types=["shift_left"])
+        aug_types=["shift_left", "transform_a"]
 
-        imgs_aug = []
-        imgs_len = []
-        for _, imgs in imgs_map.items():
-            imgs_aug.extend(imgs)
-            imgs_len.append(len(imgs))
-        np_imgs_len = np.array(imgs_len)
-        min_len = np_imgs_len.min()
-        total_len = np_imgs_len.sum()
-        print("total_len: {} min_len {} for {}".format(total_len, min_len, aug_types))
+        aug_imgs_map = self.make_aug_edge_shift(img_unified, aug_types=aug_types)
+        trs_imgs_map = self.make_aug_transform(aug_imgs_map, aug_types=aug_types)
+
+        total_aug_len, min_aug_len = self.check_imgs_map_size(aug_imgs_map)
+        print("aug_imgs_map total_len: {}/{} for {}".format(total_aug_len, min_aug_len, aug_types))
     
-        if self.debug:
-            self._plot_aug_imags(imgs_map, min_len)
+        total_trs_len, min_trs_len = self.check_imgs_map_size(trs_imgs_map)
+        print("trs_imgs_map total_len: {}/{} for {}".format(total_trs_len, min_trs_len, aug_types))
 
-        return imgs_aug
+        if self.debug:
+            self.plot_aug_imags_map(aug_imgs_map)
+            self.plot_aug_imags_map(trs_imgs_map)
+
+        return aug_imgs_map, trs_imgs_map
 
 
 def do_exp(filename):
