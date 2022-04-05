@@ -2,6 +2,10 @@ import sys
 import os 
 import cv2
 
+dir_root = os.path.dirname(os.path.dirname(__file__))
+if dir_root not in sys.path:
+    sys.path.append(dir_root)
+
 try:
     from dg_aug_base import FileHelper
     from dg_aug_face_edge import DgAugFaceEdge
@@ -14,8 +18,14 @@ except:
 
 class DatasetHairstyleGen():
     def __init__(self, dir_org, dir_dst):
+        from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
         self.dir_org = dir_org
         self.dir_dst = dir_dst
+        ImgpHairMarker.init_imgp()
+
+    def __del__(self):
+        from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
+        ImgpHairMarker.close_imgp()        
 
     def _prepare_dirs(self):
         if not os.path.isdir(self.dir_org):
@@ -23,7 +33,13 @@ class DatasetHairstyleGen():
 
         os.makedirs(self.dir_dst, exist_ok=True)
 
-    def _process_aug_img(self, subname):
+    def _get_img_hair(self, img_pathname):
+        from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
+        image = cv2.imread(img_pathname, cv2.IMREAD_COLOR)
+        image_hair, _ = ImgpHairMarker.mark_hair(image)
+        return image_hair
+
+    def _process_aug_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
 
@@ -40,29 +56,32 @@ class DatasetHairstyleGen():
                 continue
 
             order_num += 1
-            img = cv2.imread(img_pathname, cv2.IMREAD_GRAYSCALE)
-
+            img = self._get_img_hair(img_pathname)
             aug_imgs_map, trs_imgs_map = dg.make_aug_images(img)
-            gp_num = -1
-            for key, imgs in aug_imgs_map.items():
-                gp_num += 1
-                for idx, img in enumerate(imgs):
-                    name = "{}/{}_{:03}_{:04}_{}.jpg".format(dst_dir, subname, order_num*100 + gp_num, idx, key)
-                    cv2.imwrite(name, img)
-                    cnt += 1 
-
-            gp_num = -1
-            for key, imgs in trs_imgs_map.items():
-                gp_num += 1
-                for idx, img in enumerate(imgs):
-                    name = "{}/{}_{:03}_{:04}_{}.jpg".format(dst_dir, subname, order_num*100 + gp_num, idx, key)
-                    cv2.imwrite(name, img)
-                    cnt += 1
+            cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
         print("generated {} images in {}".format(cnt, dst_dir))
 
-    def _process_aug_empty(self):
-        subname = "00"
+    def _save_aug_imgs(self, aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num):
+        cnt =0
+        gp_num = -1
+        for key, imgs in aug_imgs_map.items():
+            gp_num += 1
+            for idx, img in enumerate(imgs):
+                name = "{}/{}_{:03}_{:04}_{}.jpg".format(dst_dir, subname, order_num*100 + gp_num, idx, key)
+                cv2.imwrite(name, img)
+                cnt += 1 
+
+        gp_num = -1
+        for key, imgs in trs_imgs_map.items():
+            gp_num += 1
+            for idx, img in enumerate(imgs):
+                name = "{}/{}_{:03}_{:04}_{}.jpg".format(dst_dir, subname, order_num*100 + gp_num, idx, key)
+                cv2.imwrite(name, img)
+                cnt += 1
+        return cnt
+
+    def _process_aug_empty_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
         print("generating {}...".format(dst_dir))
@@ -71,21 +90,7 @@ class DatasetHairstyleGen():
         dg = DgAugEmpty()
         for order_num in range(9):
             aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num*2)
-            gp_num = -1
-            for key, imgs in aug_imgs_map.items():
-                gp_num += 1
-                for idx, img in enumerate(imgs):
-                    name = "{}/{}_{:03}_{:04}_{}.jpg".format(dst_dir, subname, order_num*100 + gp_num, idx, key)
-                    cv2.imwrite(name, img)
-                    cnt += 1
-
-            gp_num = -1
-            for key, imgs in trs_imgs_map.items():
-                gp_num += 1
-                for idx, img in enumerate(imgs):
-                    name = "{}/{}_{:03}_{:04}_{}.jpg".format(dst_dir, subname, order_num*100 + gp_num, idx, key)
-                    cv2.imwrite(name, img)
-                    cnt += 1
+            cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
         print("generated {} images in {}".format(cnt, dst_dir))
 
@@ -97,8 +102,8 @@ class DatasetHairstyleGen():
             dir_sub = "{}/{}".format(self.dir_org, subname)
             if not os.path.isdir(dir_sub):
                 continue
-            self._process_aug_img(subname)
-        self._process_aug_empty()
+            self._process_aug_imgs_in_subdir(subname)
+        self._process_aug_empty_imgs_in_subdir("00")
 
 
 def do_exp(dir_org, dir_dst):

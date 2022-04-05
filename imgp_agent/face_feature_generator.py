@@ -101,7 +101,15 @@ class FaceFeatureGenerator(object):
         return imgs, names, title, dt
 
 
-def do_exp():
+def do_exp_file():
+    filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+
+    ffg = FaceFeatureGenerator()
+    ffg.show_results(filename) 
+    del ffg 
+
+
+def do_exp_dir():
     selected_names = None
     #selected_names = ["hsi_image1.jpeg"]
 
@@ -123,5 +131,7 @@ def do_exp():
 
     del ffg 
 
+
 if __name__ == '__main__':
-    do_exp()
+    #do_exp_file()
+    do_exp_dir()
