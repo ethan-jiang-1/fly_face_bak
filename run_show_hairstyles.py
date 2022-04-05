@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import PySimpleGUI as sg
 #import numpy as np
 
 import cv2
@@ -26,7 +27,8 @@ def _plot_all_imgs(all_hair_imgs, num_in_group=10):
             names.append(name)
             imgs.append(img)
 
-    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=num_in_group, figsize=(10, 8), set_axis_off=True)
+    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=num_in_group, figsize=(10, 3), set_axis_off=True)
+
 
 def _save_all_imgs(all_hair_imgs, dst_dir):
     os.makedirs(dst_dir, exist_ok=True)
@@ -70,7 +72,7 @@ def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
     del ffg
 
 
-def do_exp():
+def analysis_all_files():
     #dir_root = os.path.dirname(__file__)
     src_dirs = [] 
     src_dirs.append("_dataset_org_hair_styles/Version 1.1/01")
@@ -83,5 +85,34 @@ def do_exp():
 
     do_extract_hairstyles(src_dirs, dst_dir)
 
+
+def analysis_selected_folder():
+    sg.theme('Light Blue 2')
+    
+    layout = [[sg.Text('选择一个目录', size=(15, 1), auto_size_text=True, justification='left')], 
+              [sg.InputText(size=(80, 1)), sg.FolderBrowse(initial_folder=os.path.dirname(__file__))], 
+              [sg.Button('OK'), sg.Button('Exit')]]
+    
+    window = sg.Window('发型分析', layout)
+    
+    while True:
+        event, values = window.read()
+        print(f'Event: {event}, Values: {values}')
+        
+        if event == 'OK':
+            if (values[0] == ''):
+                sg.popup('请选择发型图片所在的目录！')
+            elif not os.path.exists(values[0]):
+                sg.popup('目录不存在，请重新选择！')
+            else:
+                src_dirs = [values[0]]
+                dst_dir = "_reserved_output_hair_styles"
+                do_extract_hairstyles(src_dirs, dst_dir)
+        elif event in (None, 'Exit'):
+            break
+    window.close()
+
+ 
 if __name__ == '__main__':
-    do_exp()
+    # analysis_all_files()
+    analysis_selected_folder()
