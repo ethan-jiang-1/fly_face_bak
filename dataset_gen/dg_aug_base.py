@@ -1,5 +1,3 @@
-
-from abc import ABC, abstractmethod
 import sys
 import os
 import cv2
@@ -131,13 +129,13 @@ class AugTransformMixIn():
         return img_resized
 
 
-class DgAugBase(ABC, EdgeShifterMixIn, AugTransformMixIn):
+class DgAugBase(EdgeShifterMixIn, AugTransformMixIn):
     def __init__(self, debug=False):
         self.debug = debug
 
-    @abstractmethod
-    def make_aug_images(self, img):
-        return []
+    def get_empty_unified(self):
+        img = np.zeros(UNIFIED_IMG_SIZE, dtype=np.uint8)
+        return img
 
     def resize_to_unified(self, img):
         _, img_b = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
@@ -149,25 +147,6 @@ class DgAugBase(ABC, EdgeShifterMixIn, AugTransformMixIn):
 
     def plot_imgs_grid(self, imgs, names=None, title=None, mod_num=4, figsize=(10, 8), set_axis_off=False):
         return PlotHelper.plot_imgs_grid(imgs, names=names, title=title, mod_num=mod_num, figsize=figsize, set_axis_off=set_axis_off)
-
-    def check_edges(self, img):
-        img_org = self.resize_to_unified(img)
-        img_blur1 = cv2.GaussianBlur(img_org, (5,5), cv2.BORDER_DEFAULT)
-        _, img_blur1 = cv2.threshold(img_blur1, 127, 255, cv2.THRESH_BINARY)
-        img_blur2 = cv2.GaussianBlur(img_org, (9,9), cv2.BORDER_DEFAULT)
-        _, img_blur2 = cv2.threshold(img_blur2, 127, 255, cv2.THRESH_BINARY)
-
-        img_edge0 = self.get_edge_b2w(img_org, edge_type=self.ET_3L2)
-        img_edge1 = self.get_edge_b2w(img_blur1, edge_type=self.ET_5L2)
-        img_edge2 = self.get_edge_b2w(img_blur2, edge_type=self.ET_7L2)
-
-        self.plot_imgs([img_org, img_edge0, img_blur1, img_edge1, img_blur2, img_edge2])
-
-        imgs = [img_org]
-        for i in range(5):
-            img_transformed = self.transform_img(img_org, self.TN_COMBINEA)
-            imgs.append(img_transformed)
-        self.plot_imgs(imgs)
 
     def plot_aug_imags_map(self, imgs_map):
         _, min_len = self.check_imgs_map_size(imgs_map)
@@ -241,6 +220,7 @@ class DgAugBase(ABC, EdgeShifterMixIn, AugTransformMixIn):
                     img_transformed = self.transform_img(img, self.TN_COMBINEB)
                     trs_imgs_map[key_trs].append(img_transformed)
         return trs_imgs_map
+
 
 if __name__ == '__main__':
     print(FileHelper, PlotHelper)
