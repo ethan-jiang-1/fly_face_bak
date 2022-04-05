@@ -1,4 +1,5 @@
 import os
+import cv2
 #import numpy as np
 
 from imgp_agent.face_feature_generator import FaceFeatureGenerator
@@ -15,6 +16,12 @@ def _plot_all_imgs(all_hair_imgs):
     imgs = []
     names = []
     for key, tis in all_hair_imgs.items():
+        if not os.path.exists(key):
+            os.mkdir(key)
+            print('->make dir: %s' % key)
+        else:
+            print('->dir existed: %s' % key)
+                
         for ndx, ti in enumerate(tis):
             if ndx > min - 1:
                 break
@@ -22,6 +29,13 @@ def _plot_all_imgs(all_hair_imgs):
             name = "{}.{}".format(key, title.split(".")[0])
             names.append(name)
             imgs.append(img)
+            
+            image_path = '{}/{}'.format(key, title)
+            if not os.path.exists(image_path):
+                print('->save image: %s' % image_path)
+                cv2.imwrite(image_path, img)
+            else:
+                print('->image existed: %s' % title)
 
     PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=min, figsize=(10, 8), set_axis_off=True)
 
