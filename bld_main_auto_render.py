@@ -2,7 +2,7 @@ import os
 import sys
 import importlib 
 
-SELECTED_ACTION = "auto_render"  # show caputure 
+SELECTED_ACTION = "auto_render"  # show caputure auto_render
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
            "AUTO_RENDER":"auto_render.json"}
 RELOAD_ALL_MODULES = True
@@ -56,8 +56,7 @@ def _update_sys_paths(renv):
     if root_dir not in sys.path:
         sys.path.append(root_dir)
 
-    bld_gen_dir = os.path.dirname(__file__)
-    bld_gen_dir += "/bld_gen"
+    bld_gen_dir = root_dir + os.sep + "bld_gen"
     if bld_gen_dir not in sys.path:
         sys.path.append(bld_gen_dir)
 

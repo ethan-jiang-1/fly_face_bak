@@ -11,7 +11,7 @@ def _find_sub_folder(root_dir, unified_name):
     for leading in ["exp_", "bldmc_"]:
         rel_sub_exp_folder_name = "{}{}".format(leading, unified_name)
 
-        sub_folder = "{}/bld_gen/{}{}".format(root_dir, os.sep, rel_sub_exp_folder_name)
+        sub_folder = "{}{}{}{}{}".format(root_dir, os.sep, "bld_gen", os.sep, rel_sub_exp_folder_name)
         if os.path.isdir(sub_folder):
             return sub_folder, rel_sub_exp_folder_name
     return None, None
@@ -45,11 +45,11 @@ def _find_and_load_module(renv, blender_prj_pathname):
         raise ex
 
     importlib.reload(mod_run_core)
-    return mod_run_core
+    return mod_run_core, sub_folder
 
 def _find_entry_func(mod_run_core, action):
     from bld_gen.utils_ui.colorstr import log_colorstr
-    if action is None or len(action) == 0:
+    if action is None or len(action) == 0 or action == "show":
         best_name = "do_exp"
     else:
         best_name = "do_exp_{}".format(action)
@@ -67,7 +67,7 @@ def _dyna_load_and_run(renv, action, blender_prj_pathname):
     import gc
     gc.collect(generation=2)
 
-    mod_run_core = _find_and_load_module(renv, blender_prj_pathname)
+    mod_run_core, sub_run_folder = _find_and_load_module(renv, blender_prj_pathname)
     if mod_run_core is None:
         return False
     

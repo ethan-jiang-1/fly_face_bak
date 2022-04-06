@@ -5,10 +5,10 @@ from bld_gen.utils_model.easy_dict import EasyDict
 import importlib
 
 
-class BpyDataMcdBurger(BpyDataInsbase):
+class BpyDataMcBeard(BpyDataInsbase):
     def __init__(self, bpy_data, renv=None):
         import bpy
-        super(BpyDataMcdBurger, self).__init__(bpy_data, renv)
+        super(BpyDataMcBeard, self).__init__(bpy_data, renv)
         self.scene = bpy.context.scene
 
     def inspect(self):
@@ -135,7 +135,7 @@ def do_exp_show(renv):
     import bpy
 
     bpy_data = bpy.data 
-    bd = BpyDataMcdBurger(bpy_data, renv=renv)
+    bd = BpyDataMcBeard(bpy_data, renv=renv)
     bd.inspect()
     return bd.adjust()
 
@@ -143,7 +143,7 @@ def do_exp_capture(renv):
     import bpy
 
     bpy_data = bpy.data 
-    bd = BpyDataMcdBurger(bpy_data, renv=renv)
+    bd = BpyDataMcBeard(bpy_data, renv=renv)
     bd.inspect()
     return bd.adjust_capture_imgs()
 
@@ -152,6 +152,7 @@ def do_exp(renv):
     #return do_exp_capture(renv)
 
 def do_exp_auto_render(renv):
+    print("__file__", __file__)
     return do_exp_capture(renv)
 
 if __name__ == '__main__':
