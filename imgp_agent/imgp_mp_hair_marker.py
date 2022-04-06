@@ -64,6 +64,18 @@ def _mark_hair_imgs(src_dir):
 
     ImgpHairMarker.close_imgp()
 
+def _mark_hair_img(src_filename):
+    from imgp_common import PlotHelper
+    ImgpHairMarker.init_imgp()
+    image = cv2.imread(src_filename, cv2.IMREAD_COLOR)
+
+    image_hair, _ = ImgpHairMarker.mark_hair(image)
+    if image_hair is None:
+        print("not able to mark hair on", src_filename)
+    
+    PlotHelper.plot_imgs([image, image_hair])
+    ImgpHairMarker.close_imgp()
+
 def _get_root_dir():
     import os 
 
@@ -82,8 +94,10 @@ def do_exp():
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
-   
     _mark_hair_imgs(src_dir)
+
+    #src_filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+    #_mark_hair_img(src_filename)
 
 
 if __name__ == '__main__':

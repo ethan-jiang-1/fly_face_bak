@@ -1,5 +1,6 @@
 import sys
 import os 
+import random
 import cv2
 
 try:
@@ -8,12 +9,20 @@ except:
     from .dg_aug_base import DgAugBase
 
 
-class DgAugBeardEdge(DgAugBase):
+class DgAugEmpty(DgAugBase):
     def __init__(self, debug=False):
-        super(DgAugBeardEdge, self).__init__(debug=debug)
+        super(DgAugEmpty, self).__init__(debug=debug)
 
-    def make_aug_images(self, img, aug_types=("shift_full", "shift_right", "shift_left", "transform_a", "transform_b")):
-        img_unified = self.resize_to_unified(img)
+    def gen_empty_img(self, noise_theshold=240):
+        img_empty = self.get_empty_unified()
+        for x in range(img_empty.shape[1]):
+            for y in range(img_empty.shape[0]):
+                img_empty[x, y] = (random.randint(0, 255))
+        _, img_empty_b = cv2.threshold(img_empty, noise_theshold, 255, cv2.THRESH_BINARY)        
+        return img_empty_b
+
+    def make_aug_images(self, noise_theshold=240, aug_types=("shift_full", "shift_right", "shift_left", "transform_a", "transform_b")):
+        img_unified = self.gen_empty_img(noise_theshold=noise_theshold)
 
         aug_imgs_map = self.make_aug_edge_shift(img_unified, aug_types=aug_types)
         trs_imgs_map = self.make_aug_transform(aug_imgs_map, aug_types=aug_types)
@@ -32,27 +41,17 @@ class DgAugBeardEdge(DgAugBase):
 
         return aug_imgs_map, trs_imgs_map
 
-
-def do_exp(filename):
+def do_exp():
     dir_this = os.path.dirname(__file__)
     if dir_this not in sys.path:
         sys.path.append(dir_this)
-
-    if not filename.startswith("/"):
-        dir_root = os.path.dirname(dir_this)
-        filename = "{}/{}".format(dir_root, filename)
     
-    img = cv2.imread(filename, cv2.IMREAD_ANYCOLOR)
-
-    dg = DgAugBeardEdge(debug=True)
-    aug_imgs_map, trs_imgs_map = dg.make_aug_images(img, aug_types=("shift_left", "transform_a"))
+    dg = DgAugEmpty(debug=True)
+    aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8, aug_types=("shift_full", "transform_a"))
     print(len(aug_imgs_map), len(trs_imgs_map))
-
+ 
     del dg 
 
 
 if __name__ == '__main__':
-
-    #filename = "_reserved_output_feature_gen/brd_image5_beard.jpg"
-    filename = "_reserved_output_feature_gen/sun_me_beard.jpg"
-    do_exp(filename)
+    do_exp()

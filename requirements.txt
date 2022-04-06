@@ -10,7 +10,7 @@ blinker==1.4
 certifi==2021.10.8
 click==8.0.3
 cycler==0.11.0
-dlib==19.23.1
+#dlib==19.23.1
 fake-bpy-module-3.0==20211212
 flake8==4.0.1
 fonttools==4.30.0
@@ -44,3 +44,4 @@ tifffile==2022.3.25
 tqdm==4.63.0
 typing_extensions==4.1.1
 userpath==1.7.0
+tk

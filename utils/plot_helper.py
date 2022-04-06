@@ -1,4 +1,10 @@
+from sys import platform
 import matplotlib.pyplot as plt
+
+if platform == "linux" or platform == "linux2":
+    import matplotlib
+    matplotlib.use("TkAgg")
+
 
 class PlotHelper(object):
     @classmethod
