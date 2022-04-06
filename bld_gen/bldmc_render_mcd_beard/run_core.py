@@ -125,8 +125,8 @@ class BpyDataMcBeard(BpyDataInsbase):
                         self.take_shot(shot_info)
                     self.refresh_screen()
 
-                    if self.max_variation > 0 and vidx >= self.max_variation:
-                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation))
+                    if self.max_variation > 1 and vidx >= self.max_variation - 1:
+                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation - 1))
                         return combination_name, vidx 
         return combination_name, vidx      
 
