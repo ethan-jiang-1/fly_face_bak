@@ -4,8 +4,7 @@ import importlib
 
 SELECTED_ACTION = "auto_render"  # show caputure 
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
-           "RENDER_MAX_CNT": "400",
-           "AUX_FILE":"mw_key2.wav.json"}
+           "AUTO_RENDER":"auto_render.json"}
 RELOAD_ALL_MODULES = True
 
 
