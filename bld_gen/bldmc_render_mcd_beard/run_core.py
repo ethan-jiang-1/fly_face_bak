@@ -89,7 +89,7 @@ class BpyDataMcBeard(BpyDataInsbase):
                 return True
         return False 
 
-    def _adjust_varity_in_combination(self, map_skm, cmb_idx, bidx, beard_objs, hidx, hair_objs, shot_info):
+    def _adjust_varity_in_combination(self, map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info):
         vals = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
 
         hair = hair_objs[hidx]
@@ -98,10 +98,10 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._select_one_visible_obj_only(hair, hair_objs)
         self._select_one_visible_obj_only(beard, beard_objs)
 
-        combination_name = "{:02}_{:02}-c{:03}".format(hidx, bidx, cmb_idx)
+        combination_name = "H{:02}B{:02}F{:02}-c{:03}".format(hidx, bidx, fidx,  cmb_idx)
         log_colorstr("yellow", "new combination: {} ".format(combination_name))
 
-        vidx = -1 
+        vidx = 0 
         for key, lst_skm in map_skm.items():
             if self._should_skip_shapekey(key, beard, hair):
                 continue
@@ -128,36 +128,49 @@ class BpyDataMcBeard(BpyDataInsbase):
                     if self.max_variation > 1 and vidx >= self.max_variation - 1:
                         log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation - 1))
                         return combination_name, vidx 
-        return combination_name, vidx      
+        return combination_name, vidx
+
+    def _save_shot_info(self, combination_name, vcnt, shot_info):
+        if shot_info is None or shot_info.mode != "auto":
+            return None
+        filename = self.render_root + os.sep + combination_name + os.sep + "shot_num.txt"
+        with open(filename, "wt+") as f:
+            f.write("{}".format(vcnt))
+        return filename
 
     def _adjust_shapekeys(self, map_skm, shot_info=None):
-        beard_objs = self.cltname2objs["Collection beard"]
         hair_male_objs = self.cltname2objs["Collection hair_male"]
         hair_female_objs = self.cltname2objs["Collection hair_female"]
-
-        self._deselect_all_obj(beard_objs)
-        self._deselect_all_obj(hair_male_objs)
-        self._deselect_all_obj(hair_female_objs)
-
-        beard_objs.insert(0, None)
-
         hair_objs = []
         hair_objs.append(None)
         hair_objs.extend(hair_male_objs)
         hair_objs.extend(hair_female_objs)
 
+        beard_objs = self.cltname2objs["Collection beard"]
+        beard_objs.insert(0, None)
+
+        face_objs = []
+        face_objs.insert(0, None)
+
+        self._deselect_all_obj(beard_objs)
+        self._deselect_all_obj(hair_male_objs)
+        self._deselect_all_obj(hair_female_objs)
+        self._deselect_all_obj(face_objs)
+
         cmb_idx = -1
         cvcnt = 0
         for hidx, hair in enumerate(hair_objs):
             for bidx, beard in enumerate(beard_objs):
-                if hair in hair_female_objs:
-                    if beard is not None:
-                        continue
-                cmb_idx += 1
-                combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, bidx, beard_objs, hidx, hair_objs, shot_info)
-                if self.debug:
-                    log_colorstr("blue", "combination {} has {} vairation".format(combination_name, vcnt))
-                cvcnt += vcnt
+                for fidx, face in enumerate(face_objs):
+                    if hair in hair_female_objs:
+                        if beard is not None:
+                            continue
+                    cmb_idx += 1
+                    combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info)
+                    self._save_shot_info(combination_name, vcnt, shot_info)
+                    if self.debug:
+                        log_colorstr("blue", "combination {} has {} vairation".format(combination_name, vcnt))
+                    cvcnt += vcnt
         if self.debug:
             log_colorstr("blue", "total combination: {} yield {} variation".format(cmb_idx, cvcnt))
         return cmb_idx, cvcnt
