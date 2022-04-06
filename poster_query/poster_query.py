@@ -5,7 +5,7 @@
 class PosterQuery(object):
     @classmethod
     def get_poster(cls,  hair_id, face_id, beard_id):
-        return None 
+        return None, None 
 
 def do_exp():
     hair_id = 0
