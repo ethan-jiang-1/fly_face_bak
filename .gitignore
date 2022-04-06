@@ -134,7 +134,7 @@ absltest_mediapipe_python/solutions/resultdata
 _npy*
 _test_*
 _reserved_*
-_gen_render_*
+_gen_*
 _dataset_*
 
 !hsi_tflite_interpeter/tflite_custom.macos/tflite_runtime/_pywrap_tensorflow_interpreter_wrapper.so

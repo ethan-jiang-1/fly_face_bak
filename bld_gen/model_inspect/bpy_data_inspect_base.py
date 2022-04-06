@@ -155,21 +155,35 @@ class BpyDataInsbase(object):
         os.makedirs(gen_img_folder, exist_ok=True)
         return gen_img_folder
 
+    def _is_render_disabled(self):
+        if ENV_DISABLE_RENDER in os.environ.keys():
+            if os.environ[ENV_DISABLE_RENDER].lower() == "true":
+                print("SKIP render - {}={}".format(ENV_DISABLE_RENDER,  os.environ[ENV_DISABLE_RENDER]))
+                return True 
+        return False
+
     def take_shot(self, shot_info):
         from bld_gen.utils_ui.bd_render import BdRender
-        if shot_info is not None:
-            if ENV_DISABLE_RENDER in os.environ.keys():
-                if os.environ[ENV_DISABLE_RENDER].lower() == "true":
-                    print("SKIP render - {}={}".format(ENV_DISABLE_RENDER,  os.environ[ENV_DISABLE_RENDER]))
-                    return self.refresh_screen()
-            img_pathname = "{}{}{}_{:06d}.png".format(shot_info.gen_img_folder, os.sep, shot_info.prefix, shot_info.ndx)
-            BdRender.render_scene_to_img(img_pathname)  
-            shot_info.ndx += 1
-            return True
-        else:
-            print("SKIP render - not shot info")
+        if self._is_render_disabled():
             self.refresh_screen()  
-            return False
+            return None 
+
+        if shot_info is not None:
+            if shot_info.mode == "inc":
+                img_pathname = "{}{}{}_{:06d}.png".format(shot_info.gen_img_folder, os.sep, shot_info.prefix, shot_info.ndx)
+                BdRender.render_scene_to_img(img_pathname)  
+                shot_info.ndx += 1
+                return img_pathname
+            elif shot_info.mode == "auto":
+                os.makedirs(shot_info.gen_img_folder, exist_ok=True)
+                img_pathname = "{}{}{}".format(shot_info.gen_img_folder, os.sep, shot_info.gen_img_name)
+                BdRender.render_scene_to_img(img_pathname)  
+                shot_info.ndx += 1
+                return img_pathname
+    
+        print("SKIP render - no shot info or unknown shot info")
+        self.refresh_screen()  
+        return None
 
     def refresh_screen(self):
         if ENV_DISABLE_REFRESH in os.environ.keys():

@@ -1,29 +1,49 @@
 
-from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
-from datetime import datetime
-from bld_gen.utils_model.easy_dict import EasyDict
 import importlib
+from datetime import datetime
 
+import os
+from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
+from bld_gen.utils_model.easy_dict import EasyDict
+from bld_gen.utils_ui.colorstr import log_colorstr
 
 class BpyDataMcBeard(BpyDataInsbase):
-    def __init__(self, bpy_data, renv=None):
+    def __init__(self, bpy_data, renv=None, ctl_data=None):
         import bpy
         super(BpyDataMcBeard, self).__init__(bpy_data, renv)
         self.scene = bpy.context.scene
+        self.ctl_data = ctl_data
+        self.render_root = self.get_gen_img_folder()
+        self.max_variation = -1
+        if self.ctl_data is not None:
+            self.render_root = "{}{}{}".format(renv.get_root_dir(), os.sep, self.ctl_data["output_folder"])
+            self.max_variation = int(self.ctl_data["max_variation"])
 
     def inspect(self):
         self._inspect_top_collections()
         self._inspect_top_node_groups()
         self._inspect_all_materials()
 
-    def _get_shot_info(self):
+    def _get_shot_info_inc(self):
         now = datetime.now()
         shot_info = EasyDict()
+        shot_info.mode = "inc"
         shot_info.gen_img_folder = self.get_gen_img_folder()
         shot_info.prefix = "{:04d}{:02d}{:02d}".format(now.year, now.month, now.day)
         shot_info.now = now
         shot_info.ndx = 0
         return shot_info
+
+    def _get_shot_info_auto(self):
+        now = datetime.now()
+        shot_info = EasyDict()
+        shot_info.mode = "auto"
+        shot_info.gen_img_folder = self.render_root
+        shot_info.prefix = None
+        shot_info.now = now
+        shot_info.ndx = 0
+        shot_info.gen_img_name = None
+        return shot_info        
 
     def _find_all_shapekeys(self):
         import bld_gen.utils_model.finder_shapekeys_info as finder_shapekeys_info
@@ -31,14 +51,15 @@ class BpyDataMcBeard(BpyDataInsbase):
         return finder_shapekeys_info.FinderShapekeysInfo.find_all_shapekeys_info(self.bpy_data)
 
     def _alter_obj_hide(self, obj, hide):
-        #import bpy
+        change = False
         if obj.hide_render != hide:
-            obj.hide_render = hide
-            #bpy.ops.object.hide_render_set(hide)
-            self.refresh_screen()
+            change = True
         if obj.hide_viewport != hide:
+            change = True
+        if change:
             obj.hide_viewport = hide
-            #bpy.ops.object.hide_view_set(hide) 
+            obj.hide_render = hide
+            obj.hide_set(hide)
             self.refresh_screen()
 
     def _select_one_visible_obj_only(self, sel_obj, objs):
@@ -49,7 +70,6 @@ class BpyDataMcBeard(BpyDataInsbase):
                 self._alter_obj_hide(obj, False)
             else:
                 self._alter_obj_hide(obj, True)
-        self.refresh_screen()
 
     def _deselect_all_obj(self, objs):
         for obj in objs:
@@ -67,7 +87,48 @@ class BpyDataMcBeard(BpyDataInsbase):
         if beard is None:
             if key_lower.startswith("beard"):
                 return True
-        return False        
+        return False 
+
+    def _adjust_varity_in_combination(self, map_skm, cmb_idx, bidx, beard_objs, hidx, hair_objs, shot_info):
+        vals = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
+
+        hair = hair_objs[hidx]
+        beard = beard_objs[bidx]
+
+        self._select_one_visible_obj_only(hair, hair_objs)
+        self._select_one_visible_obj_only(beard, beard_objs)
+
+        combination_name = "{:02}_{:02}-c{:03}".format(hidx, bidx, cmb_idx)
+        log_colorstr("yellow", "new combination: {} ".format(combination_name))
+
+        vidx = -1 
+        for key, lst_skm in map_skm.items():
+            if self._should_skip_shapekey(key, beard, hair):
+                continue
+            if self.debug:
+                log_colorstr("yellow", "play key {} for {} in {} ".format(key, cmb_idx, combination_name))
+            self.send_dev_msg("{}:{}".format(combination_name, key))                    
+            for val in vals:
+                for skm in lst_skm:            
+                    _, key, mesh, _ = skm
+                    if self._should_skip_shapekey(key, beard, hair):
+                        continue
+
+                    vidx += 1
+                    kb = mesh.shape_keys.key_blocks[key]
+                    kb.value = val
+                
+                    if shot_info:
+                        if shot_info.mode == "auto":
+                            shot_info.gen_img_folder = self.render_root + os.sep + combination_name
+                            shot_info.gen_img_name = combination_name + "_{:06}.jpeg".format(vidx)
+                        self.take_shot(shot_info)
+                    self.refresh_screen()
+
+                    if self.max_variation > 0 and vidx >= self.max_variation:
+                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation))
+                        return combination_name, vidx 
+        return combination_name, vidx      
 
     def _adjust_shapekeys(self, map_skm, shot_info=None):
         beard_objs = self.cltname2objs["Collection beard"]
@@ -79,46 +140,27 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._deselect_all_obj(hair_female_objs)
 
         beard_objs.insert(0, None)
+
         hair_objs = []
         hair_objs.append(None)
         hair_objs.extend(hair_male_objs)
         hair_objs.extend(hair_female_objs)
-        total_loop = len(beard_objs) * len(hair_objs)
-        vals = [0.2, 0.4, 0.6, 0.8, 1.0, 0.0]
-        total_shot = total_loop * len(vals) * len(map_skm.keys())
-        print("total loop: {}, total_shot?: {}", total_loop, total_shot)
 
-        for bidx, beard in enumerate(beard_objs):
-            for hidx, hair in enumerate(hair_objs):
+        cmb_idx = -1
+        cvcnt = 0
+        for hidx, hair in enumerate(hair_objs):
+            for bidx, beard in enumerate(beard_objs):
                 if hair in hair_female_objs:
                     if beard is not None:
                         continue
-
-                loop_name = "{:03d}/{:03d}:b{}h{}".format(bidx*len(beard_objs) + hidx, total_loop, bidx, hidx)
-                self._select_one_visible_obj_only(hair, hair_objs)
-                self._select_one_visible_obj_only(beard, beard_objs)
-                self.send_dev_msg(loop_name)   
-                print()
-                print(loop_name)
-                print(map_skm.keys())
-                for key, lst_skm in map_skm.items():
-                    if self._should_skip_shapekey(key, beard, hair):
-                        continue
-                    print("play key", key)
-                    self.send_dev_msg("{}:{}".format(loop_name, key))                    
-                    for val in vals:
-                        for skm in lst_skm:            
-                            _, key, mesh, _ = skm
-                            if self._should_skip_shapekey(key, beard, hair):
-                                continue
-                            kb = mesh.shape_keys.key_blocks[key]
-                            kb.value = val
-                            if shot_info:
-                                self.take_shot(shot_info)
-                            else:
-                                self.refresh_screen()
-                            if val == 0.0:
-                                self.refresh_screen()
+                cmb_idx += 1
+                combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, bidx, beard_objs, hidx, hair_objs, shot_info)
+                if self.debug:
+                    log_colorstr("blue", "combination {} has {} vairation".format(combination_name, vcnt))
+                cvcnt += vcnt
+        if self.debug:
+            log_colorstr("blue", "total combination: {} yield {} variation".format(cmb_idx, cvcnt))
+        return cmb_idx, cvcnt
 
     def adjust(self):
         map_skm = self._find_all_shapekeys()
@@ -126,9 +168,19 @@ class BpyDataMcBeard(BpyDataInsbase):
         return True
 
     def adjust_capture_imgs(self):
-        shot_info = self._get_shot_info()
+        shot_info = self._get_shot_info_inc()
         map_skm = self._find_all_shapekeys()
         self._adjust_shapekeys(map_skm, shot_info=shot_info)
+        return True
+
+    def _gen_render_imgs(self, map_skm, shot_info=None):
+        self._adjust_shapekeys(map_skm, shot_info=shot_info)
+        return True
+
+    def auto_render(self):
+        shot_info = self._get_shot_info_auto()
+        map_skm = self._find_all_shapekeys()
+        self._gen_render_imgs(map_skm, shot_info=shot_info)
         return True
 
 def do_exp_show(renv):
@@ -151,9 +203,28 @@ def do_exp(renv):
     return do_exp_show(renv)
     #return do_exp_capture(renv)
 
+def _load_json_data(json_filename):
+    import os
+    import json
+
+    dir_this = os.path.dirname(__file__)
+    json_path = "{}{}{}".format(dir_this, os.sep, json_filename)
+    if not os.path.isfile(json_path):
+        msg = "failed to find {}".format(json_path)
+        log_colorstr("red", msg)
+        raise ValueError(msg)
+    with open(json_path, "rb") as f:
+        json_data = json.load(f)
+    return json_data
+
 def do_exp_auto_render(renv):
-    print("__file__", __file__)
-    return do_exp_capture(renv)
+    import bpy
+
+    ctl_data = _load_json_data("auto_render.json")
+    bpy_data = bpy.data 
+    bd = BpyDataMcBeard(bpy_data, renv=renv, ctl_data=ctl_data)
+    bd.inspect()
+    return bd.auto_render()
 
 if __name__ == '__main__':
     do_exp(None)

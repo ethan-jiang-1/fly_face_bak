@@ -59,7 +59,10 @@ class BdRender(object):
             os.makedirs(dir_name, exist_ok=True)
 
         bpy.context.scene.render.filepath = img_pathname
-        bpy.context.scene.render.image_settings.file_format = 'PNG' # 'JPEG'
+        if img_pathname.endswith(".png"):
+            bpy.context.scene.render.image_settings.file_format = 'PNG'
+        else: 
+            bpy.context.scene.render.image_settings.file_format = 'JPEG'
         bpy.ops.render.render(write_still=True)
 
         s1 = datetime.now()
