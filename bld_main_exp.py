@@ -2,7 +2,7 @@ import os
 import sys
 import importlib 
 
-SELECTED_ACTION = "capture_music"  # show caputure 
+SELECTED_ACTION = "show"  # show caputure 
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
            "RENDER_MAX_CNT": "400",
            "AUX_FILE":"mw_key2.wav.json"}
@@ -55,7 +55,7 @@ def _update_sys_paths(renv):
     if root_dir not in sys.path:
         sys.path.append(root_dir)
 
-    app_dir = root_dir + "/bld_gen"
+    app_dir = root_dir + os.sep + "bld_gen"
     if app_dir not in sys.path:
         sys.path.append(app_dir)
 

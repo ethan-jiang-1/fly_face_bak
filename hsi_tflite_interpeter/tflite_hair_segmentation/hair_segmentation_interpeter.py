@@ -17,6 +17,7 @@ class HairSegmentationInterpreter(object):
             import tflite_runtime.interpreter as tflite
             self.tflite = tflite
             model_pathname = self._get_model_pathname()
+            print("model_pathname", model_pathname)
             ipt = tflite.Interpreter(model_path=model_pathname)
             ipt.allocate_tensors()
             return ipt
