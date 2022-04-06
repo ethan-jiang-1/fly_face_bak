@@ -100,6 +100,12 @@ class FaceFeatureGenerator(object):
         title = os.path.basename(filename)
         return imgs, names, title, dt
 
+    def find_img(self, imgs, names, expected_name):
+        for idx, name in enumerate(names):
+            if name == expected_name:
+                return imgs[idx]
+        return None
+
 
 def do_exp_file():
     filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
