@@ -137,7 +137,7 @@ def _add_root_in_sys_path():
     import sys 
     import os
     dir_this = os.path.dirname(__file__)
-    dir_root = os.path.dirname(dir_this)
+    dir_root = os.path.dirname(os.path.dirname(dir_this))
     if dir_root not in sys.path:
         sys.path.append(dir_root)
 

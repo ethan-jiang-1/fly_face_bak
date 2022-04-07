@@ -1,6 +1,7 @@
 #from datetime import datetime
 
 import os
+import sys
 import cv2
 
 class ImgpHairMarker():
@@ -12,7 +13,12 @@ class ImgpHairMarker():
             if not cls.has_tflite_custom_installed():
                 print("please go to hsi_tflite_interpeter foloder to install customized tflite-runtime-hsi")
                 raise ValueError("no tflite-runtime-hsi installed")
-            from hsi_tflite_interpeter.tflite_hair_segmentation import hair_segmentation_interpeter
+            
+            dir_parent = os.path.dirname(os.path.dirname(__file__))
+            if dir_parent not in sys.path:
+                sys.path.append(dir_parent)
+
+            from imgp_agent.tflite_hair_segmentation import hair_segmentation_interpeter
             cls.hsi_klass = hair_segmentation_interpeter.HairSegmentationInterpreter
         print("ImgpHairMarker inited")
 

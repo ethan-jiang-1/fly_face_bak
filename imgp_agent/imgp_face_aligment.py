@@ -29,11 +29,11 @@ class ImgpFaceAligment():
         if dir_parent not in sys.path:
             sys.path.append(dir_parent)
         if USING_FACE_ALIGMENT == "MP": 
-            from face_alignment.face_aligment_mp import FaceAlignemtMp as FaceAligment  
-        elif USING_FACE_ALIGMENT == "DLIB":
-            from face_alignment.face_aligment_dlib import FaceAlignemtDlib as FaceAligment   
+            from imgp_agent.face_alignment.face_aligment_mp import FaceAlignemtMp as FaceAligment  
+        #elif USING_FACE_ALIGMENT == "DLIB":
+        #    from imgp_agent.face_alignment.face_aligment_dlib import FaceAlignemtDlib as FaceAligment   
         #elif USING_FACE_ALIGMENT == "CV2":
-        #    from face_alignment.face_aligment_cv2 import FaceAlignemtCv2 as FaceAligment
+        #    from imgp_agent.face_alignment.face_aligment_cv2 import FaceAlignemtCv2 as FaceAligment
         return FaceAligment  
 
     @classmethod

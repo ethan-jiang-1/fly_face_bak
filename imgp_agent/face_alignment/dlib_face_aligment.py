@@ -184,7 +184,7 @@ def exam_face_aligment(face_crop=True, draw_keypoints=True):
     def get_output_filename(filename, face_crop):
         basename = os.path.basename(filename)
         this_dir = os.path.dirname(__file__)
-        root_dir = os.path.dirname(this_dir)
+        root_dir = os.path.dirname(os.path.dirname(this_dir))
         if face_crop:
             output_dir = os.sep.join([root_dir, "_reserved_output_face_aligned"])
         else:
@@ -232,7 +232,8 @@ def _add_root_in_sys_path():
     import sys 
     import os
     dir_this = os.path.dirname(__file__)
-    dir_root = os.path.dirname(dir_this)
+    dir_root = os.path.dirname(os.path.dirname(dir_this))
+
     if dir_root not in sys.path:
         sys.path.append(dir_root)
 
