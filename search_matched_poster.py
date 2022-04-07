@@ -53,7 +53,8 @@ class SearchMatchedPoster():
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, names)
 
-        hair_id = ClfHair.get_category_id(img_hair)
+        hair_id = 2
+        # hair_id = ClfHair.get_category_id(img_hair)
         face_id = ClfFace.get_category_id(img_face)
         beard_id = ClfBeard.get_category_id(img_beard)
         log_colorstr("blue", "#SMP: hair_id:{}, face_id:{}, beard_id:{}".format(hair_id, face_id, beard_id))
@@ -87,6 +88,7 @@ def do_exp():
     PlotHelper.plot_imgs(imgs, names)
     
 def start_work():
+    import cv2
     from utils.plot_helper import PlotHelper
     
     sg.theme('Light Blue 2')
@@ -113,7 +115,7 @@ def start_work():
                 smp_ret = SearchMatchedPoster.search_for_poster(values[0])
                 pprint(smp_ret)
 
-                img_poster = None
+                img_poster = cv2.imread(smp_ret.poster_pathname)
                 imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
                 names = ["org", "hair[{}]".format(smp_ret.hair_id), "face[{}]".format(smp_ret.face_id), "beard[{}]".format(smp_ret.beard_id), "poster"]
                 PlotHelper.plot_imgs(imgs, names)
