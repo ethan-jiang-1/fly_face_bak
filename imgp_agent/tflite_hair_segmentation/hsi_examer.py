@@ -9,7 +9,8 @@ class HsiOutputHelper(object):
     def get_ignored_pathname(cls, filename, img_sub_folder="_ignored_imgs"):
         dir_this = os.path.dirname(__file__)
         dir_parent = os.path.dirname(dir_this)
-        img_dir = os.sep.join([dir_parent, img_sub_folder])
+        dir_root = os.path.dirname(dir_parent)
+        img_dir = os.sep.join([dir_root, img_sub_folder])
         os.makedirs(img_dir, exist_ok=True)
         img_path = os.sep.join([img_dir, filename])
         return img_path
@@ -129,4 +130,4 @@ if __name__ == '__main__':
     #HsiExamer.do_debug_reseved_imgs([1, 3], show=True)
     #HsiExamer.do_debug_reseved_imgs([1, 2, 3, 4], show=True)
     #HsiExamer.do_debug_reseved_imgs([5, 6, 7, 8], show=True)
-    HsiExamer.do_debug_reseved_imgs([1, 2, 3, 4, 5, 6, 7, 8], show=False)
+    HsiExamer.do_debug_reseved_imgs([1, 2, 3, 4, 5, 6, 7, 8], show=True)

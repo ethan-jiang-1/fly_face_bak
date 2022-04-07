@@ -136,6 +136,7 @@ _test_*
 _reserved_*
 _gen_*
 _dataset_*
+_ignored_*
 
 !hsi_tflite_interpeter/tflite_custom.macos/tflite_runtime/_pywrap_tensorflow_interpreter_wrapper.so
 !hsi_tflite_interpeter/tflite_custom.linux/tflite_runtime/_pywrap_tensorflow_interpreter_wrapper.so

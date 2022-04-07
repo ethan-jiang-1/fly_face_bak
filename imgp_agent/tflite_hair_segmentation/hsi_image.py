@@ -6,7 +6,8 @@ class HsiReseredImg():
     def get_resvered_img_pathname(cls, index):
         dir_this = os.path.dirname(__file__)
         dir_parent = os.path.dirname(dir_this)
-        img_pathname = os.sep.join([dir_parent, "_reserved_imgs", "image{}.jpeg".format(index)])
+        dir_root = os.path.dirname(dir_parent)
+        img_pathname = os.sep.join([dir_root, "utils_inspect", "_sample_imgs", "hsi_image{}.jpeg".format(index)])
         if os.path.isfile(img_pathname):
             return img_pathname
         return None
