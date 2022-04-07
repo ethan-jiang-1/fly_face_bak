@@ -1,5 +1,11 @@
 import importlib
 import traceback
+import os
+import sys
+
+dir_root = os.path.dirname(os.path.dirname(__file__))
+if dir_root not in sys.path:
+    sys.path.append(dir_root)
 
 ACTION = "register"
 #ACTION = "unregister"

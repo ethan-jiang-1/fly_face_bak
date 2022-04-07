@@ -125,8 +125,8 @@ class BpyDataMcBeard(BpyDataInsbase):
                         self.take_shot(shot_info)
                     self.refresh_screen()
 
-                    if self.max_variation > 1 and vidx >= self.max_variation - 1:
-                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation - 1))
+                    if self.max_variation > 1 and vidx >= self.max_variation:
+                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation))
                         return combination_name, vidx 
         return combination_name, vidx
 
@@ -228,12 +228,17 @@ def _load_json_data(json_filename):
         raise ValueError(msg)
     with open(json_path, "rb") as f:
         json_data = json.load(f)
+    log_colorstr("yellow", "auto_render parameters found in {}".format(json_path))
     return json_data
 
 def do_exp_auto_render(renv):
     import bpy
 
-    ctl_data = _load_json_data("auto_render.json")
+    auto_render_filename = "auto_render.json"
+    if "AUTO_RENDER" in os.environ:
+        auto_render_filename = os.environ["AUTO_RENDER"]
+
+    ctl_data = _load_json_data(auto_render_filename)
     bpy_data = bpy.data 
     bd = BpyDataMcBeard(bpy_data, renv=renv, ctl_data=ctl_data)
     bd.inspect()
