@@ -79,8 +79,8 @@ def do_exp():
     pprint(smp_ret)
 
     img_poster = cv2.imread(smp_ret.poster_pathname)
-    imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
-    names = ["org", "hair", "face", "beard", "poster"]
+    imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_beard, smp_ret.img_face, img_poster]
+    names = ["org", "hair", "beard", "face", "poster"]
 
     PlotHelper.plot_imgs(imgs, names)
 
