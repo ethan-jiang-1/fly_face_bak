@@ -6,7 +6,7 @@ IMGS_FOLDER = "_gen_render_mcd_beard"
 
 def gen_mp4():
     import os
-    from bld_gen.tools_mp4.mp4_maker import Mp4Maker
+    from bld_gen.tools.mp4_maker import Mp4Maker
 
     dir_root = _get_root_dir()
 
