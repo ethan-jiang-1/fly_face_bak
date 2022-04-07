@@ -70,6 +70,7 @@ class SearchMatchedPoster():
         return smp_ret
 
 def do_exp():
+    import cv2
     from utils.plot_helper import PlotHelper
 
     img_filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
@@ -77,8 +78,7 @@ def do_exp():
     smp_ret = SearchMatchedPoster.search_for_poster(img_filename)
     pprint(smp_ret)
 
-    img_poster = None
-
+    img_poster = cv2.imread(smp_ret.poster_pathname)
     imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
     names = ["org", "hair", "face", "beard", "poster"]
 
