@@ -9,7 +9,7 @@ from bld_gen.poster_query import PosterQuery
 
 from utils.colorstr import log_colorstr
 
-SMP_RESULT = namedtuple('SMP_RESULT', "img_org img_hair img_face img_beard hair_id face_id beard_id poster_pathname") 
+SMP_RESULT = namedtuple('SMP_RESULT', "img_org img_hair img_beard img_face hair_id beard_id face_id poster_pathname") 
 
 class SearchMatchedPoster():
     ffg = None
@@ -52,20 +52,20 @@ class SearchMatchedPoster():
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, names)
 
         hair_id = ClfHair.get_category_id(img_hair)
-        face_id = ClfFace.get_category_id(img_face)
         beard_id = ClfBeard.get_category_id(img_beard)
-        log_colorstr("blue", "#SMP: hair_id:{}, face_id:{}, beard_id:{}".format(hair_id, face_id, beard_id))
+        face_id = ClfFace.get_category_id(img_face)
+        log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
         poster_pathname, _ = PosterQuery.get_poster(hair_id, beard_id, face_id)
         log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
         
         smp_ret = SMP_RESULT(img_org=img_org,
                              img_hair=img_hair,
-                             img_face=img_face,
                              img_beard=img_beard,
+                             img_face=img_face,
                              hair_id=hair_id,
-                             face_id=face_id,
                              beard_id=beard_id,
+                             face_id=face_id,
                              poster_pathname=poster_pathname)
         return smp_ret
 
