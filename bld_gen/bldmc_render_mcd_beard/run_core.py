@@ -35,7 +35,7 @@ class BpyDataMcBeard(BpyDataInsbase):
             msg = "failed to find {}".format(json_path)
             log_colorstr("red", msg)
             raise ValueError(msg)
-        with open(json_path, "rb") as f:
+        with open(json_path, "rt") as f:
             json_data = json.load(f)
         log_colorstr("yellow", "auto_render parameters found in {}".format(json_path))
         return json_data

@@ -5,7 +5,7 @@ from pprint import pprint
 from clf_net.clf_face import ClfFace
 from clf_net.clf_bread import ClfBeard
 from clf_net.clf_hair import ClfHair
-from poster_query.poster_query import PosterQuery
+from bld_gen.poster_query import PosterQuery
 
 from utils.colorstr import log_colorstr
 
@@ -56,7 +56,7 @@ class SearchMatchedPoster():
         beard_id = ClfBeard.get_category_id(img_beard)
         log_colorstr("blue", "#SMP: hair_id:{}, face_id:{}, beard_id:{}".format(hair_id, face_id, beard_id))
 
-        poster_pathname, _ = PosterQuery.get_poster(hair_id, face_id, beard_id)
+        poster_pathname, _ = PosterQuery.get_poster(hair_id, beard_id, face_id)
         log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
         
         smp_ret = SMP_RESULT(img_org=img_org,
