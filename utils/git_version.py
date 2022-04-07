@@ -79,7 +79,7 @@ def git_versions_from_vcs(root, verbose=False):
     if tag.endswith("-dirty"):
         full += "-dirty"
     branch = git_current_branch(root)
-    return {"version": tag, "full": full, "branch": branch}
+    return {"version":  str(tag), "full": str(full), "branch": str(branch)}
 
 
 # def git_versions_oneline(root, verbose=False):

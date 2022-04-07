@@ -3,21 +3,42 @@ import importlib
 from datetime import datetime
 
 import os
+import json
 from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
 from bld_gen.utils_model.easy_dict import EasyDict
 from bld_gen.utils_ui.colorstr import log_colorstr
 
 class BpyDataMcBeard(BpyDataInsbase):
-    def __init__(self, bpy_data, renv=None, ctl_data=None):
+    def __init__(self, bpy_data, renv=None, auto_render_filename=None):
         import bpy
         super(BpyDataMcBeard, self).__init__(bpy_data, renv)
         self.scene = bpy.context.scene
-        self.ctl_data = ctl_data
+
         self.render_root = self.get_gen_img_folder()
+
+        self.auto_render_filename = auto_render_filename
+        self.auto_render_data = None
         self.max_variation = -1
-        if self.ctl_data is not None:
-            self.render_root = "{}{}{}".format(renv.get_root_dir(), os.sep, self.ctl_data["output_folder"])
-            self.max_variation = int(self.ctl_data["max_variation"])
+        if auto_render_filename is not None:
+            self._prepare_auto_render()
+
+    def _prepare_auto_render(self):
+        self.auto_render_data = self._load_json_data(self.auto_render_filename)
+        if self.auto_render_data is not None:
+            self.render_root = "{}{}{}".format(self.renv.get_root_dir(), os.sep, self.auto_render_data["output_folder"])
+            self.max_variation = int(self.auto_render_data["max_variation"])
+
+    def _load_json_data(self, json_filename):
+        dir_this = os.path.dirname(__file__)
+        json_path = "{}{}{}".format(dir_this, os.sep, json_filename)
+        if not os.path.isfile(json_path):
+            msg = "failed to find {}".format(json_path)
+            log_colorstr("red", msg)
+            raise ValueError(msg)
+        with open(json_path, "rb") as f:
+            json_data = json.load(f)
+        log_colorstr("yellow", "auto_render parameters found in {}".format(json_path))
+        return json_data
 
     def inspect(self):
         self._inspect_top_collections()
@@ -190,10 +211,20 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._adjust_shapekeys(map_skm, shot_info=shot_info)
         return True
 
+    def _save_publishing_info(self):
+        from utils.git_version import git_versions_from_vcs
+        filename = self.render_root  + os.sep + "version.json"
+        dir_root = self.renv.get_root_dir()
+        info = git_versions_from_vcs(dir_root)
+        with open(filename, "wt+") as f:
+            json.dump(info, f)
+
     def auto_render(self):
         shot_info = self._get_shot_info_auto()
         map_skm = self._find_all_shapekeys()
         self._gen_render_imgs(map_skm, shot_info=shot_info)
+        if self.auto_render_data is not None:
+            self._save_publishing_info()
         return True
 
 def do_exp_show(renv):
@@ -238,11 +269,11 @@ def do_exp_auto_render(renv):
     if "AUTO_RENDER" in os.environ:
         auto_render_filename = os.environ["AUTO_RENDER"]
 
-    ctl_data = _load_json_data(auto_render_filename)
     bpy_data = bpy.data 
-    bd = BpyDataMcBeard(bpy_data, renv=renv, ctl_data=ctl_data)
+    bd = BpyDataMcBeard(bpy_data, renv=renv, auto_render_filename=auto_render_filename)
     bd.inspect()
-    return bd.auto_render()
+    rc = bd.auto_render()
+    return rc
 
 if __name__ == '__main__':
     do_exp(None)
