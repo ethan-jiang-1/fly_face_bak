@@ -80,7 +80,7 @@ def do_exp():
     img_poster = None
 
     imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
-    names = ["org", "hair", "face", "beard", "poster"]
+    names = ["org", "hair[{}]".format(smp_ret.hair_id), "face[{}]".format(smp_ret.face_id), "beard[{}]".format(smp_ret.beard_id), "poster"]
 
     PlotHelper.plot_imgs(imgs, names)
 
