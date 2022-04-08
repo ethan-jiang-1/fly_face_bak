@@ -36,8 +36,7 @@ class DatasetHairstyleGen():
         os.makedirs(self.dir_dst, exist_ok=True)
 
     def _get_img_hair(self, img_pathname):
-        imgs, names, _, _ = self.ffg.process_image(img_pathname)
-        img_hair = self.ffg.find_img(imgs, names, "hair")
+        img_hair = self.ffg.process_image_for(img_pathname, "hair")
         return img_hair
 
     def _process_aug_imgs_in_subdir(self, subname):

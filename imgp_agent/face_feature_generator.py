@@ -106,6 +106,12 @@ class FaceFeatureGenerator(object):
                 return imgs[idx]
         return None
 
+    def process_image_for(self, filename, expected_name):
+        imgs, names, _, _ = self.process_image(filename)
+        if imgs is None:
+            return None
+        return self.find_img(imgs, names, expected_name)
+
 
 def do_exp_file():
     filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
