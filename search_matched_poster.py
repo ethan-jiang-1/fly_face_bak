@@ -7,7 +7,7 @@ from pprint import pprint
 from clf_net.clf_face import ClfFace
 from clf_net.clf_bread import ClfBeard
 from clf_net.clf_hair import ClfHair
-from bld_gen.poster_query import PosterQuery
+from bld_gen.poster_query_local import PosterQueryLocal
 
 from utils.colorstr import log_colorstr
 
@@ -58,7 +58,7 @@ class SearchMatchedPoster():
         face_id = ClfFace.get_category_id(img_face)
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
-        poster_pathname, _ = PosterQuery.get_poster(hair_id, beard_id, face_id)
+        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)
         log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
         
         smp_ret = SMP_RESULT(img_org=img_org,
@@ -106,7 +106,7 @@ def start_work():
         
         if event == 'OK':
             if (values[0] == ""):
-                sg.popup("请选择照片");
+                sg.popup("请选择照片")
             elif (not os.path.exists(values[0])):
                 sg.popup("照片不存在，请重新选择")
             else:
