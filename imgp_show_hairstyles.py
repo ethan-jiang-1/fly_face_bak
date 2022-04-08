@@ -21,7 +21,7 @@ def _plot_all_imgs_by_range(all_hair_imgs, col_size=10):
     # 一页最多显示5行，即50张图片，再多就显示不了了，所以，如果图片很多，则一页只显示2组，即40张
     total_count = len(imgs)
     if total_count > 50: # 图片多则分页显示
-        batches = total_count // 40;
+        batches = total_count // 40
         if (total_count % 40 != 0):
             batches += 1
     
