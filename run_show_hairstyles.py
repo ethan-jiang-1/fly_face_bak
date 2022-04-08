@@ -10,7 +10,7 @@ from imgp_agent.imgp_common import FileHelper, PlotHelper
 
 
 def _plot_all_imgs(all_hair_imgs, num_in_group=40, col_size=10):
-    from utils.colorstr import log_colorstr
+    #from utils.colorstr import log_colorstr
 
     # for key, tis in all_hair_imgs.items():
     #     if len(tis) % num_in_group != 0:

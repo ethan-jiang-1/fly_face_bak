@@ -106,7 +106,7 @@ def start_work():
         
         if event == 'OK':
             if (values[0] == ""):
-                sg.popup("请选择照片");
+                sg.popup("请选择照片")
             elif (not os.path.exists(values[0])):
                 sg.popup("照片不存在，请重新选择")
             else:
