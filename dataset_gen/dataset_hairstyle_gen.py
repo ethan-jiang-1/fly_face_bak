@@ -46,7 +46,7 @@ class DatasetHairstyleGen():
 
         img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
         img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        image_hair, _ = ImgpHairMarker.mark_hair(img_selfie)
+        image_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
         return image_hair
 
     def _process_aug_imgs_in_subdir(self, subname):
