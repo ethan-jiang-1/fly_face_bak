@@ -88,7 +88,7 @@ class FaceFeatureGenerator(object):
         img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
         img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_selfie)
         img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
 
         dt = datetime.now() - d0
