@@ -10,14 +10,19 @@ BER_MODE = "GABOR"
 
 class ImgpCvBeardExtractor():
     hsi_klass = None 
+    hsi_reference = 0
 
     @classmethod
     def init_imgp(cls):
-        print("ImgpCvBeardExtractor inited")
+        cls.hsi_reference += 1
+        if cls.hsi_reference == 1:
+            print("ImgpCvBeardExtractor inited")
 
     @classmethod
     def close_imgp(cls):
-        print("ImgpCvBeardExtractor closed")
+        cls.hsi_reference -= 1
+        if cls.hsi_reference == 0:
+            print("ImgpCvBeardExtractor closed")
 
     @classmethod
     def extract_beard(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):

@@ -15,9 +15,7 @@ except:
     from .dg_aug_face_edge import DgAugFaceEdge
     from .dg_aug_empty import DgAugEmpty
 
-from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
-from imgp_agent.imgp_face_aligment import ImgpFaceAligment
-from imgp_agent.imgp_mp_selfie_marker import ImgpSelfieMarker
+from imgp_agent.face_feature_generator import FaceFeatureGenerator
 from utils.colorstr import log_colorstr
 
 
@@ -26,14 +24,10 @@ class DatasetHairstyleGen():
 
         self.dir_org = dir_org
         self.dir_dst = dir_dst
-        ImgpHairMarker.init_imgp()
-        ImgpFaceAligment.init_imgp()
-        ImgpSelfieMarker.init_imgp()
+        self.ffg = FaceFeatureGenerator()
 
     def __del__(self):
-        ImgpHairMarker.close_imgp()
-        ImgpFaceAligment.close_imgp()
-        ImgpSelfieMarker.close_imgp()        
+        del self.ffg
 
     def _prepare_dirs(self):
         if not os.path.isdir(self.dir_org):
@@ -42,12 +36,9 @@ class DatasetHairstyleGen():
         os.makedirs(self.dir_dst, exist_ok=True)
 
     def _get_img_hair(self, img_pathname):
-        img_org = cv2.imread(img_pathname, cv2.IMREAD_COLOR)
-
-        img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        image_hair, _ = ImgpHairMarker.mark_hair(img_aligned)
-        return image_hair
+        imgs, names, _, _ = self.ffg.process_image(img_pathname)
+        img_hair = self.ffg.find_img(imgs, names, "hair")
+        return img_hair
 
     def _process_aug_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)

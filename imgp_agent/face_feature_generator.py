@@ -110,6 +110,9 @@ class FaceFeatureGenerator(object):
 def do_exp_file():
     filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
 
+    ffg0 = FaceFeatureGenerator()
+    del ffg0
+
     ffg = FaceFeatureGenerator()
     ffg.show_results(filename) 
     del ffg 
@@ -139,5 +142,5 @@ def do_exp_dir():
 
 
 if __name__ == '__main__':
-    #do_exp_file()
-    do_exp_dir()
+    do_exp_file()
+    #do_exp_dir()

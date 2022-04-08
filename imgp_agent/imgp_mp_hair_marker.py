@@ -6,9 +6,11 @@ import cv2
 
 class ImgpHairMarker():
     hsi_klass = None 
+    hsi_reference = 0
 
     @classmethod
     def init_imgp(cls):
+        cls.hsi_reference += 1
         if cls.hsi_klass is None:
             if not cls.has_tflite_custom_installed():
                 print("please go to hsi_tflite_interpeter foloder to install customized tflite-runtime-hsi")
@@ -20,13 +22,15 @@ class ImgpHairMarker():
 
             from imgp_agent.tflite_hair_segmentation import hair_segmentation_interpeter
             cls.hsi_klass = hair_segmentation_interpeter.HairSegmentationInterpreter
-        print("ImgpHairMarker inited")
+            print("ImgpHairMarker inited")
 
     @classmethod
     def close_imgp(cls):
-        if cls.hsi_klass is not None:
-            cls.hsi_klass = None
-        print("ImgpHairMarker closed")
+        cls.hsi_reference -= 1
+        if cls.hsi_reference == 0:
+            if cls.hsi_klass is not None:
+                cls.hsi_klass = None
+            print("ImgpHairMarker closed")
 
     @classmethod
     def has_tflite_custom_installed(cls):

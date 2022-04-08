@@ -7,10 +7,12 @@ from collections import namedtuple
 FME_RESULT = namedtuple('FME_RESULT', "img_org img_facemesh img_facepaint img_outline mesh_results") 
 
 class ImgpFacemeshExtractor():
-    slt_facemesh = None 
+    slt_facemesh = None
+    slt_reference = 0 
 
     @classmethod
     def init_imgp(cls):
+        cls.slt_reference += 1
         if cls.slt_facemesh is None:
             from utils_inspect.inspect_solution import inspect_solution
             mp_face_mesh = mp.solutions.face_mesh
@@ -20,14 +22,16 @@ class ImgpFacemeshExtractor():
                 min_detection_confidence=0.5,
                 min_tracking_confidence=0.5) 
             inspect_solution(cls.slt_facemesh)
-        print("ImgpFacemeshExtractor inited")
+            print("ImgpFacemeshExtractor inited")
 
     @classmethod
     def close_imgp(cls):
-        if cls.slt_facemesh is not None:
-            cls.slt_facemesh.close()
-            cls.slt_facemesh = None
-        print("ImgpFacemeshExtractor closed")
+        cls.slt_reference -= 1
+        if cls.slt_reference == 0:
+            if cls.slt_facemesh is not None:
+                cls.slt_facemesh.close()
+                cls.slt_facemesh = None
+            print("ImgpFacemeshExtractor closed")
 
     @classmethod
     def extract_mesh_features(cls, img_org):

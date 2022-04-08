@@ -15,24 +15,18 @@ except:
     from .dg_aug_beard_edge import DgAugBeardEdge
     from .dg_aug_empty import DgAugEmpty
 
-from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
-from imgp_agent.imgp_face_aligment import ImgpFaceAligment
-from imgp_agent.imgp_mp_selfie_marker import ImgpSelfieMarker
-from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
-from imgp_agent.imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
 
 from utils.colorstr import log_colorstr
+from imgp_agent.face_feature_generator import FaceFeatureGenerator
 
 class DatasetBeardStyleGen():
     def __init__(self, dir_org, dir_dst):
-
         self.dir_org = dir_org
         self.dir_dst = dir_dst
-        ImgpFaceAligment.init_imgp()
-        ImgpCvBeardExtractor.init_imgp()
+        self.ffg = FaceFeatureGenerator()
 
     def __del__(self):
-        ImgpCvBeardExtractor.close_imgp()        
+        del self.ffg
 
     def _prepare_dirs(self):
         if not os.path.isdir(self.dir_org):
@@ -41,13 +35,8 @@ class DatasetBeardStyleGen():
         os.makedirs(self.dir_dst, exist_ok=True)
 
     def _get_img_beard(self, img_pathname):
-        image = cv2.imread(img_pathname, cv2.IMREAD_COLOR)
-
-        img_aligned, _ = ImgpFaceAligment.make_aligment(image)
-        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
-        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
+        imgs, names, _, _ = self.ffg.process_image(img_pathname)
+        img_beard = self.ffg.find_img(imgs, names, "beard")
         return img_beard
 
     def _process_aug_imgs_in_subdir(self, subname):
