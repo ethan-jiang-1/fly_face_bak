@@ -81,12 +81,18 @@ class ImgpCvBeardExtractor():
 
     @classmethod
     def _locate_beard_gabor(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard_gabor import FcxBeardGabor
+        try:
+            from fcx_hair.fcx_beard_gabor import FcxBeardGabor
+        except:
+            from .fcx_hair.fcx_beard_gabor import FcxBeardGabor
         return FcxBeardGabor.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_beard_otsu(cls, image, mesh_results, debug=False):
-        from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
+        try:
+            from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
+        except:
+            from .fcx_hair.fcx_beard_otsu import FcxBeardOtsu
         return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
 def do_exp():

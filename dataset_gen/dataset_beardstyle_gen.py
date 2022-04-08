@@ -15,16 +15,23 @@ except:
     from .dg_aug_beard_edge import DgAugBeardEdge
     from .dg_aug_empty import DgAugEmpty
 
+from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
+from imgp_agent.imgp_face_aligment import ImgpFaceAligment
+from imgp_agent.imgp_mp_selfie_marker import ImgpSelfieMarker
+from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
+from imgp_agent.imgp_mp_facemesh_extractor import ImgpFacemeshExtractor
+
+from utils.colorstr import log_colorstr
 
 class DatasetBeardStyleGen():
     def __init__(self, dir_org, dir_dst):
-        from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
+
         self.dir_org = dir_org
         self.dir_dst = dir_dst
+        ImgpFaceAligment.init_imgp()
         ImgpCvBeardExtractor.init_imgp()
 
     def __del__(self):
-        from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
         ImgpCvBeardExtractor.close_imgp()        
 
     def _prepare_dirs(self):
@@ -34,10 +41,14 @@ class DatasetBeardStyleGen():
         os.makedirs(self.dir_dst, exist_ok=True)
 
     def _get_img_beard(self, img_pathname):
-        from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
         image = cv2.imread(img_pathname, cv2.IMREAD_COLOR)
-        image_hair, _ = ImgpCvBeardExtractor.extract_beard(image)
-        return image_hair
+
+        img_aligned, _ = ImgpFaceAligment.make_aligment(image)
+        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
+        img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
+        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
+        return img_beard
 
     def _process_aug_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
@@ -46,7 +57,7 @@ class DatasetBeardStyleGen():
         dg = DgAugBeardEdge()
         names = os.listdir(self.dir_org + "/" + subname)
         names = sorted(names)
-        print("generating {}...".format(dst_dir))
+        log_colorstr("yellow", "generating {}...".format(dst_dir))
         cnt = 0
 
         order_num = -1
@@ -60,7 +71,7 @@ class DatasetBeardStyleGen():
             aug_imgs_map, trs_imgs_map = dg.make_aug_images(img)
             cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        print("generated {} images in {}".format(cnt, dst_dir))
+        log_colorstr("yellow","generated {} images in {}".format(cnt, dst_dir))
 
     def _save_aug_imgs(self, aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num):
         cnt =0
@@ -84,7 +95,7 @@ class DatasetBeardStyleGen():
     def _process_aug_empty_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
-        print("generating {}...".format(dst_dir))
+        log_colorstr("yellow","generating {}...".format(dst_dir))
         cnt = 0
 
         dg = DgAugEmpty()
@@ -92,7 +103,7 @@ class DatasetBeardStyleGen():
             aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num*2)
             cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        print("generated {} images in {}".format(cnt, dst_dir))
+        log_colorstr("yellow","generated {} images in {}".format(cnt, dst_dir))
 
     def gen(self):
         self._prepare_dirs()
