@@ -8,32 +8,24 @@ if dir_root not in sys.path:
 
 try:
     from dg_aug_base import FileHelper
-    from dg_aug_face_edge import DgAugFaceEdge
+    from dg_aug_beard_edge import DgAugBeardEdge
     from dg_aug_empty import DgAugEmpty
 except:
     from .dg_aug_base import FileHelper
-    from .dg_aug_face_edge import DgAugFaceEdge
+    from .dg_aug_beard_edge import DgAugBeardEdge
     from .dg_aug_empty import DgAugEmpty
 
-from imgp_agent.imgp_mp_hair_marker import ImgpHairMarker
-from imgp_agent.imgp_face_aligment import ImgpFaceAligment
-from imgp_agent.imgp_mp_selfie_marker import ImgpSelfieMarker
-from utils.colorstr import log_colorstr
 
-
-class DatasetHairstyleGen():
+class DatasetBeardStyleGen():
     def __init__(self, dir_org, dir_dst):
-
+        from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
         self.dir_org = dir_org
         self.dir_dst = dir_dst
-        ImgpHairMarker.init_imgp()
-        ImgpFaceAligment.init_imgp()
-        ImgpSelfieMarker.init_imgp()
+        ImgpCvBeardExtractor.init_imgp()
 
     def __del__(self):
-        ImgpHairMarker.close_imgp()
-        ImgpFaceAligment.close_imgp()
-        ImgpSelfieMarker.close_imgp()        
+        from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
+        ImgpCvBeardExtractor.close_imgp()        
 
     def _prepare_dirs(self):
         if not os.path.isdir(self.dir_org):
@@ -41,22 +33,20 @@ class DatasetHairstyleGen():
 
         os.makedirs(self.dir_dst, exist_ok=True)
 
-    def _get_img_hair(self, img_pathname):
-        img_org = cv2.imread(img_pathname, cv2.IMREAD_COLOR)
-
-        img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        image_hair, _ = ImgpHairMarker.mark_hair(img_selfie)
+    def _get_img_beard(self, img_pathname):
+        from imgp_agent.imgp_cv_beard_extractor import ImgpCvBeardExtractor
+        image = cv2.imread(img_pathname, cv2.IMREAD_COLOR)
+        image_hair, _ = ImgpCvBeardExtractor.extract_beard(image)
         return image_hair
 
     def _process_aug_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
 
-        dg = DgAugFaceEdge()
+        dg = DgAugBeardEdge()
         names = os.listdir(self.dir_org + "/" + subname)
         names = sorted(names)
-        log_colorstr("yellow", "generating {}...".format(dst_dir))
+        print("generating {}...".format(dst_dir))
         cnt = 0
 
         order_num = -1
@@ -66,11 +56,11 @@ class DatasetHairstyleGen():
                 continue
 
             order_num += 1
-            img = self._get_img_hair(img_pathname)
+            img = self._get_img_beard(img_pathname)
             aug_imgs_map, trs_imgs_map = dg.make_aug_images(img)
             cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        log_colorstr("yellow", "generated {} images in {}\n".format(cnt, dst_dir))
+        print("generated {} images in {}".format(cnt, dst_dir))
 
     def _save_aug_imgs(self, aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num):
         cnt =0
@@ -94,15 +84,15 @@ class DatasetHairstyleGen():
     def _process_aug_empty_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
-        log_colorstr("yellow", "generating {}...".format(dst_dir))
+        print("generating {}...".format(dst_dir))
         cnt = 0
 
         dg = DgAugEmpty()
-        for order_num in range(18):
-            aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num)
+        for order_num in range(9):
+            aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num*2)
             cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        log_colorstr("yellow", "generated {} images in {}".format(cnt, dst_dir))
+        print("generated {} images in {}".format(cnt, dst_dir))
 
     def gen(self):
         self._prepare_dirs()
@@ -129,13 +119,13 @@ def do_exp(dir_org, dir_dst):
         dir_root = os.path.dirname(dir_this)
         dir_dst = "{}/{}".format(dir_root, dir_dst)
 
-    dhg = DatasetHairstyleGen(dir_org, dir_dst)
+    dhg = DatasetBeardStyleGen(dir_org, dir_dst)
     dhg.gen()
     del dhg
 
 
 if __name__ == '__main__':
 
-    dir_org = "dataset_org_hair_styles/Version 1.2"
-    dir_dst = "_dataset_hair_styles"
+    dir_org = "dataset_org_beard_styles/Beard Version 1.1"
+    dir_dst = "_dataset_beard_styles"
     do_exp(dir_org, dir_dst)
