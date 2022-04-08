@@ -71,17 +71,26 @@ class ImgpFacemeshExtractor():
 
     @classmethod
     def _draw_meshes(cls, image, mesh_results):
-        from fmx_face.fmx_face_mesh import FmxFaceMesh
+        try:
+            from fmx_face.fmx_face_mesh import FmxFaceMesh
+        except:
+            from .fmx_face.fmx_face_mesh import FmxFaceMesh            
         return FmxFaceMesh.process_img(image, mesh_results)
 
     @classmethod
     def _paint_meshes(cls, image, mesh_results):
-        from fmx_face.fmx_face_paint import FmxFacePaint
+        try:
+            from fmx_face.fmx_face_paint import FmxFacePaint
+        except:
+            from .fmx_face.fmx_face_paint import FmxFacePaint
         return FmxFacePaint.process_img(image, mesh_results)
 
     @classmethod
     def _paint_outline(cls, image, mesh_results):
-        from fmx_face.fmx_face_outline import FmxFaceOutline
+        try:
+            from fmx_face.fmx_face_outline import FmxFaceOutline
+        except:
+            from .fmx_face.fmx_face_outline import FmxFaceOutline
         return FmxFaceOutline.process_img(image, mesh_results)
 
     @classmethod

@@ -3,9 +3,6 @@ import PySimpleGUI as sg
 
 #from collections import namedtuple
 from pprint import pprint
-
-from numpy import size
-
 from impg_search_matched_poster import SearchMatchedPoster
 
 def main_page():
