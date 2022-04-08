@@ -7,7 +7,7 @@ try:
 except:
     from .auto_render_cfg import AutoRenderCfg
 
-class PosterQuery(object):
+class PosterQueryLocal(object):
     kls_output_folder = None
     kls_map_subfolders = None
 
@@ -77,10 +77,10 @@ def do_exp():
     face_id = 0
     beard_id = 0
 
-    output_folder = PosterQuery._get_output_folder()
+    output_folder = PosterQueryLocal._get_output_folder()
     print(output_folder)
 
-    filename, _ = PosterQuery.get_poster(hair_id, face_id, beard_id)
+    filename, _ = PosterQueryLocal.get_poster(hair_id, face_id, beard_id)
     print("post for hid:{} fid: {} bid: {} is {}".format(hair_id, face_id, beard_id, filename))
     return filename
 
