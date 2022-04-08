@@ -5,7 +5,7 @@ import numpy as np
 from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard") 
-BER_DEBUG = True
+BER_DEBUG = False
 BER_MODE = "GABOR"
 
 class ImgpCvBeardExtractor():
