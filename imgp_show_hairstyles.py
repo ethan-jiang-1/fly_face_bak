@@ -6,25 +6,18 @@ from imgp_agent.face_feature_generator import FaceFeatureGenerator
 from imgp_agent.imgp_common import FileHelper, PlotHelper
 
 
-def _plot_all_imgs(all_hair_imgs, num_in_group=10, col_size=10):
-    # from utils.colorstr import log_colorstr
-
-    # for key, tis in all_hair_imgs.items():
-    #     if len(tis) % num_in_group != 0:
-    #         log_colorstr("red", "num of imgs in {} is {} (can not be divied by {}".format(key, len(tis), num_in_group))
-
+def _plot_all_imgs_by_range(all_hair_imgs, idx_range=(0, 10), col_size=10):
     imgs = []
     names = []
     for key, tis in all_hair_imgs.items():
         for ndx, ti in enumerate(tis):
-            if ndx > num_in_group - 1:
-                break
-            title, img = ti
-            name = "{}.{}".format(key, title.split(".")[0])
-            names.append(name)
-            imgs.append(img)
+            if ndx >= idx_range[0] and ndx < idx_range[1]:
+                title, img = ti
+                name = "{}.{}".format(key, title.split(".")[0])
+                names.append(name)
+                imgs.append(img)
 
-    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=col_size, figsize=(10, len(imgs)//10+1), set_axis_off=True)
+    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=col_size, figsize=(14, 9), set_axis_off=True)
 
 
 def _save_all_imgs(all_hair_imgs, dst_dir):
@@ -64,7 +57,8 @@ def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
     if save_img:                    
         _save_all_imgs(all_hair_imgs, dst_dir)
     if plot_img:
-        _plot_all_imgs(all_hair_imgs)
+        _plot_all_imgs_by_range(all_hair_imgs, idx_range=(0, 10), col_size=10)
+        _plot_all_imgs_by_range(all_hair_imgs, idx_range=(10, 20), col_size=10)
 
     del ffg
 
