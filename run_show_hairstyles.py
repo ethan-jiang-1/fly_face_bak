@@ -25,7 +25,18 @@ def analysis_selected_folder():
             elif not os.path.exists(values[0]):
                 sg.popup('目录不存在，请重新选择！')
             else:
-                src_dirs = [values[0]]
+                src_dirs = []
+                folder_list = sorted(os.listdir(values[0]))
+                for folder in folder_list:
+                    folder = "{}/{}".format(values[0], folder)
+                    # if not os.path.isfile(folder) and not str(folder).startswith("."):
+                    # if not os.path.isfile(folder):
+                    if os.path.isdir(folder):
+                        src_dirs.append(folder)
+                
+                if len(src_dirs) == 0:
+                    src_dirs.append(values[0])
+                
                 dst_dir = "_reserved_output_hair_styles"
                 do_extract_hairstyles(src_dirs, dst_dir)
         elif event in (None, 'Exit'):
