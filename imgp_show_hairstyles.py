@@ -72,11 +72,11 @@ def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
 def analysis_all_files():
     #dir_root = os.path.dirname(__file__)
     src_dirs = [] 
-    src_dirs.append("dataset_org_hair_styles/Version 1.1/01")
-    src_dirs.append("dataset_org_hair_styles/Version 1.1/02")
-    src_dirs.append("dataset_org_hair_styles/Version 1.1/03")
-    src_dirs.append("dataset_org_hair_styles/Version 1.1/04")
-    src_dirs.append("dataset_org_hair_styles/Version 1.1/05")
+    src_dirs.append("dataset_org_hair_styles/Version 1.2/01")
+    src_dirs.append("dataset_org_hair_styles/Version 1.2/02")
+    src_dirs.append("dataset_org_hair_styles/Version 1.2/03")
+    src_dirs.append("dataset_org_hair_styles/Version 1.2/04")
+    src_dirs.append("dataset_org_hair_styles/Version 1.2/05")
 
     dst_dir = "_reserved_output_hair_styles"
 
