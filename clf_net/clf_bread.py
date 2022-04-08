@@ -1,6 +1,6 @@
-import os
-import sys 
-
+# import os
+# import sys
+import numpy as np
 
 class ClfBeard(object):
     @classmethod
@@ -8,15 +8,17 @@ class ClfBeard(object):
         return 0 
 
 def do_exp(img_pathname):
-    dir_this = os.path.dirname(__file__)
-    if dir_this not in sys.path:
-        sys.path.append(dir_this)
-
-    if not img_pathname.startswith("/"):
-        dir_root = os.path.dirname(dir_this)
-        img_pathname = "{}/{}".format(dir_root, img_pathname)
-
-    id = ClfBeard.get_category_id(img_pathname)
+    # dir_this = os.path.dirname(__file__)
+    # if dir_this not in sys.path:
+    #     sys.path.append(dir_this)
+    #
+    # if not img_pathname.startswith("/"):
+    #     dir_root = os.path.dirname(dir_this)
+    #     img_pathname = "{}/{}".format(dir_root, img_pathname)
+    #
+    # id = ClfBeard.get_category_id(img_pathname)
+    # print("category id for {} is {}".format(img_pathname, id))
+    id = np.random.randint(0, 3)
     print("category id for {} is {}".format(img_pathname, id))
     return id
 
