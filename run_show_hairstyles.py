@@ -29,9 +29,7 @@ def analysis_selected_folder():
                 folder_list = sorted(os.listdir(values[0]))
                 for folder in folder_list:
                     folder = "{}/{}".format(values[0], folder)
-                    # if not os.path.isfile(folder) and not str(folder).startswith("."):
-                    # if not os.path.isfile(folder):
-                    if os.path.isdir(folder):
+                    if os.path.isdir(folder) and not str(folder).startswith("."):
                         src_dirs.append(folder)
                 
                 if len(src_dirs) == 0:

@@ -24,7 +24,7 @@ def _plot_all_imgs(all_hair_imgs, num_in_group=10, col_size=10):
             names.append(name)
             imgs.append(img)
 
-    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=col_size, figsize=(10, len(imgs)//10+1), set_axis_off=True)
+    PlotHelper.plot_imgs_grid(imgs, names=names, mod_num=col_size, figsize=(15, len(imgs)//10+3), set_axis_off=True)
 
 
 def _save_all_imgs(all_hair_imgs, dst_dir):
