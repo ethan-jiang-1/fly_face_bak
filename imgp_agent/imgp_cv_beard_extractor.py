@@ -95,7 +95,7 @@ class ImgpCvBeardExtractor():
             from .fcx_hair.fcx_beard_otsu import FcxBeardOtsu
         return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
-def do_exp():
+def do_exp_folder():
     dir_this = os.path.dirname(__file__)
     if dir_this not in sys.path:
         sys.path.append(dir_this)
@@ -116,7 +116,8 @@ def do_exp():
     ffg = FaceFeatureGenerator()
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    #src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    src_dir = os.sep.join([parent_dir, "dataset_org_beard_styles", "Beard Version 1.1", "03"])    
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
@@ -129,7 +130,23 @@ def do_exp():
         ffg.show_results(filename) 
         #ffg.save_results(filename) 
 
-    del ffg 
+    del ffg
+
+def do_exp_single():
+    from face_feature_generator import FaceFeatureGenerator
+
+    parent_dir = os.path.dirname(os.path.dirname(__file__))
+    filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
+    filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
+
+    full_path = parent_dir + os.sep + filename
+
+    ffg = FaceFeatureGenerator(debug=True)
+
+    ffg.show_results(full_path) 
+
+    del ffg   
 
 if __name__ == '__main__':
-    do_exp()
+    #do_exp_folder()
+    do_exp_single()
