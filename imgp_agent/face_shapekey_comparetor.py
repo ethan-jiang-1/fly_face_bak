@@ -29,13 +29,13 @@ class FaceShapekeyComparetor(object):
                 return None 
 
             d0 = datetime.now()
-            imgs, names, _, _ = self.ffg.process_image(filename)
+            imgs, names = self.ffg.process_image(filename)
             dt = datetime.now() - d0
             log_colorstr("blue", "total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
             for idx, name in enumerate(names):
                 if name in ["org", "facemesh", "facepaint", "outline", "beard", "hair"]:
-                    sel_names.append(names)
+                    sel_names.append(name)
                     sel_imgs.append(imgs[idx])
     
         PlotHelper.plot_imgs_grid(sel_imgs, sel_names, mod_num=6)

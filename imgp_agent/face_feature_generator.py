@@ -35,14 +35,14 @@ class FaceFeatureGenerator(object):
         ImgpCvBeardExtractor.close_imgp()
 
     def show_results(self, filename,  selected_img_types=None):
-        imgs, names, title, dt = self.process_image(filename)
+        imgs, names = self.process_image(filename)
 
         imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
 
-        PlotHelper.plot_imgs_grid(imgs, names, title=title)  
+        PlotHelper.plot_imgs_grid(imgs, names, title=os.path.basename(filename))  
 
     def save_results(self, filename, output_dir=None, selected_img_types=None):
-        imgs, names, title, dt = self.process_image(filename)
+        imgs, names = self.process_image(filename)
         if output_dir is None:
             output_dir = os.path.dirname(os.path.dirname(__file__)) + os.sep + "_reserved_output_feature_gen"
             os.makedirs(output_dir, exist_ok=True)
@@ -97,8 +97,7 @@ class FaceFeatureGenerator(object):
 
         imgs = [img_org, img_aligned, img_selfie,  img_facemesh, fme_result.img_facepaint, fme_result.img_outline, img_beard, img_hair]
         names = ["org", "aligned", "selfie", "facemesh", "facepaint", "outline", "beard", "hair"]
-        title = os.path.basename(filename)
-        return imgs, names, title, dt
+        return imgs, names
 
     def find_img(self, imgs, names, expected_name):
         for idx, name in enumerate(names):
@@ -107,7 +106,7 @@ class FaceFeatureGenerator(object):
         return None
 
     def process_image_for(self, filename, expected_name):
-        imgs, names, _, _ = self.process_image(filename)
+        imgs, names = self.process_image(filename)
         if imgs is None:
             return None
         return self.find_img(imgs, names, expected_name)

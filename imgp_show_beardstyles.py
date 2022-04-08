@@ -37,10 +37,10 @@ def do_extract_beardstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
     from utils.colorstr import log_colorstr
     ffg = FaceFeatureGenerator()
 
-    all_hair_imgs = {}
+    all_beard_imgs = {}
     for src_dir in src_dirs:
-        hair_imgs = []
-        all_hair_imgs[os.path.basename(src_dir)] = hair_imgs
+        beard_imgs = []
+        all_beard_imgs[os.path.basename(src_dir)] = beard_imgs
 
         filenames = FileHelper.find_all_images(src_dir)
         if len(filenames) == 0:
@@ -49,16 +49,15 @@ def do_extract_beardstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
         #print(filenames)
         filenames = sorted(filenames)
         for filename in filenames:
-            imgs, names, title, dt = ffg.process_image(filename)
-            for idx, name in enumerate(names):
-                if name == "beard":
-                    hair_imgs.append((title, imgs[idx]))
+            img = ffg.process_image_for(filename, "beard")
+            title = os.path.basename(filename)
+            beard_imgs.append((title, img))
 
     if save_img:                    
-        _save_all_imgs(all_hair_imgs, dst_dir)
+        _save_all_imgs(all_beard_imgs, dst_dir)
     if plot_img:
-        _plot_all_imgs_by_range(all_hair_imgs, idx_range=(0, 10), col_size=10)
-        _plot_all_imgs_by_range(all_hair_imgs, idx_range=(10, 20), col_size=10)
+        _plot_all_imgs_by_range(all_beard_imgs, idx_range=(0, 10), col_size=10)
+        _plot_all_imgs_by_range(all_beard_imgs, idx_range=(10, 20), col_size=10)
 
     del ffg
 
