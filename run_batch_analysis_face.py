@@ -1,9 +1,9 @@
 import os
-from statistics import multimode
+#from statistics import multimode
 import PySimpleGUI as sg
 
 from collections import namedtuple
-from pprint import pprint
+#from pprint import pprint
 
 from clf_net.clf_face import ClfFace
 from clf_net.clf_bread import ClfBeard
@@ -73,8 +73,8 @@ class SearchMatchedPoster():
         return smp_ret
 
 def start_work():
-    import cv2
-    from utils.plot_helper import PlotHelper
+    #import cv2
+    #from utils.plot_helper import PlotHelper
     
     version = 1.0
     sg.theme('Light Blue 2')
@@ -125,11 +125,11 @@ def start_work():
                             file_name = "{}/{}".format(sub_folder_full_path, file)
                             smp_ret = SearchMatchedPoster.search_for_poster(file_name)
                             # pprint(smp_ret)
-                            result_list_all.append("file: {}, sub_folder: {}, hair: {}, face: {}, beard: {}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id));
+                            result_list_all.append("file: {}, sub_folder: {}, hair: {}, face: {}, beard: {}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id))
                             
                             hair_id_format = "{:02d}".format(smp_ret.hair_id)
                             if (hair_id_format != sub_folder):
-                                result_list_err.append("file: {}, sub_folder: {}, hair: {:02d}, face: {:02d}, beard: {:02d}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id));
+                                result_list_err.append("file: {}, sub_folder: {}, hair: {:02d}, face: {:02d}, beard: {:02d}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id))
 
                 print("----all list----")
                 for index, line in enumerate(result_list_all):
