@@ -6,11 +6,12 @@ from pprint import pprint
 from impg_search_matched_poster import SearchMatchedPoster
 
 def main_page():
+    version = 1.0
     sg.theme('Light Blue 2')
     
     layout = [[sg.Button('选择文件', size=(9, 1)), sg.Button('选择目录', size=(9, 1)), sg.Button('退出', size=(9, 1))]]
 
-    window = sg.Window('选择功能', layout, size=(240, 80))
+    window = sg.Window('人脸识别工具({})'.format(version), layout, size=(240, 80))
     event, values = window.read()
 
     while True:
@@ -34,10 +35,10 @@ def dep_one_file():
     
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('选择图片')],
-            [sg.Button('OK'), sg.Button('Exit')],
-            [sg.Text('File', size=(5, 1)), sg.Input(size=(40, 1)), sg.FileBrowse(key='-File-')]
-            ]
+    layout = [[sg.Text('功能说明：识别所选照片的发型/脸型/胡子，并随机匹配卡通形象', text_color="blue")],
+              [sg.Button('OK'), sg.Button('Exit')],
+              [sg.Text('选择文件', auto_size_text=True), sg.Input(size=(40, 1)), sg.FileBrowse(key='-File-')]
+             ]
 
     window = sg.Window('人脸识别(单个文件)', layout)
     event, values = window.read()
@@ -73,12 +74,12 @@ def dep_one_by_one():
     
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('选择目录')],
+    layout = [[sg.Text('功能说明：识别所选发型子目录中所有照片的发型/脸型/胡子，并随机匹配卡通形象', text_color="blue")],
               [sg.Button('OK'), sg.Button('Exit')],
-              [sg.Text('Folder', size=(5, 1)), sg.Input(size=(40, 1)), sg.FolderBrowse(key='-Folder-', initial_folder=os.path.dirname(__file__))]
+              [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='-Folder-', initial_folder=os.path.dirname(__file__))]
              ]
 
-    window = sg.Window('人脸识别(一组图片)', layout)
+    window = sg.Window('人脸识别(指定目录)', layout)
     event, values = window.read()
 
     while True:

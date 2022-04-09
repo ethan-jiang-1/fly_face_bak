@@ -76,15 +76,16 @@ def start_work():
     import cv2
     from utils.plot_helper import PlotHelper
     
+    version = 1.0
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('选择目录(发型的根目录，如Version 1.2)')],
+    layout = [[sg.Text('功能说明：选择发型的根目录(如Version 1.2)，检查所有发型分类是否正确', text_color="blue")],
               [sg.Button('OK'), sg.Button('Exit')],
-              [sg.Text('Folder', size=(5, 1)), sg.Input(size=(40, 1)), sg.FolderBrowse(key='-Folder-', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
-              [sg.Multiline('输出结果', key = "result", size=(52, 10))],
+              [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='-Folder-', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
+              [sg.Multiline('输出结果', key = "result", size=(56, 20))],
              ]
 
-    window = sg.Window('人脸识别', layout)
+    window = sg.Window('发型分类检查工具({})'.format(version), layout)
     event, values = window.read()
 
     while True:
@@ -93,10 +94,11 @@ def start_work():
         
         if event == 'OK':
             if (values[0] == ""):
-                sg.popup("请选择目录")
+                window["result"].update("请选择目录")
             elif (not os.path.exists(values[0])):
-                sg.popup("目录不存在，请重新选择")
+                window["result"].update("目录不存在，请重新选择")
             else:
+                window["result"].update("开始分析...")
                 sub_folder_list = []
                 sub_folders = sorted(os.listdir(values[0]))
                 for sub_folder in sub_folders:
@@ -122,7 +124,7 @@ def start_work():
                             
                             file_name = "{}/{}".format(sub_folder_full_path, file)
                             smp_ret = SearchMatchedPoster.search_for_poster(file_name)
-                            pprint(smp_ret)
+                            # pprint(smp_ret)
                             result_list_all.append("file: {}, sub_folder: {}, hair: {}, face: {}, beard: {}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id));
                             
                             hair_id_format = "{:02d}".format(smp_ret.hair_id)
@@ -135,12 +137,14 @@ def start_work():
                     
                 print("----err list----")
                 all_line = ""
-                for index, line in enumerate(result_list_err):
-                    print("->err: %s, %s" % (index, line))
-                    all_line += line + "\n"
-                all_line += "total count: {}".format(len(result_list_err))
-                
-                window["result"].update(all_line)
+                if len(result_list_err) > 0:
+                    for index, line in enumerate(result_list_err):
+                        print("->err: %s, %s" % (index, line))
+                        all_line += line + "\n"
+                    all_line += "total count: {}".format(len(result_list_err))
+                    window["result"].update(all_line)
+                else:
+                    window["result"].update("扫描完毕，未发现类型不匹配")
         elif event in (None, 'Exit'):
             break
         print(str(values))
