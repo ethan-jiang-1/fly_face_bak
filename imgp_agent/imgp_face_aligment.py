@@ -9,19 +9,23 @@ USING_FACE_ALIGMENT = "MP"
 #USING_FACE_ALIGMENT = "CV2"
 
 class ImgpFaceAligment():
-    fal_klass = None 
+    fal_klass = None
+    fal_reference = 0 
 
     @classmethod
     def init_imgp(cls):
+        cls.fal_reference += 1
         if cls.fal_klass is None:
             cls.fal_klass = cls._pickup_face_klass()
-        print("ImgpFaceAligment: inited,  Using FaceAlignment", cls.fal_klass)           
+            print("ImgpFaceAligment: inited,  Using FaceAlignment", cls.fal_klass)           
 
     @classmethod
     def close_imgp(cls):
-        if cls.fal_klass is not None:
-            cls.fal_klass = None
-        print("ImgpFaceAligment: closed")   
+        cls.fal_reference -= 1
+        if cls.fal_reference == 0:
+            if cls.fal_klass is not None:
+                cls.fal_klass = None
+            print("ImgpFaceAligment: closed")   
 
     @classmethod
     def _pickup_face_klass(cls):
@@ -37,11 +41,11 @@ class ImgpFaceAligment():
         return FaceAligment  
 
     @classmethod
-    def make_aligment(cls, image):
+    def make_aligment(cls, image, debug=False):
         if cls.fal_klass is None:
             cls.init_imgp()
         
-        fa = cls.fal_klass()
+        fa = cls.fal_klass(debug=debug)
         fa.create_detector()
 
         fa_ret = fa.align_face(image)

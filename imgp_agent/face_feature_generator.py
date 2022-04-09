@@ -35,14 +35,14 @@ class FaceFeatureGenerator(object):
         ImgpCvBeardExtractor.close_imgp()
 
     def show_results(self, filename,  selected_img_types=None):
-        imgs, names, title, dt = self.process_image(filename)
+        imgs, names = self.process_image(filename)
 
         imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
 
-        PlotHelper.plot_imgs_grid(imgs, names, title=title)  
+        PlotHelper.plot_imgs_grid(imgs, names, title=os.path.basename(filename))  
 
     def save_results(self, filename, output_dir=None, selected_img_types=None):
-        imgs, names, title, dt = self.process_image(filename)
+        imgs, names = self.process_image(filename)
         if output_dir is None:
             output_dir = os.path.dirname(os.path.dirname(__file__)) + os.sep + "_reserved_output_feature_gen"
             os.makedirs(output_dir, exist_ok=True)
@@ -85,11 +85,13 @@ class FaceFeatureGenerator(object):
                 log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
             return None, None, None, None
 
-        img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
-        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
+        img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org, debug=self.debug)
+        img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
+        img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie, debug=self.debug)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, debug=self.debug)
+        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
+
+        (fa_ret, img_selfie_mask)
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
@@ -97,8 +99,7 @@ class FaceFeatureGenerator(object):
 
         imgs = [img_org, img_aligned, img_selfie,  img_facemesh, fme_result.img_facepaint, fme_result.img_outline, img_beard, img_hair]
         names = ["org", "aligned", "selfie", "facemesh", "facepaint", "outline", "beard", "hair"]
-        title = os.path.basename(filename)
-        return imgs, names, title, dt
+        return imgs, names
 
     def find_img(self, imgs, names, expected_name):
         for idx, name in enumerate(names):
@@ -106,9 +107,18 @@ class FaceFeatureGenerator(object):
                 return imgs[idx]
         return None
 
+    def process_image_for(self, filename, expected_name):
+        imgs, names = self.process_image(filename)
+        if imgs is None:
+            return None
+        return self.find_img(imgs, names, expected_name)
+
 
 def do_exp_file():
     filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+
+    ffg0 = FaceFeatureGenerator()
+    del ffg0
 
     ffg = FaceFeatureGenerator()
     ffg.show_results(filename) 
@@ -139,5 +149,5 @@ def do_exp_dir():
 
 
 if __name__ == '__main__':
-    #do_exp_file()
-    do_exp_dir()
+    do_exp_file()
+    #do_exp_dir()

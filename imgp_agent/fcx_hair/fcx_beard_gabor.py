@@ -18,8 +18,9 @@ class FcxBeardGabor(FcxBase):
             return None 
             
         img_beard_region = cls._clean_region(image, mesh_results)
+        img_beard_region_wb = cls._white_balance_face(img_beard_region)
 
-        img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region)
+        img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region_wb)
 
         img_beard_color_blur = cv2.blur(img_gabor_filtered, (5,5))
         img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
@@ -33,8 +34,8 @@ class FcxBeardGabor(FcxBase):
 
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, img_beard_region, img_gabor_filtered, img_beard_black, img_beard_white],
-                                 names=["org", "flood", "gabor", "black", "white"])            
+            PlotHelper.plot_imgs([image, img_beard_region,img_beard_region_wb, img_gabor_filtered, img_beard_gray, img_beard_black, img_beard_white],
+                                 names=["org", "flood", "whitebanlance", "gabor", "beard_gray", "black", "white"])            
 
         print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
@@ -47,7 +48,7 @@ class FcxBeardGabor(FcxBase):
         vts = [165, 167, 164, 393, 391, 182, 18, 406, 200, 199]
         face_landmarks = mesh_results.multi_face_landmarks[0]
 
-        COLOR_HAS_BEARD = 255 - 16
+        COLOR_HAS_BEARD = 255 - 4
         beard_cnt = 0
         beard_vals = []
         for vt in vts:
@@ -62,7 +63,7 @@ class FcxBeardGabor(FcxBase):
         if beard_cnt >= 5:
             return True
         val_mean = np.array(beard_vals).mean()
-        if val_mean < COLOR_HAS_BEARD + 8:
+        if val_mean < COLOR_HAS_BEARD + 4:
             return True
         return False
 
@@ -100,3 +101,23 @@ class FcxBeardGabor(FcxBase):
             img_fimg = cv2.filter2D(image, cv2.CV_8UC1, gabor_filter)
             img_accum = np.maximum(img_accum, img_fimg, img_accum)
         return img_accum
+
+    @classmethod
+    def _white_balance_face(cls, image):
+        # 读取图像
+        r, g, b = cv2.split(image)
+        r_avg = cv2.mean(r)[0]
+        g_avg = cv2.mean(g)[0]
+        b_avg = cv2.mean(b)[0]
+
+        if r_avg != 0.0 and g_avg != 0.0 and b_avg != 0.0:
+            # 求各个通道所占增益
+            k = (r_avg + g_avg + b_avg) / 3
+            kr = k / r_avg
+            kg = k / g_avg
+            kb = k / b_avg
+            r = cv2.addWeighted(src1=r, alpha=kr, src2=0, beta=0, gamma=0)
+            g = cv2.addWeighted(src1=g, alpha=kg, src2=0, beta=0, gamma=0)
+            b = cv2.addWeighted(src1=b, alpha=kb, src2=0, beta=0, gamma=0)
+        image_wb = cv2.merge([b, g, r])
+        return image_wb

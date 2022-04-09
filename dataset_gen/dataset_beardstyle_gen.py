@@ -8,20 +8,19 @@ if dir_root not in sys.path:
 
 try:
     from dg_aug_base import FileHelper
-    from dg_aug_face_edge import DgAugFaceEdge
+    from dg_aug_beard_edge import DgAugBeardEdge
     from dg_aug_empty import DgAugEmpty
 except:
     from .dg_aug_base import FileHelper
-    from .dg_aug_face_edge import DgAugFaceEdge
+    from .dg_aug_beard_edge import DgAugBeardEdge
     from .dg_aug_empty import DgAugEmpty
 
-from imgp_agent.face_feature_generator import FaceFeatureGenerator
+
 from utils.colorstr import log_colorstr
+from imgp_agent.face_feature_generator import FaceFeatureGenerator
 
-
-class DatasetHairstyleGen():
+class DatasetBeardStyleGen():
     def __init__(self, dir_org, dir_dst):
-
         self.dir_org = dir_org
         self.dir_dst = dir_dst
         self.ffg = FaceFeatureGenerator()
@@ -35,15 +34,15 @@ class DatasetHairstyleGen():
 
         os.makedirs(self.dir_dst, exist_ok=True)
 
-    def _get_img_hair(self, img_pathname):
-        img_hair = self.ffg.process_image_for(img_pathname, "hair")
-        return img_hair
+    def _get_img_beard(self, img_pathname):
+        img_beard = self.ffg.process_image_for(img_pathname, "beard")
+        return img_beard
 
     def _process_aug_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
 
-        dg = DgAugFaceEdge()
+        dg = DgAugBeardEdge()
         names = os.listdir(self.dir_org + "/" + subname)
         names = sorted(names)
         log_colorstr("yellow", "generating {}...".format(dst_dir))
@@ -56,11 +55,11 @@ class DatasetHairstyleGen():
                 continue
 
             order_num += 1
-            img = self._get_img_hair(img_pathname)
+            img = self._get_img_beard(img_pathname)
             aug_imgs_map, trs_imgs_map = dg.make_aug_images(img)
             cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        log_colorstr("yellow", "generated {} images in {}\n".format(cnt, dst_dir))
+        log_colorstr("yellow","generated {} images in {}".format(cnt, dst_dir))
 
     def _save_aug_imgs(self, aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num):
         cnt =0
@@ -84,15 +83,15 @@ class DatasetHairstyleGen():
     def _process_aug_empty_imgs_in_subdir(self, subname):
         dst_dir = "{}/{}".format(self.dir_dst, subname)
         os.makedirs(dst_dir, exist_ok=True)
-        log_colorstr("yellow", "generating {}...".format(dst_dir))
+        log_colorstr("yellow","generating {}...".format(dst_dir))
         cnt = 0
 
         dg = DgAugEmpty()
-        for order_num in range(18):
-            aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num)
+        for order_num in range(9):
+            aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num*2)
             cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        log_colorstr("yellow", "generated {} images in {}".format(cnt, dst_dir))
+        log_colorstr("yellow","generated {} images in {}".format(cnt, dst_dir))
 
     def gen(self):
         self._prepare_dirs()
@@ -119,13 +118,13 @@ def do_exp(dir_org, dir_dst):
         dir_root = os.path.dirname(dir_this)
         dir_dst = "{}/{}".format(dir_root, dir_dst)
 
-    dhg = DatasetHairstyleGen(dir_org, dir_dst)
+    dhg = DatasetBeardStyleGen(dir_org, dir_dst)
     dhg.gen()
     del dhg
 
 
 if __name__ == '__main__':
 
-    dir_org = "dataset_org_hair_styles/Version 1.2"
-    dir_dst = "_dataset_hair_styles"
+    dir_org = "dataset_org_beard_styles/Beard Version 1.1"
+    dir_dst = "_dataset_beard_styles"
     do_exp(dir_org, dir_dst)
