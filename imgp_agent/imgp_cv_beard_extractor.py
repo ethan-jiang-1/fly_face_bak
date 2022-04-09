@@ -5,8 +5,8 @@ import numpy as np
 from collections import namedtuple
 
 BER_RESULT = namedtuple('BER_RESULT', "img_beard") 
-BER_DEBUG = False
 BER_MODE = "GABOR"
+SFM_BG_COLOR = (192, 192, 192)
 
 class ImgpCvBeardExtractor():
     hsi_klass = None 
@@ -25,14 +25,16 @@ class ImgpCvBeardExtractor():
             print("ImgpCvBeardExtractor closed")
 
     @classmethod
-    def extract_beard(cls, img_selfie, img_hair_black, mesh_results, debug=BER_DEBUG):
+    def extract_beard(cls, img_aligned, img_selfie_mask, img_hair_black, mesh_results, debug=False):
         if BER_MODE == "GABOR":
-            img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=False, debug=debug) 
+            img_selfie_gray = cls._apply_gray_selfie_mask(img_aligned, img_selfie_mask)
+            img_selfie_without_hair = cls._remove_hair(img_selfie_gray, img_hair_black, mesh_results, smart=True, debug=debug) 
             img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
             img_beard = cls._locate_beard_gabor(img_selfie_wb_no_hair, mesh_results, debug=debug)
         else:
-            img_selfie_without_hair = cls._remove_hair(img_selfie, img_hair_black, half=True, debug=debug) 
+            img_selfie_gray = cls._apply_gray_selfie_mask(img_aligned, img_selfie_mask)
+            img_selfie_without_hair = cls._remove_hair(img_aligned, img_hair_black, mesh_results, smart=True, debug=debug) 
             img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
             img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
@@ -44,21 +46,50 @@ class ImgpCvBeardExtractor():
         return img_beard, ber_result
 
     @classmethod
-    def _remove_hair(cls, img_selfie, img_hair_black, half=True, debug=False):
+    def _apply_gray_selfie_mask(cls, img, img_selfie_mask):
+        condition = np.stack((img_selfie_mask,) * 3 , axis=-1) > 127
+        fg_image = img
+        bg_image = np.zeros(img.shape, dtype=np.uint8)
+        bg_image[:] = SFM_BG_COLOR 
+        output_image = np.where(condition, fg_image, bg_image)
+        return output_image
+
+    @classmethod
+    def _apply_gray_hair_mask(cls, img, img_hair_mask):
+        condition = np.stack((img_hair_mask,) * 3 , axis=-1) > 127
+        fg_image = img
+        bg_image = np.zeros(img.shape, dtype=np.uint8)
+        bg_image[:] = SFM_BG_COLOR 
+        output_image = np.where(condition, fg_image, bg_image)
+        return output_image
+
+    @classmethod
+    def _get_smart_hair_mask(cls, img_hair_black, mesh_results):
+        img_hair_black_smart = np.zeros(img_hair_black.shape, dtype=img_hair_black.dtype)
+        img_hair_black_smart += (192)
+        h = img_hair_black.shape[0] 
+        img_hair_black_smart[0:int(h/2),:] = img_hair_black[0:int(h/2),:]   
+        #img_hair_black_smart[int(h/2):h,:] = img_hair_black[int(h/2):h,:]   
+        return img_hair_black_smart
+
+    @classmethod
+    def _remove_hair(cls, img_selfie, img_hair_black, mesh_results, smart=True, debug=False):
         if img_hair_black.max() == 0:
             img_selfie_without_hair = img_selfie  # no hair to remove
         else:
-            if half:
-                img_hair_black_upper = np.zeros(img_hair_black.shape, dtype=img_hair_black.dtype)
-                img_hair_black_upper += 255
-                h = img_hair_black.shape[0] 
-                img_hair_black_upper[0:int(h/2),:] = img_hair_black[0:int(h/2),:]
-                img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black_upper)
+            if smart:
+                img_hair_black_smart = cls._get_smart_hair_mask(img_hair_black, mesh_results)
+                img_selfie_without_hair = cls._apply_gray_hair_mask(img_selfie, img_hair_black_smart)
+                #img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black_upper)
+                if debug:
+                    from imgp_common import PlotHelper
+                    PlotHelper.plot_imgs([img_selfie, img_hair_black, img_hair_black_smart, img_selfie_without_hair], names=["selfie", "hair_black", "hair_black_smart", "selfie_without_hair"])
             else:
-                img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black)
-        if debug:
-            from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([img_selfie, img_hair_black, img_selfie_without_hair])
+                img_selfie_without_hair = cls._apply_gray_hair_mask(img_selfie, img_hair_black)
+                #img_selfie_without_hair = cv2.bitwise_and(img_selfie, img_selfie, mask = img_hair_black)
+                if debug:
+                    from imgp_common import PlotHelper
+                    PlotHelper.plot_imgs([img_selfie, img_hair_black, img_selfie_without_hair], names=["selfie", "hair_black", "selfie_without_hair"])
         return img_selfie_without_hair
 
     @classmethod
@@ -81,8 +112,8 @@ class ImgpCvBeardExtractor():
         img_selfie_wb = cv2.merge([b, g, r])
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([img_selfie, img_selfie_wb])
-        return img_selfie
+            PlotHelper.plot_imgs([img_selfie, img_selfie_wb], names=["img", "white_banlanced"])
+        return img_selfie_wb
 
     @classmethod
     def _locate_beard_gabor(cls, image, mesh_results, debug=False):
@@ -141,8 +172,9 @@ def do_exp_single():
     from face_feature_generator import FaceFeatureGenerator
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
     filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
 
     full_path = parent_dir + os.sep + filename
 

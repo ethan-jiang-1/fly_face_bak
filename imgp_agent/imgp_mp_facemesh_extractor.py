@@ -34,11 +34,11 @@ class ImgpFacemeshExtractor():
             print("ImgpFacemeshExtractor closed")
 
     @classmethod
-    def extract_mesh_features(cls, img_org):
+    def extract_mesh_features(cls, img_org, debug=False):
         if cls.slt_facemesh is None:
             cls.init_imgp()
 
-        image, mesh_results = cls._extract_face_mesh(img_org)
+        image, mesh_results = cls._extract_face_mesh(img_org, debug=debug)
 
         img_facemesh = cls._draw_meshes(image, mesh_results)
         img_facepaint = cls._paint_meshes(image, mesh_results)
@@ -52,7 +52,7 @@ class ImgpFacemeshExtractor():
         return img_facemesh, fme_result
 
     @classmethod
-    def _extract_face_mesh(cls, img_org):
+    def _extract_face_mesh(cls, img_org, debug=False):
         image = img_org.copy()
 
         slt_facemesh = cls.slt_facemesh
@@ -66,7 +66,8 @@ class ImgpFacemeshExtractor():
         d0 = datetime.now()
         mesh_results = slt_facemesh.process(image)
         dt = datetime.now() - d0
-        print("inference time {:.3f}".format(dt.total_seconds()))
+        if debug:
+            print("inference time {:.3f}".format(dt.total_seconds()))
 
         # Draw the face mesh annotations on the image.
         image.flags.writeable = True

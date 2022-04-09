@@ -36,7 +36,7 @@ class ImgpSelfieMarker():
             print("ImgpSelfieMarker closed")
 
     @classmethod
-    def fliter_selfie(cls, image):
+    def fliter_selfie(cls, image, debug=False):
         if cls.slt_selfie is None:
             cls.init_imgp()
         
@@ -50,7 +50,8 @@ class ImgpSelfieMarker():
         slt_selfie.reset()
         results = slt_selfie.process(image)
         dt = datetime.now() - d0
-        print("inference time {:.3f}".format(dt.total_seconds()))
+        if debug:
+            print("inference time {:.3f}".format(dt.total_seconds()))
 
         # Draw the face mesh annotations on the image.
         image.flags.writeable = True
@@ -60,6 +61,8 @@ class ImgpSelfieMarker():
         # To improve segmentation around boundaries, consider applying a joint
         # bilateral filter to "results.segmentation_mask" with "image".
         condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > SF_THRESHOLD
+        if debug:
+            print("condition.shape", condition.shape,  "conditoin.dtype", condition.dtype)
         # The background can be customized.
         #   a) Load an image (with the same width and height of the input image) to
         #      be the background, e.g., bg_image = cv2.imread('/path/to/image/file')
@@ -72,11 +75,17 @@ class ImgpSelfieMarker():
         fg_image[:] = SFM_FG_COLOR
 
         output_image = np.where(condition, image, bg_image)
-        print(output_image.shape, output_image.dtype)
+        if debug:
+            print("output_image.shape", output_image.shape, "output_image.dtype", output_image.dtype)
 
         mask_image = np.where(condition, fg_image, bg_image)
         mask_image_wf = cv2.cvtColor(mask_image, cv2.COLOR_BGR2GRAY)
         _, mask_image_wf = cv2.threshold(mask_image_wf, 128, 255, cv2.THRESH_BINARY)
+
+        # if debug:
+        #     from imgp_common import PlotHelper
+        #     PlotHelper.plot_imgs([image, bg_image, fg_image, mask_image, mask_image_wf],
+        #                           names=["image", "bg_image", "fg_image", "mask_image", "mask_image_wf"])
 
         return output_image, mask_image_wf
 
@@ -93,7 +102,7 @@ def _mark_selfie_imgs(src_dir, show=True):
             print("not image file", filename)
             continue
 
-        image, image_mask_wf = ImgpSelfieMarker.fliter_selfie(image)
+        image, image_mask_wf = ImgpSelfieMarker.fliter_selfie(image, debug=True)
         if image is None:
             log_colorstr("red", "ERROR: not able to mark selfie on", filename)
         else:

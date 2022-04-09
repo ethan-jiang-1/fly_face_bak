@@ -85,11 +85,13 @@ class FaceFeatureGenerator(object):
                 log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
             return None, None, None, None
 
-        img_aligned, _ = ImgpFaceAligment.make_aligment(img_org)
-        img_selfie, _ = ImgpSelfieMarker.fliter_selfie(img_aligned)
-        img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie)
-        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned)
-        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_selfie, hsi_result.mask_black_sharp, fme_result.mesh_results)
+        img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org, debug=self.debug)
+        img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
+        img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie, debug=self.debug)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, debug=self.debug)
+        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
+
+        (fa_ret, img_selfie_mask)
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)

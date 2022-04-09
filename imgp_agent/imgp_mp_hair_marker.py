@@ -45,7 +45,7 @@ class ImgpHairMarker():
         return False
 
     @classmethod
-    def mark_hair(cls, image):
+    def mark_hair(cls, image, debug=False):
         if cls.hsi_klass is None:
             cls.init_imgp()
         

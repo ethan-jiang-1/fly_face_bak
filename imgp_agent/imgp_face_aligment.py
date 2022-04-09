@@ -41,11 +41,11 @@ class ImgpFaceAligment():
         return FaceAligment  
 
     @classmethod
-    def make_aligment(cls, image):
+    def make_aligment(cls, image, debug=False):
         if cls.fal_klass is None:
             cls.init_imgp()
         
-        fa = cls.fal_klass()
+        fa = cls.fal_klass(debug=debug)
         fa.create_detector()
 
         fa_ret = fa.align_face(image)
