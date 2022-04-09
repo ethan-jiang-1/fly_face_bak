@@ -49,8 +49,8 @@ class SearchMatchedPoster():
     def search_for_poster(cls, img_filename):
         cls.init_searcher()
 
-        imgs, names, title, dt = cls.ffg.process_image(img_filename)
-        log_colorstr("blue", "#SMP: process {} as {} in {}secs".format(img_filename, title, dt.total_seconds()))
+        imgs, names = cls.ffg.process_image(img_filename)
+        log_colorstr("blue", "#SMP: process {}".format(img_filename))
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, names)
 
