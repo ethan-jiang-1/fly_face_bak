@@ -1,19 +1,21 @@
 #!/usr/bin/env python
-
 import os
+from turtle import color
 import PySimpleGUI as sg
 
 from imgp_show_hairstyles import do_extract_hairstyles
 
-
 def analysis_selected_folder():
+    version = 1.0
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('选择一个目录', size=(15, 1), auto_size_text=True, justification='left')], 
-              [sg.InputText(size=(80, 1)), sg.FolderBrowse(initial_folder=os.path.dirname(__file__))], 
+    layout = [[sg.Text('功能说明：选择发型图片的根目录或自目录，分析其中所有发型的边界', text_color="blue")],
+              [sg.Text('选择目录', auto_size_text=True, justification='left'),
+               sg.InputText(size=(80, 1)), 
+               sg.FolderBrowse(initial_folder=os.path.dirname(__file__))], 
               [sg.Button('OK'), sg.Button('Exit')]]
     
-    window = sg.Window('发型分析', layout)
+    window = sg.Window('头发边界扫描工具({})'.format(version), layout)
     
     while True:
         event, values = window.read()
