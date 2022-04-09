@@ -46,6 +46,13 @@ class ImgpCvBeardExtractor():
         return img_beard, ber_result
 
     @classmethod
+    def _revert_image(cls, img1):
+        h,w,c=img1.shape
+        img2=np.zeros((h,w,c),dtype=img1.dtype)
+        invert_image=cv2.addWeighted(img1,-1,img2,0,255,0)
+        return invert_image
+
+    @classmethod
     def _apply_gray_selfie_mask(cls, img, img_selfie_mask):
         condition = np.stack((img_selfie_mask,) * 3 , axis=-1) > 127
         fg_image = img
@@ -172,9 +179,11 @@ def do_exp_single():
     from face_feature_generator import FaceFeatureGenerator
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
-    filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
+    filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
 
     full_path = parent_dir + os.sep + filename
 

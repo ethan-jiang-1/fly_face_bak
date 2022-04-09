@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import os
-from turtle import color
+#from turtle import color
 import PySimpleGUI as sg
 
 from imgp_show_hairstyles import do_extract_hairstyles
