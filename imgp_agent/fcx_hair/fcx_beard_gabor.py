@@ -86,12 +86,10 @@ class FcxBeardGabor(FcxBase):
         return img_beard_color
 
     @classmethod
-    def _filter_by_gabor_filter(cls, image):
-        #ksize = 11  # kernal size
+    def _filter_by_gabor_by_degree(cls, image, theta_pi=0.5):
         ksize = 5  # kernal size
         lamda = np.pi / 2.0  # length of wave
-        theta = np.pi * 0.5  # 90 degree
-        #theta = np.pi * 0.0  # 0 degree
+        theta = np.pi * theta_pi # 90 degree
         kern = cv2.getGaborKernel((ksize, ksize), 1.0, theta, lamda, 0.5, 0, ktype=cv2.CV_32F)
         kern /= 1.5 * kern.sum()
         gabor_filters = kern 
@@ -101,6 +99,23 @@ class FcxBeardGabor(FcxBase):
             img_fimg = cv2.filter2D(image, cv2.CV_8UC1, gabor_filter)
             img_accum = np.maximum(img_accum, img_fimg, img_accum)
         return img_accum
+
+    @classmethod
+    def _filter_by_gabor_filter(cls, image):
+        img_accum_1 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5)
+        #img_accum_2 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5 * 0.9)
+        #img_accum_3 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5 * 1.1)
+
+        img_accum = np.zeros(image.shape, dtype=np.float32)
+        img_accum = img_accum_1.astype('float32')
+        #img_accum += img_accum_2.astype('float32')
+        #img_accum += img_accum_3.astype('float32')
+        img_accum -= img_accum.min()
+        img_accum /= img_accum.max()
+        img_accum *= 255
+        img_accum_uint8 = img_accum.astype("uint8")
+        img_accum_uint8 = cls._white_balance_face(img_accum_uint8)
+        return img_accum_uint8
 
     @classmethod
     def _white_balance_face(cls, image):
