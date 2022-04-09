@@ -27,7 +27,8 @@ validation_data, test_data = rest_data.split(0.5)
 #   plt.xlabel(data.index_to_label[label.numpy()])
 # plt.show()
 
-model = image_classifier.create(train_data,validation_data=validation_data, epochs=6)
+model = image_classifier.create(train_data,validation_data=validation_data, epochs=4,train_whole_model=True,
+                                shuffle=True,dropout_rate=0.5)
 # model = image_classifier.create(train_data, validation_data=validation_data, epochs=8, model_dir='cls_hair.tflite', do_train=False)
 
 model.summary()
@@ -62,5 +63,5 @@ for i, (image, label) in enumerate(test_data.gen_dataset().unbatch().take(100)):
 plt.show()
 
 config = QuantizationConfig.for_float16()
-model._export_tflite('cls_hair.tflite',  quantization_config=config, with_metadata=True, export_metadata_json_file=True)
+model._export_tflite('cls_hair_1.tflite',  quantization_config=config, with_metadata=True, export_metadata_json_file=True)
 # model.export(export_dir='.', tflite_filename='cls_hair.tflite', quantization_config=config, export_format=ExportFormat.LABEL)

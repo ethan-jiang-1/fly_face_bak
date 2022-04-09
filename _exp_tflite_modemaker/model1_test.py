@@ -11,7 +11,7 @@ import tflite_runtime.interpreter as tflite
 
 if __name__ == "__main__":
     dir_this = os.path.dirname(__file__)
-    test_image_dir = '{}/_Version_1.1/00'.format(dir_this)
+    test_image_dir = '{}/_Version_1.1/01'.format(dir_this)
     model_path = "{}/cls_hair_1.tflite".format(dir_this)
     dir_npy = "{}/_output".format(dir_this)
     os.makedirs(dir_npy, exist_ok=True)
