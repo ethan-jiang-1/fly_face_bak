@@ -6,13 +6,11 @@ from imgp_agent.face_feature_generator import FaceFeatureGenerator
 from imgp_agent.imgp_common import FileHelper, PlotHelper
 
 
-# def _plot_all_imgs_by_range(all_hair_imgs, idx_range=(0, 10), col_size=10):
 def _plot_all_imgs_by_range(all_hair_imgs, col_size=10):
     imgs = []
     names = []
     for key, tis in all_hair_imgs.items():
-        for ndx, ti in enumerate(tis):
-            # if ndx >= idx_range[0] and ndx < idx_range[1]:
+        for ti in tis:
                 title, img = ti
                 name = "{}.{}".format(key, title.split(".")[0])
                 names.append(name)
