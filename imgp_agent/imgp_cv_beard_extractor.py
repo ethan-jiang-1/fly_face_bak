@@ -107,9 +107,9 @@ class ImgpCvBeardExtractor():
     def _white_balance_face(cls, img_selfie, debug=False):
         from fcx_hair.fcx_base import FcxBase
         img_selfie_wb = FcxBase.ipc_white_balance_color(img_selfie)
-        if debug:
-            from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([img_selfie, img_selfie_wb], names=["img", "white_banlanced"])
+        #if debug:
+        #    from imgp_common import PlotHelper
+        #    PlotHelper.plot_imgs([img_selfie, img_selfie_wb], names=["img", "white_banlanced"])
         return img_selfie_wb
 
     @classmethod
@@ -153,13 +153,14 @@ def do_exp_single():
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
     #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
-    #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
-    filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
+    filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
+    #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
 
     full_path = parent_dir + os.sep + filename
 
@@ -170,5 +171,5 @@ def do_exp_single():
     del ffg   
 
 if __name__ == '__main__':
-    do_exp_folder()
-    #do_exp_single()
+    #do_exp_folder()
+    do_exp_single()

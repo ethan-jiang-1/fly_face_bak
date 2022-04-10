@@ -16,13 +16,13 @@ class FcxBeardGabor(FcxBase):
             return None 
             
         img_beard_region = cls._clean_region(image, mesh_results)
-        #img_beard_region_wb = cls.ipc_white_balance_color(img_beard_region)
+        img_beard_region_wb = cls.ipc_white_balance_color(img_beard_region)
         #img_beard_region_eh = cls.ipc_equalizeHist_color(img_beard_region)
-        img_beard_region_sp = cls.ipc_sharpen_color(img_beard_region)
+        img_beard_region_sp = cls.ipc_sharpen_color(img_beard_region_wb)
 
         img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region_sp)
 
-        img_beard_gabor_color_blur = cv2.blur(img_gabor_filtered, (5,5))
+        img_beard_gabor_color_blur = cv2.blur(img_gabor_filtered, (3, 3))
         img_beard_gabor_gray = cv2.cvtColor(img_beard_gabor_color_blur, cv2.COLOR_BGR2GRAY)
         
         img_box_mouth = cls._get_box_img_around_mouth(img_beard_gabor_gray, mesh_results)
@@ -80,7 +80,7 @@ class FcxBeardGabor(FcxBase):
     def _get_box_img_around_mouth(cls, img_beard_gabor_gray, mesh_results):
         image_width, image_height = img_beard_gabor_gray.shape[0],  img_beard_gabor_gray.shape[1]
         num_vt1 = 206
-        num_vt2 = 395
+        num_vt2 = 378
 
         face_landmarks = mesh_results.multi_face_landmarks[0]
         llm = face_landmarks.landmark
@@ -102,7 +102,7 @@ class FcxBeardGabor(FcxBase):
         face_landmarks = mesh_results.multi_face_landmarks[0]
 
         mean_img = img_box_mouth.mean()
-        if mean_img > 255 - 2:
+        if mean_img > 255 - 1:
             return False, 0
 
         bvals_ur = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [92, 165, 167])
@@ -112,7 +112,9 @@ class FcxBeardGabor(FcxBase):
         bvals_br = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [211, 38, 208])
         bvals_bl = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [428, 262, 431])
 
-        val_has_beard = 255 - 6
+        val_has_beard = int((255 + mean_img) / 2)
+        if val_has_beard > 255 - 2:
+            val_has_beard = 255 - 2
 
         hb_ur = cls._has_beard_at_region(bvals_ur, val_has_beard)
         hb_ul = cls._has_beard_at_region(bvals_ul, val_has_beard)
@@ -121,8 +123,11 @@ class FcxBeardGabor(FcxBase):
         hb_br = cls._has_beard_at_region(bvals_br, val_has_beard)
         hb_bl = cls._has_beard_at_region(bvals_bl, val_has_beard)
 
-        if (hb_ur and hb_ul) or (hb_mr and hb_ml) or (hb_br and hb_bl):
+        if (hb_ur and hb_ul) or (hb_mr and hb_ml):
             return True, val_has_beard
+        if (hb_br and hb_bl):
+            if hb_ur or hb_ul or hb_mr or hb_ml:
+                return True, val_has_beard
         return False, 0
 
     @classmethod
@@ -164,11 +169,11 @@ class FcxBeardGabor(FcxBase):
         return image_color 
 
     @classmethod
-    def _filter_by_gabor_by_degree(cls, image, theta_pi=0.5):
-        ksize = 5  # kernal size
+    def _filter_by_gabor_by_degree(cls, image, theta_pi=0.5, lamda_div=2.0, ksize=5):
+        #ksize = 5  # kernal size
         sigma = 1.0
         theta = np.pi * theta_pi # 90 degree
-        lamda = np.pi / 2.0  # length of wave
+        lamda = np.pi / lamda_div # length of wave
         gamma = 0.5
         psi = 0
 
@@ -191,15 +196,15 @@ class FcxBeardGabor(FcxBase):
 
     @classmethod
     def _filter_by_gabor_filter(cls, image):
-        img_accum_1 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5)
-        img_accum_2 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5+0.05)
-        img_accum_3 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5-0.05)
+        img_accum_1 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=5)
+        img_accum_2 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=7)
+        #img_accum_3 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=8)
         #img_accum_4 = cls._filter_by_gabor_by_degree(image, theta_pi=0.75)
 
         img_accum = np.zeros(image.shape, dtype=np.float32)
         img_accum = img_accum_1.astype('float32')
         img_accum += img_accum_2.astype('float32')
-        img_accum += img_accum_3.astype('float32')
+        #img_accum += img_accum_3.astype('float32')
         #img_accum += img_accum_4.astype('float32')
         
         img_accum -= img_accum.min()
@@ -207,6 +212,9 @@ class FcxBeardGabor(FcxBase):
         img_accum *= 255
 
         img_accum_uint8 = img_accum.astype("uint8")
-        img_accum_uint8 = cls.ipc_white_balance_color(img_accum_uint8)
-        return img_accum_uint8
+        img_dst = cls.ipc_sharpen_color(img_accum_uint8)
+
+        #img_dst = np.zeros_like(img_accum_uint8)
+        #cv2.normalize(img_accum_uint8, img_dst, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        return img_dst
 
