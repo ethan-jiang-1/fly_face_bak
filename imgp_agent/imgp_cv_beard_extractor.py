@@ -134,7 +134,7 @@ def do_exp_folder():
     #selected_names = ["icl_image4.jpeg"]
     #selected_names = ["icl_image5.jpeg"]
     #selected_names = ["ctn_cartoon2.jpeg"]
-    selected_names = ["ctn_cartoon3.jpeg"]
+    #selected_names = ["ctn_cartoon3.jpeg"]
     #selected_names = ["brd_image1.jpeg"]
 
     from face_feature_generator import FaceFeatureGenerator
@@ -143,8 +143,8 @@ def do_exp_folder():
     ffg = FaceFeatureGenerator()
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    #src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
-    src_dir = os.sep.join([parent_dir, "dataset_org_beard_styles", "Beard Version 1.1", "03"])    
+    src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    #src_dir = os.sep.join([parent_dir, "dataset_org_beard_styles", "Beard Version 1.1", "03"])    
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
@@ -163,11 +163,13 @@ def do_exp_single():
     from face_feature_generator import FaceFeatureGenerator
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
+
+    filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
 
     full_path = parent_dir + os.sep + filename
 
@@ -178,5 +180,5 @@ def do_exp_single():
     del ffg   
 
 if __name__ == '__main__':
-    #do_exp_folder()
-    do_exp_single()
+    do_exp_folder()
+    #do_exp_single()
