@@ -19,7 +19,7 @@ class FcxBeardOtsu(FcxBase):
 
         FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
         image_beard_mask_outter, pt_beard_mask_outter_seed = cls.get_beard_mask_outter(image, mesh_results, FMB_PX_ALTER)
-        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image, mesh_results)
+        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image, mesh_results, None)
         img_beard_color0 = cv2.bitwise_and(image, image, mask = image_beard_mask_outter)
         img_beard_color = cv2.bitwise_and(img_beard_color0, img_beard_color0, mask = image_mouth_mask_inner)
 

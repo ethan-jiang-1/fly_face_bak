@@ -3,12 +3,17 @@ import cv2
 import numpy as np
 
 
-FMB_UPPER_L2R = (147, 187, 205, 36, 203, 98, 97, 2, 326, 327, 423, 266, 425, 411, 376)
-FMB_RIGHT_T2B = (401, 435, 367, 364)
-FMB_BUTTOM_R2L = (394, 395, 369, 396, 175, 171, 140, 170, 169)
-FMB_LEFT_B2T = (135, 138, 215, 177)
+FMB_BEARD_UPPER_L2R = (147, 187, 205, 36, 203, 98, 97, 2, 326, 327, 423, 266, 425, 411, 376)
+FMB_BEARD_RIGHT_T2B = (401, 435, 367, 364)
+FMB_BEARD_BUTTOM_R2L = (394, 395, 369, 396, 175, 171, 140, 170, 169)
+FMB_BEARD_LEFT_B2T = (135, 138, 215, 177)
 
-FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
+#FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
+
+FMB_MOUTH_UPPER_L2R = (39, 37, 0, 267, 269)
+FMB_MOUTH_RIGHT_T2B = (270, 409, 291, 375, 321)
+FMB_MOUTH_BUTTOM_R2L = (405, 314, 17, 84, 181)
+FMB_MOUTH_LEFT_B2T = (91, 146, 61, 185, 40)
 
 #FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 FMB_FILL_COLOR = (216, 216, 216)
@@ -89,37 +94,51 @@ class FcxBase():
         cv2.floodFill(image, mask_flood, pt_seed, color_fill, flags=cv2.FLOODFILL_FIXED_RANGE)
 
     @classmethod
-    def get_beard_mouth_inner(cls, image, mesh_results):
+    def get_beard_mouth_inner(cls, image, mesh_results, fmb_px_alter, init_val=(255, 0)):
         if mesh_results is None or mesh_results.multi_face_landmarks is None:
             return None, None
 
         image_mouth_mask_inner = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
-        image_mouth_mask_inner[:] = (255)
-        pt_mouth_mask_inner_seed = None
+        image_mouth_mask_inner[:] = init_val[0]
+
         for face_landmarks in mesh_results.multi_face_landmarks:
-            cls.draw_ploypoints(image_mouth_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
+            pts_alter = []
+            for n in FMB_MOUTH_UPPER_L2R:
+                pts_alter.append((n, "U"))
+            for n in FMB_MOUTH_RIGHT_T2B:
+                pts_alter.append((n, "R"))
+            for n in FMB_MOUTH_BUTTOM_R2L:
+                pts_alter.append((n, "B"))
+            for n in FMB_MOUTH_LEFT_B2T:
+                pts_alter.append((n, "L"))
+
+            cls.draw_ploypoints_alter(image_mouth_mask_inner, face_landmarks, pts_alter, init_val[1], fmb_px_alter=fmb_px_alter)
+
+            #cls.draw_ploypoints(image_mouth_mask_inner, face_landmarks, FMB_MOUTH_OUTTER, (0))
 
         pt_mouth_mask_inner_seed = cls.get_vt_coord(image, face_landmarks, 14)
         return image_mouth_mask_inner, pt_mouth_mask_inner_seed
 
     @classmethod
-    def get_beard_mask_outter(cls, image, mesh_results, fmb_px_alter):
+    def get_beard_mask_outter(cls, image, mesh_results, fmb_px_alter, init_val=(0, 255)):
         if mesh_results is None or mesh_results.multi_face_landmarks is None:
             return None, None 
          
         image_beard_mask_outter = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
+        image_beard_mask_outter[:] = init_val[0]
+
         for face_landmarks in mesh_results.multi_face_landmarks:
             pts_alter = []
-            for n in FMB_UPPER_L2R:
+            for n in FMB_BEARD_UPPER_L2R:
                 pts_alter.append((n, "U"))
-            for n in FMB_RIGHT_T2B:
+            for n in FMB_BEARD_RIGHT_T2B:
                 pts_alter.append((n, "R"))
-            for n in FMB_BUTTOM_R2L:
+            for n in FMB_BEARD_BUTTOM_R2L:
                 pts_alter.append((n, "B"))
-            for n in FMB_LEFT_B2T:
+            for n in FMB_BEARD_LEFT_B2T:
                 pts_alter.append((n, "L"))
 
-            cls.draw_ploypoints_alter(image_beard_mask_outter, face_landmarks, pts_alter, (255), fmb_px_alter=fmb_px_alter)
+            cls.draw_ploypoints_alter(image_beard_mask_outter, face_landmarks, pts_alter, init_val[1], fmb_px_alter=fmb_px_alter)
 
         pt_beard_mask_outter_seed = (0, 0)
         return image_beard_mask_outter, pt_beard_mask_outter_seed
@@ -154,3 +173,9 @@ class FcxBase():
         
         output = cv2.merge([b1,g1,r1])
         return output
+
+    @classmethod
+    def ipc_sharpen_color(cls, img_src):
+        img_blur = cv2.GaussianBlur(img_src, (0, 0), 5)
+        img_usm = cv2.addWeighted(img_src, 1.5, img_blur, -0.5, 0)
+        return img_usm

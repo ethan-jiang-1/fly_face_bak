@@ -127,16 +127,6 @@ def do_exp_folder():
     if dir_this not in sys.path:
         sys.path.append(dir_this)
 
-    selected_names = None
-    #selected_names = ["hsi_image1.jpeg"]
-    #selected_names = ["hsi_image3.jpeg"]
-    #selected_names = ["hsi_image8.jpeg"]
-    #selected_names = ["icl_image4.jpeg"]
-    #selected_names = ["icl_image5.jpeg"]
-    #selected_names = ["ctn_cartoon2.jpeg"]
-    #selected_names = ["ctn_cartoon3.jpeg"]
-    #selected_names = ["brd_image1.jpeg"]
-
     from face_feature_generator import FaceFeatureGenerator
     from imgp_common import FileHelper
 
@@ -149,11 +139,6 @@ def do_exp_folder():
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
     for filename in filenames:
-        if selected_names is not None:
-            bname = os.path.basename(filename)
-            if bname not in selected_names:
-                continue
-
         ffg.show_results(filename) 
         #ffg.save_results(filename) 
 
@@ -170,8 +155,11 @@ def do_exp_single():
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
 
     #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
-    filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
+    #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
+    #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
+    #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
+    filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
 
     full_path = parent_dir + os.sep + filename
 
