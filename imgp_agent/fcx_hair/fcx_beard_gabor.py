@@ -21,8 +21,9 @@ class FcxBeardGabor(FcxBase):
         img_beard_region_sp = cls.ipc_sharpen_color(img_beard_region_wb)
 
         img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region_sp)
+        img_gabor_filtered_no_mouth = cls._clean_region_mouth_inner(img_gabor_filtered, mesh_results, color_fill=(255,255,255))
 
-        img_beard_gabor_color_blur = cv2.blur(img_gabor_filtered, (3, 3))
+        img_beard_gabor_color_blur = cv2.blur(img_gabor_filtered_no_mouth, (3, 3))
         img_beard_gabor_gray = cv2.cvtColor(img_beard_gabor_color_blur, cv2.COLOR_BGR2GRAY)
         
         img_box_mouth = cls._get_box_img_around_mouth(img_beard_gabor_gray, mesh_results)
@@ -135,18 +136,18 @@ class FcxBeardGabor(FcxBase):
         img_beard_color = image.copy()
         cls.flood_fill(img_beard_color, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
   
-        img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results)
+        #img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results)
         img_beard_color = cls._clean_region_mouth_outter(img_beard_color, mesh_results)
         img_beard_color = cls._clean_region_above_nose(img_beard_color, mesh_results)
 
         return img_beard_color
 
     @classmethod
-    def _clean_region_mouth_inner(cls, image_color, mesh_results):
+    def _clean_region_mouth_inner(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR):
         FMB_PX_ALTER = {"U": (0.00, -0.015), "R":(0.015, 0.015), "L":(-0.015, -0.015), "B":(0.00, 0.015)}
         image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image_color, mesh_results, FMB_PX_ALTER)
         img_beard_color = cv2.bitwise_and(image_color, image_color, mask = image_mouth_mask_inner)
-        cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
+        cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=color_fill)
         return img_beard_color
 
     @classmethod

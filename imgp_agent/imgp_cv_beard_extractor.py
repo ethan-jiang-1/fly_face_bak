@@ -171,5 +171,5 @@ def do_exp_single():
     del ffg   
 
 if __name__ == '__main__':
-    #do_exp_folder()
-    do_exp_single()
+    do_exp_folder()
+    #do_exp_single()
