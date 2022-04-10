@@ -4,6 +4,10 @@ import cv2
 import numpy as np
 from collections import namedtuple
 
+dir_this = os.path.dirname(__file__)
+if dir_this not in sys.path:
+    sys.path.append(dir_this)
+
 BER_RESULT = namedtuple('BER_RESULT', "img_beard") 
 BER_MODE = "GABOR"
 SFM_BG_COLOR = (192, 192, 192)
@@ -101,22 +105,8 @@ class ImgpCvBeardExtractor():
 
     @classmethod
     def _white_balance_face(cls, img_selfie, debug=False):
-        # 读取图像
-        r, g, b = cv2.split(img_selfie)
-        r_avg = cv2.mean(r)[0]
-        g_avg = cv2.mean(g)[0]
-        b_avg = cv2.mean(b)[0]
-
-        if r_avg != 0.0 and g_avg != 0.0 and b_avg != 0.0:
-            # 求各个通道所占增益
-            k = (r_avg + g_avg + b_avg) / 3
-            kr = k / r_avg
-            kg = k / g_avg
-            kb = k / b_avg
-            r = cv2.addWeighted(src1=r, alpha=kr, src2=0, beta=0, gamma=0)
-            g = cv2.addWeighted(src1=g, alpha=kg, src2=0, beta=0, gamma=0)
-            b = cv2.addWeighted(src1=b, alpha=kb, src2=0, beta=0, gamma=0)
-        img_selfie_wb = cv2.merge([b, g, r])
+        from fcx_hair.fcx_base import FcxBase
+        img_selfie_wb = FcxBase.ipc_white_balance_color(img_selfie)
         if debug:
             from imgp_common import PlotHelper
             PlotHelper.plot_imgs([img_selfie, img_selfie_wb], names=["img", "white_banlanced"])
@@ -124,18 +114,12 @@ class ImgpCvBeardExtractor():
 
     @classmethod
     def _locate_beard_gabor(cls, image, mesh_results, debug=False):
-        try:
-            from fcx_hair.fcx_beard_gabor import FcxBeardGabor
-        except:
-            from .fcx_hair.fcx_beard_gabor import FcxBeardGabor
+        from fcx_hair.fcx_beard_gabor import FcxBeardGabor
         return FcxBeardGabor.process_img(image, mesh_results, debug=debug)
 
     @classmethod
     def _locate_beard_otsu(cls, image, mesh_results, debug=False):
-        try:
-            from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
-        except:
-            from .fcx_hair.fcx_beard_otsu import FcxBeardOtsu
+        from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
         return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
 def do_exp_folder():

@@ -69,21 +69,32 @@ class FaceFeatureGenerator(object):
             if name in selected_img_types:
                 new_imgs.append(img)
                 new_names.append(name)
-        return new_imgs, new_names   
+        return new_imgs, new_names
 
-    def process_image(self, filename):
+    def _load_image(self, filename):   
         from utils.colorstr import log_colorstr
-        if not os.path.isfile(filename):
-            return None, None, None, None 
 
-        d0 = datetime.now()
+        if not os.path.isfile(filename):
+            log_colorstr("red", "ERROR: failed to locate image file {}".format(filename))
+            return None
+
         img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img_org is None:
             if not cv2.haveImageReader(filename):
                 log_colorstr("red", "ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
             else:
                 log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
-            return None, None, None, None
+            return None
+
+        return img_org
+
+    def process_image(self, filename):
+        from utils.colorstr import log_colorstr
+        if not os.path.isfile(filename):
+            return None, None
+
+        d0 = datetime.now()
+        img_org = self._load_image(filename)
 
         img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org, debug=self.debug)
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
@@ -91,7 +102,7 @@ class FaceFeatureGenerator(object):
         img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, debug=self.debug)
         img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
 
-        (fa_ret, img_selfie_mask)
+        (fa_ret, img_selfie_mask)  # avoid flake8 warning around variable not reference
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
@@ -115,7 +126,8 @@ class FaceFeatureGenerator(object):
 
 
 def do_exp_file():
-    filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+    #filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+    filename = "_reserved_bug_imgs/hair_WechatIMG303.jpeg"
 
     ffg0 = FaceFeatureGenerator()
     del ffg0
@@ -149,5 +161,5 @@ def do_exp_dir():
 
 
 if __name__ == '__main__':
-    do_exp_file()
-    #do_exp_dir()
+    #do_exp_file()
+    do_exp_dir()
