@@ -10,7 +10,7 @@ FMB_LEFT_B2T = (135, 138, 215, 177)
 
 FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
 
-FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
+#FMB_PX_ALTER = {"U": (0, 0), "R":(0.00, 0), "L":(-0.00, 0), "B":(0, 0.00)}
 FMB_FILL_COLOR = (216, 216, 216)
 
 class FcxBase():
@@ -46,7 +46,7 @@ class FcxBase():
         cv2.fillPoly(image, [np_contour], fmc_color) 
     
     @classmethod
-    def draw_ploypoints_alter(cls, image, face_landmarks, fmv_vertices_with_alter, fmc_color, fmb_px_alter=FMB_PX_ALTER):
+    def draw_ploypoints_alter(cls, image, face_landmarks, fmv_vertices_with_alter, fmc_color, fmb_px_alter=None):
         image_width, image_height = image.shape[1], image.shape[0]
 
         contour = []
@@ -57,12 +57,13 @@ class FcxBase():
 
             rx, ry = llm[num].x, llm[num].y,
             if alter_direction is not None: 
-                if alter_direction in fmb_px_alter:
-                    dx, dy = fmb_px_alter[alter_direction]
-                    rx += dx 
-                    ry += dy
-                else:
-                    print("unknown direction", alter_direction)
+                if fmb_px_alter is not None:
+                    if alter_direction in fmb_px_alter:
+                        dx, dy = fmb_px_alter[alter_direction]
+                        rx += dx 
+                        ry += dy
+                    else:
+                        print("unknown direction", alter_direction)
 
             px, py = cls.normalized_to_pixel_coordinates(rx, ry,  image_width, image_height) 
             if px is not None and py is not None:

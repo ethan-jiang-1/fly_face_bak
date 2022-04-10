@@ -1,10 +1,10 @@
 import numpy as np
-# import math
 import cv2
 
 FMB_FILL_COLOR = (216, 216, 216)
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
-FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
+
+#FMB_MOUTH_OUTTER = (375, 291, 409, 270, 269, 267, 0, 37, 39, 40, 185, 61, 146, 91, 181, 84, 17, 314, 405, 321)
 
 try:
     from fcx_base import FcxBase
@@ -22,23 +22,37 @@ class FcxBeardGabor(FcxBase):
 
         img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region_wb)
 
-        img_beard_color_blur = cv2.blur(img_gabor_filtered, (5,5))
-        img_beard_gray = cv2.cvtColor(img_beard_color_blur, cv2.COLOR_BGR2GRAY)
+        img_beard_gabor_color_blur = cv2.blur(img_gabor_filtered, (5,5))
+        img_beard_gabor_gray = cv2.cvtColor(img_beard_gabor_color_blur, cv2.COLOR_BGR2GRAY)
+        #img_beard_gray = cv2.equalizeHist(img_beard_gray)
         
-        if cls._has_beard_at_keypoints(img_beard_gray, mesh_results):
-            _, img_beard_gray_th = cv2.threshold(img_beard_gray, 255-16, 255, cv2.THRESH_BINARY)
+        if cls._has_beard_at_keypoints(img_beard_gabor_gray, mesh_results):
+            _, img_beard_gray_th = cv2.threshold(img_beard_gabor_gray, 255-16, 255, cv2.THRESH_BINARY)
             img_beard_black = img_beard_gray_th
         else:
-            img_beard_black = np.zeros_like(img_beard_gray)
+            img_beard_black = np.zeros_like(img_beard_gabor_gray)
         img_beard_white = cv2.bitwise_not(img_beard_black)
 
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, img_beard_region,img_beard_region_wb, img_gabor_filtered, img_beard_gray, img_beard_black, img_beard_white],
-                                 names=["org", "flood", "whitebanlance", "gabor", "beard_gray", "black", "white"])            
+            PlotHelper.plot_imgs([image, img_beard_region,img_beard_region_wb, img_gabor_filtered, img_beard_gabor_gray, img_beard_black, img_beard_white],
+                                 names=["org", "flood", "whitebanlance", "gabor", "gabor_gray", "black", "white"])            
 
         print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
+
+    @classmethod
+    def _get_beard_avg_val(cls, img_beard_gray, pt):
+        try:
+            vals = []
+            pt_x, pt_y = pt
+            for x in [-2, 0, 2]:
+                for y in [-2, 0, 2]:
+                    vals.append(float(int(img_beard_gray[pt_y + x, pt_x + y])))
+            mean = np.array(vals).mean()
+        except:
+            mean = 255
+        return int(mean)
 
     @classmethod
     def _get_beard_vals_region(cls, img_beard_gray, face_landmarks, vts):
@@ -47,42 +61,41 @@ class FcxBeardGabor(FcxBase):
             pt = cls.get_vt_coord(img_beard_gray, face_landmarks, vt)
             if pt is None:
                 continue
-            pt_x, pt_y = pt
-            val = int(img_beard_gray[pt_y, pt_x])
+            val = cls._get_beard_avg_val(img_beard_gray, pt)
             beard_vals.append(val)
         return beard_vals
 
     @classmethod
-    def _has_beard_at_region(cls, bvals):
-        COLOR_HAS_BEARD = 255 - 16
+    def _has_beard_at_region(cls, bvals, mean_img):
+        #COLOR_HAS_BEARD = 255 - 4
+        COLOR_HAS_BEARD = mean_img - 4
         beard_cnt = 0
         for val in bvals:
-            if val < COLOR_HAS_BEARD:
+            if val <= COLOR_HAS_BEARD:
                 beard_cnt += 1
-        if beard_cnt >= 2:
-            return True
-        val_mean = np.array(bvals).mean()
-        if val_mean < COLOR_HAS_BEARD + 8:
+        if beard_cnt >= 1:
             return True
         return False
 
     @classmethod
-    def _has_beard_at_keypoints(cls, img_beard_gray, mesh_results):
+    def _has_beard_at_keypoints(cls, img_beard_gabor_gray, mesh_results):
         if mesh_results is None or mesh_results.multi_face_landmarks is None:
             return False 
 
         #vts = [165, 167, 164, 393, 391, 182, 18, 406, 200, 199]
         face_landmarks = mesh_results.multi_face_landmarks[0]
 
-        bvals_ur = cls._get_beard_vals_region(img_beard_gray, face_landmarks, [92, 165, 167])
-        bvals_ul = cls._get_beard_vals_region(img_beard_gray, face_landmarks, [393, 391, 322])
-        bvals_dr = cls._get_beard_vals_region(img_beard_gray, face_landmarks, [106, 182, 83])
-        bvals_dl = cls._get_beard_vals_region(img_beard_gray, face_landmarks, [313, 406, 335])
+        bvals_ur = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [92, 165, 167])
+        bvals_ul = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [393, 391, 322])
+        bvals_dr = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [106, 182, 83])
+        bvals_dl = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [313, 406, 335])
 
-        hb_ur = cls._has_beard_at_region(bvals_ur)
-        hb_ul = cls._has_beard_at_region(bvals_ul)
-        hb_dr = cls._has_beard_at_region(bvals_dr)
-        hb_dl = cls._has_beard_at_region(bvals_dl)
+        mean_img = img_beard_gabor_gray.mean()
+
+        hb_ur = cls._has_beard_at_region(bvals_ur, mean_img)
+        hb_ul = cls._has_beard_at_region(bvals_ul, mean_img)
+        hb_dr = cls._has_beard_at_region(bvals_dr, mean_img)
+        hb_dl = cls._has_beard_at_region(bvals_dl, mean_img)
 
         if hb_ur and hb_ul:
             return True
@@ -92,21 +105,40 @@ class FcxBeardGabor(FcxBase):
 
     @classmethod
     def _clean_region(cls, image, mesh_results):
-        image_flood = image.copy()
-        cls.flood_fill(image_flood, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
+        img_beard_color = image.copy()
+        cls.flood_fill(img_beard_color, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
   
-        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image, mesh_results)
-        img_beard_color = cv2.bitwise_and(image_flood, image_flood, mask = image_mouth_mask_inner)
-        cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
-
-        face_landmarks = mesh_results.multi_face_landmarks[0]
-        pt_nose = cls.get_vt_coord(image, face_landmarks, 4)
-        nose_y = pt_nose[1]
-        image_witdh = image.shape[1]
-        pts = [(0, 0), (image_witdh, 0), (image_witdh, nose_y), (0, nose_y)]
-        cv2.fillConvexPoly(img_beard_color, np.array(pts), FMB_FILL_COLOR)   
+        img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results)
+        img_beard_color = cls._clean_region_mouth_outter(img_beard_color, mesh_results)
+        img_beard_color = cls._clean_region_above_nose(img_beard_color, mesh_results)
 
         return img_beard_color
+
+    @classmethod
+    def _clean_region_mouth_inner(cls, image_color, mesh_results):
+        image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image_color, mesh_results)
+        img_beard_color = cv2.bitwise_and(image_color, image_color, mask = image_mouth_mask_inner)
+        cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=FMB_FILL_COLOR)
+        return img_beard_color
+
+    @classmethod
+    def _clean_region_mouth_outter(cls, image_color, mesh_results):
+        FMB_PX_ALTER = {"U": (0, 0), "R":(0.05, 0.03), "L":(-0.05, 0.03), "B":(0.0, 0.1)}
+        image_beard_mask_outter, pt_beard_mask_outter_seed = cls.get_beard_mask_outter(image_color, mesh_results, FMB_PX_ALTER)
+        img_beard_color = cv2.bitwise_and(image_color, image_color, mask = image_beard_mask_outter)
+        cls.flood_fill(img_beard_color, pt_seed=pt_beard_mask_outter_seed, color_fill=FMB_FILL_COLOR)
+        return img_beard_color
+
+    @classmethod
+    def _clean_region_above_nose(cls, image_color, mesh_results):
+        # clean up image above nose
+        face_landmarks = mesh_results.multi_face_landmarks[0]
+        pt_nose = cls.get_vt_coord(image_color, face_landmarks, 4)
+        nose_y = pt_nose[1]
+        image_witdh = image_color.shape[1]
+        pts = [(0, 0), (image_witdh, 0), (image_witdh, nose_y), (0, nose_y)]
+        cv2.fillConvexPoly(image_color, np.array(pts), FMB_FILL_COLOR)
+        return image_color 
 
     @classmethod
     def _filter_by_gabor_by_degree(cls, image, theta_pi=0.5):
