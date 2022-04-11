@@ -7,6 +7,7 @@ import cv2
 class ImgpHairMarker():
     hsi_klass = None 
     hsi_reference = 0
+    hsi_instance = None
 
     @classmethod
     def init_imgp(cls):
@@ -23,6 +24,7 @@ class ImgpHairMarker():
             from imgp_agent.tflite_hair_segmentation import hair_segmentation_interpeter
             cls.hsi_klass = hair_segmentation_interpeter.HairSegmentationInterpreter
             print("ImgpHairMarker inited")
+            cls.hsi_instance = cls.hsi_klass()
 
     @classmethod
     def close_imgp(cls):
@@ -30,6 +32,7 @@ class ImgpHairMarker():
         if cls.hsi_reference == 0:
             if cls.hsi_klass is not None:
                 cls.hsi_klass = None
+                cls.hsi_instance = None
             print("ImgpHairMarker closed")
 
     @classmethod
@@ -49,9 +52,8 @@ class ImgpHairMarker():
         if cls.hsi_klass is None:
             cls.init_imgp()
         
-        hsi = cls.hsi_klass()
         img_cv512 = cv2.resize(image, (512, 512))
-        hsi_result = hsi.process_img_cv512(img_cv512)
+        hsi_result = cls.hsi_instance.process_img_cv512(img_cv512)
         return hsi_result.mask_white_sharp, hsi_result
 
 

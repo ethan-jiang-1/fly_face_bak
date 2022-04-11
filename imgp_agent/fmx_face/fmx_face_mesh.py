@@ -11,7 +11,7 @@ class FmxFaceMesh():
         mp_drawing = mp.solutions.drawing_utils
         mp_drawing_styles = mp.solutions.drawing_styles
 
-        print("len(mesh_results.multi_face_landmarks)", len(mesh_results.multi_face_landmarks))
+        #print("len(mesh_results.multi_face_landmarks)", len(mesh_results.multi_face_landmarks))
         for face_landmarks in mesh_results.multi_face_landmarks:
             mp_drawing.draw_landmarks(
                 image=image,
@@ -31,5 +31,5 @@ class FmxFaceMesh():
                 connections=mp_face_mesh.FACEMESH_IRISES,
                 landmark_drawing_spec=None,
                 connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_iris_connections_style())
-        print(image.shape, image.dtype)
+        #print(image.shape, image.dtype)
         return image

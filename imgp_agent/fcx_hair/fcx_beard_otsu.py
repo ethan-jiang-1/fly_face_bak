@@ -32,7 +32,7 @@ class FcxBeardOtsu(FcxBase):
             from imgp_common import PlotHelper
             PlotHelper.plot_imgs([image_beard_mask_outter, image_mouth_mask_inner, img_beard_color0, img_beard_color, img_beard_white])            
 
-        print(img_beard_white.shape, img_beard_white.dtype)
+        #print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
 
     @classmethod

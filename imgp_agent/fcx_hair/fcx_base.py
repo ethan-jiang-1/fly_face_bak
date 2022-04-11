@@ -179,3 +179,10 @@ class FcxBase():
         img_blur = cv2.GaussianBlur(img_src, (0, 0), 5)
         img_usm = cv2.addWeighted(img_src, 1.5, img_blur, -0.5, 0)
         return img_usm
+
+    @classmethod
+    def ipc_normalize_color(cls, img_src):
+        dst = np.zeros_like(img_src)
+        cv2.normalize(img_src, dst, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)   
+        return dst
+

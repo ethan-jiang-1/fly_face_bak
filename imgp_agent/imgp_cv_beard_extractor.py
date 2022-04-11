@@ -30,17 +30,13 @@ class ImgpCvBeardExtractor():
 
     @classmethod
     def extract_beard(cls, img_aligned, img_selfie_mask, img_hair_black, mesh_results, debug=False):
-        if BER_MODE == "GABOR":
-            img_selfie_gray = cls._apply_gray_selfie_mask(img_aligned, img_selfie_mask)
-            img_selfie_without_hair = cls._remove_hair(img_selfie_gray, img_hair_black, mesh_results, smart=True, debug=debug) 
-            img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
+        img_selfie_gray = cls._apply_gray_selfie_mask(img_aligned, img_selfie_mask)
+        img_selfie_without_hair = cls._remove_hair(img_selfie_gray, img_hair_black, mesh_results, smart=True, debug=debug) 
+        img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
 
+        if BER_MODE == "GABOR":
             img_beard = cls._locate_beard_gabor(img_selfie_wb_no_hair, mesh_results, debug=debug)
         else:
-            img_selfie_gray = cls._apply_gray_selfie_mask(img_aligned, img_selfie_mask)
-            img_selfie_without_hair = cls._remove_hair(img_aligned, img_hair_black, mesh_results, smart=True, debug=debug) 
-            img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
-
             img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
 
         if img_beard is not None:
@@ -155,16 +151,17 @@ def do_exp_single():
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
+    filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
 
-    filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
+    #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
-    #filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
+    filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
     #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
     #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
 
@@ -177,5 +174,5 @@ def do_exp_single():
     del ffg   
 
 if __name__ == '__main__':
-    do_exp_folder()
-    #do_exp_single()
+    #do_exp_folder()
+    do_exp_single()
