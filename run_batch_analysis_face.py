@@ -80,8 +80,8 @@ def start_work():
     sg.theme('Light Blue 2')
     
     layout = [[sg.Text('功能说明：选择发型的根目录(如Version 1.2)，检查所有发型分类是否正确', text_color="blue")],
-              [sg.Button('OK'), sg.Button('Exit')],
-              [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='-Folder-', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
+              [sg.Button('OK'), sg.Button('Exit'), sg.Radio("头发", key = "radio_hair", group_id = 1, default=True), sg.Radio("胡子", key = "radio_beard", group_id = 1), sg.Radio("脸型", key = "radio_face", group_id = 1)],
+              [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='folder_browse', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
               [sg.Multiline('输出结果', key = "result", size=(56, 20))],
              ]
 
@@ -90,19 +90,24 @@ def start_work():
 
     while True:
         event, values = window.read()
-        print(f'Event: {event}')
+        print(f'Event: {event}, Values: {values}')
         
         if event == 'OK':
-            if (values[0] == ""):
+            check_hair = values["radio_hair"]
+            check_beard = values["radio_beard"]
+            check_face = values["radio_face"]
+            selected_folder = values["folder_browse"]
+        
+            if (selected_folder == ""):
                 window["result"].update("请选择目录")
-            elif (not os.path.exists(values[0])):
+            elif (not os.path.exists(selected_folder)):
                 window["result"].update("目录不存在，请重新选择")
             else:
                 window["result"].update("开始分析...")
                 sub_folder_list = []
-                sub_folders = sorted(os.listdir(values[0]))
+                sub_folders = sorted(os.listdir(selected_folder))
                 for sub_folder in sub_folders:
-                    if is_valid_folder(values[0], sub_folder):
+                    if is_valid_folder(selected_folder, sub_folder):
                         sub_folder_list.append(sub_folder)
                 
                 if len(sub_folder_list) == 0:
@@ -112,10 +117,10 @@ def start_work():
                 result_list_all = []
                 result_list_err = []
                 for sub_folder in sub_folder_list:
-                    if not is_valid_folder(values[0], sub_folder):
+                    if not is_valid_folder(selected_folder, sub_folder):
                         continue
                 
-                    sub_folder_full_path = "{}/{}".format(values[0], sub_folder)
+                    sub_folder_full_path = "{}/{}".format(selected_folder, sub_folder)
                     if os.path.isdir(sub_folder_full_path):
                         file_list = sorted(os.listdir(sub_folder_full_path))
                         for file in file_list:
@@ -128,8 +133,15 @@ def start_work():
                             result_list_all.append("file: {}, sub_folder: {}, hair: {}, face: {}, beard: {}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id))
                             
                             hair_id_format = "{:02d}".format(smp_ret.hair_id)
-                            if (hair_id_format != sub_folder):
-                                result_list_err.append("file: {}, sub_folder: {}, hair: {:02d}, face: {:02d}, beard: {:02d}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id))
+                            beard_id_format = "{:02d}".format(smp_ret.beard_id)
+                            face_id_format = "{:02d}".format(smp_ret.face_id)
+                            
+                            hair_style_error = check_hair == True and hair_id_format != sub_folder
+                            beard_style_error = check_beard == True and beard_id_format != sub_folder
+                            face_style_error = check_face == True and face_id_format != sub_folder
+                            
+                            if hair_style_error or beard_style_error or face_style_error:
+                                result_list_err.append("file: {}, sub_folder: {}, hair: {}, beard: {}, face: {}".format(file, sub_folder, hair_id_format, beard_id_format, face_id_format))
 
                 print("----all list----")
                 for index, line in enumerate(result_list_all):
@@ -147,10 +159,8 @@ def start_work():
                     window["result"].update("扫描完毕，未发现类型不匹配")
         elif event in (None, 'Exit'):
             break
-        print(str(values))
         
     window.close()
-    print(f'You clicked {event}')
 
 def is_valid_folder(folder_path, folder_name):
     folder_name = str(folder_name)
