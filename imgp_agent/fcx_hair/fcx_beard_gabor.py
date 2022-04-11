@@ -1,8 +1,9 @@
 import numpy as np
 import cv2
 
-FMB_FILL_COLOR = (216, 216, 216)
+FMB_FILL_COLOR = (192, 192, 192)
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
+FMB_ENTOPY_FILL_VAL = 192
 
 try:
     from fcx_base import FcxBase
@@ -17,19 +18,20 @@ class FcxBeardGabor(FcxBase):
             
         img_beard_region = cls._clean_region(image, mesh_results)
         img_beard_region_wb = cls.ipc_white_balance_color(img_beard_region)
-        #img_beard_region_eh = cls.ipc_equalizeHist_color(img_beard_region)
-        img_beard_region_sp = cls.ipc_sharpen_color(img_beard_region_wb)
+        img_beard_region_et = cls._get_entopy_masked(img_beard_region_wb, disk_num=6)
+        img_beard_region_sp = cls.ipc_sharpen_color(img_beard_region_et)
 
         img_gabor_filtered = cls._filter_by_gabor_filter(img_beard_region_sp)
-        img_gabor_filtered_no_mouth = cls._clean_region_mouth_inner(img_gabor_filtered, mesh_results, color_fill=(255,255,255))
+        img_gabor_filtered_no_mouth = cls._clean_region_mouth_inner(img_gabor_filtered, mesh_results, color_fill=(255,255,255), mode="enlarger")
 
-        img_beard_gabor_color_blur = cv2.blur(img_gabor_filtered_no_mouth, (3, 3))
-        img_beard_gabor_gray = cv2.cvtColor(img_beard_gabor_color_blur, cv2.COLOR_BGR2GRAY)
+        img_beard_gabor_color = cv2.blur(img_gabor_filtered_no_mouth, (3, 3))
+        img_beard_gabor_gray = cv2.cvtColor(img_beard_gabor_color, cv2.COLOR_BGR2GRAY)
         
         img_box_mouth = cls._get_box_img_around_mouth(img_beard_gabor_gray, mesh_results)
         has_beard, val_has_beard = cls._has_beard_at_keypoints(img_beard_gabor_gray, mesh_results, img_box_mouth)
         if has_beard:
             _, img_beard_gray_th = cv2.threshold(img_beard_gabor_gray, val_has_beard, 255, cv2.THRESH_BINARY)
+            #_, img_beard_gray_th = cv2.threshold(img_beard_gabor_gray, 32, 255, cv2.THRESH_BINARY)
             img_beard_black = img_beard_gray_th
         else:
             img_beard_black = np.zeros_like(img_beard_gabor_gray)
@@ -37,8 +39,8 @@ class FcxBeardGabor(FcxBase):
 
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, img_beard_region,img_beard_region_sp, img_gabor_filtered, img_beard_gabor_gray, img_box_mouth, img_beard_black, img_beard_white],
-                                 names=["org", "flood", "sharpen", "gabor", "gabor_gray", "gabor_box", "black", "white"])            
+            PlotHelper.plot_imgs([image, img_beard_region, img_beard_region_et, img_beard_region_sp, img_gabor_filtered, img_beard_gabor_gray, img_box_mouth, img_beard_black, img_beard_white],
+                                 names=["org", "flood", "entopy", "sharpen", "gabor", "gabor_gray", "gabor_box", "black", "white"])            
 
         print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
@@ -103,8 +105,14 @@ class FcxBeardGabor(FcxBase):
         face_landmarks = mesh_results.multi_face_landmarks[0]
 
         mean_img = img_box_mouth.mean()
+        val_has_beard = int((255 + mean_img) / 2)
+        if val_has_beard > 255 - 2:
+            val_has_beard = 255 - 2
+
         if mean_img > 255 - 1:
             return False, 0
+        if mean_img < 245:
+            return True, val_has_beard
 
         bvals_ur = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [92, 165, 167])
         bvals_ul = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [393, 391, 322])
@@ -112,10 +120,6 @@ class FcxBeardGabor(FcxBase):
         bvals_ml = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [313, 406, 335])
         bvals_br = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [211, 38, 208])
         bvals_bl = cls._get_beard_vals_region(img_beard_gabor_gray, face_landmarks, [428, 262, 431])
-
-        val_has_beard = int((255 + mean_img) / 2)
-        if val_has_beard > 255 - 2:
-            val_has_beard = 255 - 2
 
         hb_ur = cls._has_beard_at_region(bvals_ur, val_has_beard)
         hb_ul = cls._has_beard_at_region(bvals_ul, val_has_beard)
@@ -136,15 +140,20 @@ class FcxBeardGabor(FcxBase):
         img_beard_color = image.copy()
         cls.flood_fill(img_beard_color, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
   
-        #img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results)
+        img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results, mode="fit")
         img_beard_color = cls._clean_region_mouth_outter(img_beard_color, mesh_results)
         img_beard_color = cls._clean_region_above_nose(img_beard_color, mesh_results)
 
         return img_beard_color
 
     @classmethod
-    def _clean_region_mouth_inner(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR):
-        FMB_PX_ALTER = {"U": (0.00, -0.015), "R":(0.015, 0.015), "L":(-0.015, -0.015), "B":(0.00, 0.015)}
+    def _clean_region_mouth_inner(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR, mode="fit"):
+        if mode == "fit":
+            FMB_PX_ALTER = {"U": (0.00, -0.004), "R":(0.004, 0.004), "L":(-0.004, -0.004), "B":(0.00, 0.004)}
+        elif mode == "enlarger":
+            FMB_PX_ALTER = {"U": (0.00, -0.012), "R":(0.010, 0.010), "L":(-0.010, -0.010), "B":(0.00, 0.016)}
+        else:
+            FMB_PX_ALTER = {"U": (0.00, -0.000), "R":(0.008, 0.000), "L":(-0.008, -0.000), "B":(0.00, 0.000)}
         image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image_color, mesh_results, FMB_PX_ALTER)
         img_beard_color = cv2.bitwise_and(image_color, image_color, mask = image_mouth_mask_inner)
         cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=color_fill)
@@ -199,14 +208,14 @@ class FcxBeardGabor(FcxBase):
     def _filter_by_gabor_filter(cls, image):
         img_accum_1 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=5)
         img_accum_2 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=7)
-        #img_accum_3 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=8)
-        #img_accum_4 = cls._filter_by_gabor_by_degree(image, theta_pi=0.75)
+        img_accum_3 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5+0.02, lamda_div=2.0, ksize=5)
+        img_accum_4 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5-0.02, lamda_div=2.0, ksize=5)
 
         img_accum = np.zeros(image.shape, dtype=np.float32)
         img_accum = img_accum_1.astype('float32')
         img_accum += img_accum_2.astype('float32')
-        #img_accum += img_accum_3.astype('float32')
-        #img_accum += img_accum_4.astype('float32')
+        img_accum += img_accum_3.astype('float32')
+        img_accum += img_accum_4.astype('float32')
         
         img_accum -= img_accum.min()
         img_accum /= img_accum.max()
@@ -218,4 +227,29 @@ class FcxBeardGabor(FcxBase):
         #img_dst = np.zeros_like(img_accum_uint8)
         #cv2.normalize(img_accum_uint8, img_dst, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
         return img_dst
+
+    @classmethod
+    def _get_entopy_masked(cls, img_org, disk_num=8, th_val=FMB_ENTOPY_FILL_VAL, fill_gray=FMB_ENTOPY_FILL_VAL):
+        from skimage.filters.rank import entropy
+        from skimage.morphology import disk
+
+        img_gray = cv2.cvtColor(img_org, cv2.COLOR_BGR2GRAY)
+
+        img_entr = entropy(img_gray, disk(disk_num))
+
+        img_mask = img_entr.copy()
+        img_mask -= img_mask.min()
+        img_mask /= img_mask.max()
+        img_mask *= 255
+
+        img_mask_u8 = img_mask.astype(np.uint8)
+        _, img_mask_u8 = cv2.threshold(img_mask_u8, th_val, 255, cv2.THRESH_BINARY)
+
+        img_mask_mono = img_mask_u8.copy()
+        img_mask_mono[np.where(img_mask_mono[:,:] == 0)] = fill_gray
+    
+        img_masked_filled = cv2.bitwise_and(img_org, img_org, mask = img_mask_u8)   
+        img_mask_color = cv2.cvtColor(img_mask_mono, cv2.COLOR_GRAY2RGB)
+        img_masked_filled += img_mask_color
+        return img_masked_filled
 

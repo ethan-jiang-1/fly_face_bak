@@ -155,11 +155,17 @@ def do_exp_single():
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
-    #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
+
+    filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
+    #filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
-    filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
+    #filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
+    #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
     #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
 
     full_path = parent_dir + os.sep + filename
