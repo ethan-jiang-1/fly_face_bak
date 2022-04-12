@@ -120,19 +120,22 @@ class ImgpCvBeardExtractor():
         from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
         return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
-def do_exp_folder():
-    dir_this = os.path.dirname(__file__)
-    if dir_this not in sys.path:
-        sys.path.append(dir_this)
-
+def do_exp_folder(src_dir=None):
     from face_feature_generator import FaceFeatureGenerator
     from imgp_common import FileHelper
 
-    ffg = FaceFeatureGenerator()
-
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
-    #src_dir = os.sep.join([parent_dir, "dataset_org_beard_styles", "Beard Version 1.1", "03"])    
+
+    if src_dir is None:
+        #src_dir = "/Users/bowhead/prj_fly_face/dataset_org_beard_styles/Beard Version 1.1/01"
+        #src_dir = "/Users/bowhead/prj_fly_face/dataset_org_beard_styles/Beard Version 1.1/02"
+        #src_dir = "/Users/bowhead/prj_fly_face/dataset_org_beard_styles/Beard Version 1.1/03"
+        src_dir = "utils_inspect/_sample_imgs"
+    
+    if not src_dir.startswith("/"):
+        src_dir = parent_dir + "/" + src_dir
+
+    ffg = FaceFeatureGenerator()
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
@@ -142,42 +145,46 @@ def do_exp_folder():
 
     del ffg
 
-def do_exp_single():
+def do_exp_single(filename=None):
     from face_feature_generator import FaceFeatureGenerator
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_002.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_003.jpg"
-    filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_004.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_005.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_006.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_007.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
-    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
+    if filename is None:
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
-    #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
-    #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
-    #filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
-    #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
-    #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
-    #filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
-    #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
-    #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_002.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_003.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_004.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_005.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_006.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_007.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
+        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
 
-    full_path = parent_dir + os.sep + filename
+        #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
+        #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
+        #filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
+        #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
+        #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
+        #filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
+        #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
+        #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
+        filename = "utils_inspect/_sample_imgs/ctn_cartoon1.jpeg"
+
+    if not filename.startswith("/"):
+        filename = parent_dir + os.sep + filename
 
     ffg = FaceFeatureGenerator(debug=True)
 
-    ffg.show_results(full_path) 
+    ffg.show_results(filename) 
 
     del ffg   
 

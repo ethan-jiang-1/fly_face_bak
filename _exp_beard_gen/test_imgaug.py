@@ -3,11 +3,12 @@ import os
 import numpy as np
 from imgaug import augmenters as iaa
 
-sometimes = lambda aug: iaa.Sometimes(0.5, aug) #建立lambda表达式，
-                                                #这里定义sometimes意味有时候做的操作
-                                                # 实际上在深度学习的模型训练中，数据增强不能喧宾夺主，
-                                                # 如果对每一张图片都加入高斯模糊的话实际上是毁坏了原来数据的特征，
-                                                # 因此，我们需要“有时候”做，给这个操作加一个概率。
+sometimes = lambda aug: iaa.Sometimes(0.5, aug)  # noqa:E731 
+# 建立lambda表达式，
+# 这里定义sometimes意味有时候做的操作
+# 实际上在深度学习的模型训练中，数据增强不能喧宾夺主，
+# 如果对每一张图片都加入高斯模糊的话实际上是毁坏了原来数据的特征，
+# 因此，我们需要“有时候”做，给这个操作加一个概率。
 
 # 定义一组变换方法.
 seq = iaa.Sequential([

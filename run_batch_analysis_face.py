@@ -136,9 +136,9 @@ def start_work():
                             beard_id_format = "{:02d}".format(smp_ret.beard_id)
                             face_id_format = "{:02d}".format(smp_ret.face_id)
                             
-                            hair_style_error = check_hair == True and hair_id_format != sub_folder
-                            beard_style_error = check_beard == True and beard_id_format != sub_folder
-                            face_style_error = check_face == True and face_id_format != sub_folder
+                            hair_style_error = (check_hair == True and hair_id_format != sub_folder)  # noqa:E712
+                            beard_style_error = (check_beard == True and beard_id_format != sub_folder)  # noqa:E712
+                            face_style_error = (check_face == True and face_id_format != sub_folder)  # noqa:E712
                             
                             if hair_style_error or beard_style_error or face_style_error:
                                 result_list_err.append("file: {}, sub_folder: {}, hair: {}, beard: {}, face: {}".format(file, sub_folder, hair_id_format, beard_id_format, face_id_format))

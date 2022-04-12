@@ -22,9 +22,10 @@ class FcxBeardGabor(FcxBase):
 
         img_entopy_filtered = cls._get_entopy_filtered(img_bread_region_nm, mesh_results)
         img_gabor_filtered = cls._get_gabor_filtered(img_entopy_filtered, mesh_results)
+        img_combine_result = cls._clean_region_mouth_inner(img_gabor_filtered, mesh_results, color_fill=(255,255,255), mode="none")
 
-        img_combine_filtered_blur = cv2.blur(img_gabor_filtered, (3, 3))
-        img_combine_gray = cv2.cvtColor(img_combine_filtered_blur, cv2.COLOR_BGR2GRAY)
+        img_combine_result_blur = cv2.blur(img_combine_result, (3, 3))
+        img_combine_gray = cv2.cvtColor(img_combine_result_blur, cv2.COLOR_BGR2GRAY)
         
         img_box_mouth = cls._get_box_img_around_mouth(img_combine_gray, mesh_results)
         has_beard, val_has_beard = cls._has_beard_at_keypoints(img_combine_gray, mesh_results, img_box_mouth)
@@ -38,8 +39,8 @@ class FcxBeardGabor(FcxBase):
 
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, img_beard_region, img_bread_region_nm, img_entopy_filtered, img_gabor_filtered, img_box_mouth, img_beard_black, img_beard_white],
-                                 names=["org", "region", "normalized", "entopy", "gabor", "box", "black", "white"])            
+            PlotHelper.plot_imgs([image, img_beard_region, img_bread_region_nm, img_entopy_filtered, img_gabor_filtered, img_combine_result, img_box_mouth, img_beard_black, img_beard_white],
+                                 names=["org", "region", "normalized", "entopy", "gabor", "result", "box", "black", "white"])            
 
         #print(img_beard_white.shape, img_beard_white.dtype)
         return img_beard_white
@@ -152,8 +153,8 @@ class FcxBeardGabor(FcxBase):
         img_beard_color = image.copy()
         cls.flood_fill(img_beard_color, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
   
-        img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results, mode="fit")
-        img_beard_color = cls._clean_region_mouth_outter(img_beard_color, mesh_results, mode="enlarger")
+        #img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results, mode="fit")
+        img_beard_color = cls._clean_region_beard_outter(img_beard_color, mesh_results, mode="enlarger")
         img_beard_color = cls._clean_region_above_nose(img_beard_color, mesh_results)
 
         return img_beard_color
@@ -161,7 +162,7 @@ class FcxBeardGabor(FcxBase):
     @classmethod
     def _clean_region_mouth_inner(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR, mode="fit"):
         if mode == "fit":
-            FMB_PX_ALTER = {"U": (0.00, -0.002), "R":(0.004, 0.004), "L":(-0.004, -0.004), "B":(0.00, 0.004)}
+            FMB_PX_ALTER = {"U": (0.00, -0.000), "R":(0.002, 0.002), "L":(-0.002, -0.002), "B":(0.00, 0.002)}
         elif mode == "enlarger":
             FMB_PX_ALTER = {"U": (0.00, -0.004), "R":(0.008, 0.008), "L":(-0.008, -0.008), "B":(0.00, 0.016)}
         else:
@@ -172,7 +173,7 @@ class FcxBeardGabor(FcxBase):
         return img_beard_color
 
     @classmethod
-    def _clean_region_mouth_outter(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR, mode="fit"):
+    def _clean_region_beard_outter(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR, mode="fit"):
         if mode == "fit":
             FMB_PX_ALTER = {"U": (0.00, -0.002), "R":(0.004, 0.004), "L":(-0.004, -0.004), "B":(0.00, 0.004)}
         elif mode == "enlarger":
