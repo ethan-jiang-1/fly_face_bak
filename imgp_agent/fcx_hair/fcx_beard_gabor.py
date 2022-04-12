@@ -240,11 +240,11 @@ class FcxBeardGabor(FcxBase):
     @classmethod
     def _filter_by_gabor_filter(cls, image):
         img_accum_1 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=5)
-        img_accum_2 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=7)
+        #img_accum_2 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5, lamda_div=2.0, ksize=7)
         #img_accum_3 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5+0.02, lamda_div=2.0, ksize=5)
         #img_accum_4 = cls._filter_by_gabor_by_degree(image, theta_pi=0.5-0.02, lamda_div=2.0, ksize=5)
 
-        img_accum_uint8 = cls._combine_all_imgs([img_accum_1, img_accum_2]) # , img_accum_4])
+        img_accum_uint8 = cls._combine_all_imgs([img_accum_1]) # , img_accum_2]) # , img_accum_4])
         img_dst = cls.ipc_sharpen_color(img_accum_uint8)
 
         #img_dst = np.zeros_like(img_accum_uint8)
@@ -280,10 +280,10 @@ class FcxBeardGabor(FcxBase):
     def _get_entopy_masked(cls, img_org):
         #img_et1 = cls._get_entopy_masked_core(img_org, disk_num=1)
         img_et2 = cls._get_entopy_masked_core(img_org, disk_num=2)
-        img_et4 = cls._get_entopy_masked_core(img_org, disk_num=4)
-        img_et8 = cls._get_entopy_masked_core(img_org, disk_num=8)
+        #img_et4 = cls._get_entopy_masked_core(img_org, disk_num=4)
+        #img_et8 = cls._get_entopy_masked_core(img_org, disk_num=8)
 
-        img_accum_uint8 = cls._combine_all_imgs([img_et2, img_et4, img_et8])
+        img_accum_uint8 = cls._combine_all_imgs([img_et2]) # , img_et4, img_et8])
         #img_accum_uint8 = cls.ipc_sharpen_color(img_accum_uint8)
         return img_accum_uint8
 
