@@ -5,6 +5,10 @@ FMB_FILL_COLOR = (192, 192, 192)
 FMB_SELFIE_FILL_COLOR = (192, 192, 192)
 FMB_ENTOPY_FILL_VAL = 192
 
+BBOX_ARONUD_MOUTH = (206, 410)
+BBOX_ARONUD_BEARD = (137, 365)
+
+
 try:
     from fcx_base import FcxBase
 except:
@@ -27,23 +31,18 @@ class FcxBeardGabor(FcxBase):
         img_combine_result_blur = cv2.blur(img_combine_result, (3, 3))
         img_combine_gray = cv2.cvtColor(img_combine_result_blur, cv2.COLOR_BGR2GRAY)
         
-        img_box_mouth = cls._get_box_img_around_mouth(img_combine_gray, mesh_results)
+        img_box_mouth = cls._get_bbox_img_by_vetices(img_combine_gray, mesh_results)
         has_beard, val_has_beard = cls._has_beard_at_keypoints(img_combine_gray, mesh_results, img_box_mouth)
-        if has_beard:
-            _, img_beard_gray_th = cv2.threshold(img_combine_gray, val_has_beard, 255, cv2.THRESH_BINARY)
-            #_, img_beard_gray_th = cv2.threshold(img_beard_gabor_gray, 32, 255, cv2.THRESH_BINARY)
-            img_beard_black = img_beard_gray_th
-        else:
-            img_beard_black = np.zeros_like(img_combine_gray)
-        img_beard_white = cv2.bitwise_not(img_beard_black)
-
+        img_beard_gray = cls._encode_beard_gray(img_combine_gray, has_beard, val_has_beard)
+        #img_beard_gray_bbox = cls._get_beard_gray_box(img_beard_gray, mesh_results)
+ 
         if debug:
             from imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, img_beard_region, img_bread_region_nm, img_entopy_filtered, img_gabor_filtered, img_combine_result, img_box_mouth, img_beard_black, img_beard_white],
-                                 names=["org", "region", "normalized", "entopy", "gabor", "result", "box", "black", "white"])            
+            PlotHelper.plot_imgs([image, img_beard_region, img_bread_region_nm, img_entopy_filtered, img_gabor_filtered, img_combine_result, img_box_mouth, img_beard_gray], # , img_beard_gray_bbox],
+                                 names=["org", "region", "normalized", "entopy", "gabor", "result", "mubox", "result", "result_bbox"])            
 
         #print(img_beard_white.shape, img_beard_white.dtype)
-        return img_beard_white
+        return img_beard_gray
 
     @classmethod
     def _get_entopy_filtered(cls, img_color, mesh_results):
@@ -93,21 +92,25 @@ class FcxBeardGabor(FcxBase):
         return False
 
     @classmethod
-    def _get_box_img_around_mouth(cls, img_beard_gabor_gray, mesh_results):
-        image_width, image_height = img_beard_gabor_gray.shape[0],  img_beard_gabor_gray.shape[1]
-        num_vt1 = 206
-        num_vt2 = 410  # 378
+    def _get_bbox_img_by_vetices(cls, img_beard_gray, mesh_results, vts=BBOX_ARONUD_MOUTH, extend_pt1=(0.0, 0.0), extend_pt2=(0.0,0.0)):
+        image_width, image_height = img_beard_gray.shape[0],  img_beard_gray.shape[1]
+        num_vt1 = vts[0]
+        num_vt2 = vts[1]  # 378
 
         face_landmarks = mesh_results.multi_face_landmarks[0]
         llm = face_landmarks.landmark
 
         rx1, ry1= llm[num_vt1].x, llm[num_vt1].y,
+        rx1 += extend_pt1[0]
+        ry1 += extend_pt1[1]
         px1, py1 = cls.normalized_to_pixel_coordinates(rx1, ry1,  image_width, image_height) 
 
         rx2, ry2= llm[num_vt2].x, llm[num_vt2].y,
+        rx2 += extend_pt2[0]
+        ry2 += extend_pt2[1]
         px2, py2 = cls.normalized_to_pixel_coordinates(rx2, ry2,  image_width, image_height) 
 
-        img_mouth = img_beard_gabor_gray[py1:py2, px1:px2]
+        img_mouth = img_beard_gray[py1:py2, px1:px2]
         return img_mouth
 
     @classmethod
@@ -287,4 +290,27 @@ class FcxBeardGabor(FcxBase):
         #img_accum_uint8 = cls.ipc_sharpen_color(img_accum_uint8)
         return img_accum_uint8
 
+    @classmethod
+    def _encode_beard_gray(cls, img_combine_gray, has_beard, val_has_beard):
+        img_gray_float = img_combine_gray.astype('float32')
+        img_gray_float -= img_gray_float.min()
+        img_gray_float /= img_gray_float.max()
 
+        if not has_beard:
+            img_gray_float += 3 * img_gray_float.max()
+            img_gray_float *= 255 / 4
+        else:
+            img_gray_float *= 255
+
+        img_gray_uint8 = img_gray_float.astype("uint8")
+        return img_gray_uint8
+
+    @classmethod
+    def _get_beard_gray_box(cls, img_beard_gray, mesh_results):
+        extend_pt1 = (-0.02, 0.0)
+        extend_pt2 = (0.08, 0.10)
+        img_bbox_gray = cls._get_bbox_img_by_vetices(img_beard_gray, mesh_results, vts=BBOX_ARONUD_BEARD, extend_pt1=extend_pt1, extend_pt2=extend_pt2)
+        img_resized = cv2.resize(img_bbox_gray.copy(), (512, 512))
+        return img_resized
+
+        

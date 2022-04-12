@@ -43,9 +43,6 @@ class ImgpCvBeardExtractor():
         else:
             raise ValueError("BER_MODE: {} not supported".format(BER_MODE))
 
-        if img_beard is not None:
-            if img_beard.max() == img_beard.min():
-                img_beard[:] = (0)
         ber_result = BER_RESULT(img_beard=img_beard)
         dt = datetime.now() - d0 
         print("inference time(eb) :{:.3f}".format(dt.total_seconds()))
