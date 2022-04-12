@@ -2,6 +2,7 @@ import os
 import sys 
 import cv2
 import numpy as np
+from datetime import datetime
 from collections import namedtuple
 
 dir_this = os.path.dirname(__file__)
@@ -30,6 +31,7 @@ class ImgpCvBeardExtractor():
 
     @classmethod
     def extract_beard(cls, img_aligned, img_selfie_mask, img_hair_black, mesh_results, debug=False):
+        d0 = datetime.now()
         img_selfie_gray = cls._apply_gray_selfie_mask(img_aligned, img_selfie_mask)
         img_selfie_without_hair = cls._remove_hair(img_selfie_gray, img_hair_black, mesh_results, smart=True, debug=debug) 
         img_selfie_wb_no_hair = cls._white_balance_face(img_selfie_without_hair, debug=debug) 
@@ -45,6 +47,9 @@ class ImgpCvBeardExtractor():
             if img_beard.max() == img_beard.min():
                 img_beard[:] = (0)
         ber_result = BER_RESULT(img_beard=img_beard)
+        dt = datetime.now() - d0 
+        print("inference time(eb) :{:.3f}".format(dt.total_seconds()))
+
         return img_beard, ber_result
 
     @classmethod

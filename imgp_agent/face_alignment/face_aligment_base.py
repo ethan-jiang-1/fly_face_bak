@@ -52,11 +52,11 @@ class ImgTransformAgent():
         if left_eye_y > right_eye_y:
             point_3rd = (right_eye_x, left_eye_y)
             direction = -1 # rotate same direction to clock
-            print("rotate to clock direction")
+            #print("rotate to clock direction")
         else:
             point_3rd = (left_eye_x, right_eye_y)
             direction = 1 # rotate inverse direction of clock
-            print("rotate to inverse clock direction")
+            #print("rotate to inverse clock direction")
         
         da = euclidean_distance(left_eye_center, point_3rd)
         db = euclidean_distance(right_eye_center, point_3rd)
@@ -223,10 +223,11 @@ class ImgTransformAgent():
 
         y0, yh = x0, xw 
         img_square_distance = img_square[y0:y0+yh, x0:x0+xw]
-        print("img_square_distance.shape", img_square_distance.shape)
-
         img_square_unified = cv2.resize(img_square_distance.copy(), (FA_IMG_SIZE, FA_IMG_SIZE))
-        print("img_square_resized.shape", img_square_unified.shape)
+
+        if debug:
+            print("img_square_distance.shape", img_square_distance.shape)
+            print("img_square_resized.shape", img_square_unified.shape)
 
         return img_square_unified
 
@@ -238,14 +239,15 @@ class ImgTransformAgent():
         center_of_eyes = (int(center_crop[0] + bbox_crop[0]), int(center_crop[1] + bbox_crop[1]))
         angle = fti.direction * fti.angle
         img_rotated_aligned_eye = cls._rotate_to_align_center(img_org, angle, center=center_of_eyes)
-        print('img_rotated_aligned_eye.shape', img_rotated_aligned_eye.shape)
 
         img_moved_rotated_center = cls._move_eye_to_center(img_rotated_aligned_eye, center_of_eyes, debug=debug)  
-        print("img_moved_rotated_center.shape", img_moved_rotated_center.shape)
 
         distance_of_eyes = fti.distance_of_eyes
         img_unified = cls._unifiy_aligned_img(img_moved_rotated_center, distance_of_eyes, debug=debug)  
-        print("img_unified.shape", img_unified.shape)
+        if debug:
+            print('img_rotated_aligned_eye.shape', img_rotated_aligned_eye.shape)
+            print("img_moved_rotated_center.shape", img_moved_rotated_center.shape)
+            print("img_unified.shape", img_unified.shape)
 
         return img_unified
         
@@ -298,7 +300,7 @@ class FaceAligmentBase(ABC):
         img_ratoted_unified = ImgTransformAgent.transfer_to_img_unified(img_raw_center, fti, debug=self.debug)
 
         dt = dt=datetime.now() - d0
-        print("inference time: {:.3f}".format(dt.total_seconds()))
+        print("inference time(af): {:.3f}".format(dt.total_seconds()))
         return FA_RESULT(img_org=img_org, 
                          img_name=img_name, 
                          img_face=img_crop, 

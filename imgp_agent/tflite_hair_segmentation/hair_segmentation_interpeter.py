@@ -101,7 +101,7 @@ class HairSegmentationInterpreter(object):
 
         d1 = datetime.now()
         dt = d1 - d0
-        print("inference time: {:.3f}sec for {}".format(dt.total_seconds(), img_name))
+        #print("inference time(hsi): {:.3f}".format(dt.total_seconds()))
         return img_unified, mask_white, mask_black, dt
 
     def process_img_cv512(self, img_cv512, img_name=None):

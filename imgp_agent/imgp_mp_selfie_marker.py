@@ -52,8 +52,7 @@ class ImgpSelfieMarker():
         slt_selfie.reset()
         results = slt_selfie.process(image)
         dt = datetime.now() - d0
-        if debug:
-            print("inference time {:.3f}".format(dt.total_seconds()))
+        print("inference time(sf) :{:.3f}".format(dt.total_seconds()))
 
         # Draw the face mesh annotations on the image.
         image.flags.writeable = True

@@ -3,6 +3,7 @@
 import os
 import sys
 import cv2
+from datetime import datetime
 
 class ImgpHairMarker():
     hsi_klass = None 
@@ -52,8 +53,11 @@ class ImgpHairMarker():
         if cls.hsi_klass is None:
             cls.init_imgp()
         
+        d0 = datetime.now()
         img_cv512 = cv2.resize(image, (512, 512))
         hsi_result = cls.hsi_instance.process_img_cv512(img_cv512)
+        dt = datetime.now() - d0
+        print("inference time(hm) :{:.3f}".format(dt.total_seconds()))
         return hsi_result.mask_white_sharp, hsi_result
 
 
