@@ -4,6 +4,7 @@ import os
 import cv2
 from imgp_agent.face_feature_generator import FaceFeatureGenerator
 from imgp_agent.imgp_common import FileHelper, PlotHelper
+from datetime import datetime
 
 
 def _plot_all_imgs_by_range(all_hair_imgs, col_size=10):
@@ -57,12 +58,16 @@ def do_extract_beardstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
         if len(filenames) == 0:
             log_colorstr("red", "no files find in {}".format(src_dir))
             
-        #print(filenames)
+        d0 = datetime.now()
+
         filenames = sorted(filenames)
         for filename in filenames:
             img = ffg.process_image_for(filename, "beard")
             title = os.path.basename(filename)
             beard_imgs.append((title, img))
+
+        dt = datetime.now() - d0
+        log_colorstr("yellow", "total inference time: {:.3f}sec for {} imags, average time {:.3f}sec/image".format(dt.total_seconds(), len(filenames), dt.total_seconds()/len(filenames)))
 
     if save_img:                    
         _save_all_imgs(all_beard_imgs, dst_dir)
