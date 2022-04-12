@@ -48,8 +48,8 @@ class FcxBeardGabor(FcxBase):
     def _get_entopy_filtered(cls, img_color, mesh_results):
         img_color_et = cls._get_entopy_masked(img_color)
         img_color_et_sp = cls.ipc_sharpen_color(img_color_et)  
-        img_color_sp_nom = cls._clean_region_mouth_inner(img_color_et_sp, mesh_results, color_fill=(255,255,255), mode="enlarger")
-        return img_color_sp_nom    
+        #img_color_sp_nom = cls._clean_region_mouth_inner(img_color_et_sp, mesh_results, color_fill=(255,255,255), mode="enlarger")
+        return img_color_et_sp    
 
     @classmethod
     def _get_gabor_filtered(cls, img_color, mesh_results):
@@ -95,7 +95,7 @@ class FcxBeardGabor(FcxBase):
     def _get_box_img_around_mouth(cls, img_beard_gabor_gray, mesh_results):
         image_width, image_height = img_beard_gabor_gray.shape[0],  img_beard_gabor_gray.shape[1]
         num_vt1 = 206
-        num_vt2 = 378
+        num_vt2 = 410  # 378
 
         face_landmarks = mesh_results.multi_face_landmarks[0]
         llm = face_landmarks.landmark
@@ -153,7 +153,7 @@ class FcxBeardGabor(FcxBase):
         cls.flood_fill(img_beard_color, pt_seed=(0,0), color_fill=FMB_SELFIE_FILL_COLOR)
   
         img_beard_color = cls._clean_region_mouth_inner(img_beard_color, mesh_results, mode="fit")
-        img_beard_color = cls._clean_region_mouth_outter(img_beard_color, mesh_results)
+        img_beard_color = cls._clean_region_mouth_outter(img_beard_color, mesh_results, mode="enlarger")
         img_beard_color = cls._clean_region_above_nose(img_beard_color, mesh_results)
 
         return img_beard_color
@@ -161,22 +161,28 @@ class FcxBeardGabor(FcxBase):
     @classmethod
     def _clean_region_mouth_inner(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR, mode="fit"):
         if mode == "fit":
-            FMB_PX_ALTER = {"U": (0.00, -0.004), "R":(0.004, 0.004), "L":(-0.004, -0.004), "B":(0.00, 0.004)}
+            FMB_PX_ALTER = {"U": (0.00, -0.002), "R":(0.004, 0.004), "L":(-0.004, -0.004), "B":(0.00, 0.004)}
         elif mode == "enlarger":
-            FMB_PX_ALTER = {"U": (0.00, -0.012), "R":(0.010, 0.010), "L":(-0.010, -0.010), "B":(0.00, 0.016)}
+            FMB_PX_ALTER = {"U": (0.00, -0.004), "R":(0.008, 0.008), "L":(-0.008, -0.008), "B":(0.00, 0.016)}
         else:
-            FMB_PX_ALTER = {"U": (0.00, -0.000), "R":(0.008, 0.000), "L":(-0.008, -0.000), "B":(0.00, 0.000)}
+            FMB_PX_ALTER = {"U": (0.00, -0.000), "R":(0.008, 0.000), "L":(-0.00, -0.00), "B":(0.00, 0.00)}
         image_mouth_mask_inner, pt_mouth_mask_inner_seed = cls.get_beard_mouth_inner(image_color, mesh_results, FMB_PX_ALTER)
         img_beard_color = cv2.bitwise_and(image_color, image_color, mask = image_mouth_mask_inner)
         cls.flood_fill(img_beard_color, pt_seed=pt_mouth_mask_inner_seed, color_fill=color_fill)
         return img_beard_color
 
     @classmethod
-    def _clean_region_mouth_outter(cls, image_color, mesh_results):
-        FMB_PX_ALTER = {"U": (0, 0), "R":(0.05, 0.03), "L":(-0.05, 0.03), "B":(0.0, 0.1)}
+    def _clean_region_mouth_outter(cls, image_color, mesh_results, color_fill=FMB_FILL_COLOR, mode="fit"):
+        if mode == "fit":
+            FMB_PX_ALTER = {"U": (0.00, -0.002), "R":(0.004, 0.004), "L":(-0.004, -0.004), "B":(0.00, 0.004)}
+        elif mode == "enlarger":
+            FMB_PX_ALTER = {"U": (0.00, 0.00), "R":(0.05, 0.03), "L":(-0.05, 0.03), "B":(0.00, 0.10)}
+        else:
+            FMB_PX_ALTER = {"U": (0.00, -0.00), "R":(0.00, 0.00), "L":(-0.00, -0.00), "B":(0.00, 0.00)}
+
         image_beard_mask_outter, pt_beard_mask_outter_seed = cls.get_beard_mask_outter(image_color, mesh_results, FMB_PX_ALTER)
         img_beard_color = cv2.bitwise_and(image_color, image_color, mask = image_beard_mask_outter)
-        cls.flood_fill(img_beard_color, pt_seed=pt_beard_mask_outter_seed, color_fill=FMB_FILL_COLOR)
+        cls.flood_fill(img_beard_color, pt_seed=pt_beard_mask_outter_seed, color_fill=color_fill)
         return img_beard_color
 
     @classmethod
@@ -277,6 +283,7 @@ class FcxBeardGabor(FcxBase):
         img_et8 = cls._get_entopy_masked_core(img_org, disk_num=8)
 
         img_accum_uint8 = cls._combine_all_imgs([img_et2, img_et4, img_et8])
+        #img_accum_uint8 = cls.ipc_sharpen_color(img_accum_uint8)
         return img_accum_uint8
 
 

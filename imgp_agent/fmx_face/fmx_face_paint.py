@@ -107,5 +107,5 @@ class FmxFacePaint():
                 cls.draw_ploypoints(image, face_landmarks, FMV_RIGHT_EYEBROW, FMC_RIGHT_EYEBROW)
                 cls.draw_ploypoints(image, face_landmarks, FMV_NOSE, FMC_NOSE)
 
-        print(image.shape, image.dtype)
+        #print(image.shape, image.dtype)
         return image

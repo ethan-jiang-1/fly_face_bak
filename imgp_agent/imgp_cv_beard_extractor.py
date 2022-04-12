@@ -36,8 +36,10 @@ class ImgpCvBeardExtractor():
 
         if BER_MODE == "GABOR":
             img_beard = cls._locate_beard_gabor(img_selfie_wb_no_hair, mesh_results, debug=debug)
-        else:
+        elif BER_MODE == "OTSU":
             img_beard = cls._locate_beard_otsu(img_selfie_wb_no_hair, mesh_results, debug=debug)
+        else:
+            raise ValueError("BER_MODE: {} not supported".format(BER_MODE))
 
         if img_beard is not None:
             if img_beard.max() == img_beard.min():
@@ -151,7 +153,13 @@ def do_exp_single():
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
-    filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_002.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_003.jpg"
+    filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_004.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_005.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_006.jpg"
+    #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_007.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
     #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
@@ -161,7 +169,7 @@ def do_exp_single():
     #filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
     #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
-    filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
+    #filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
     #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
     #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
 
@@ -174,5 +182,5 @@ def do_exp_single():
     del ffg   
 
 if __name__ == '__main__':
-    #do_exp_folder()
-    do_exp_single()
+    do_exp_folder()
+    #do_exp_single()
