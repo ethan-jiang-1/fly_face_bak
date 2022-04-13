@@ -2,18 +2,14 @@ import os
 import sys
 import PySimpleGUI as sg
 
-dir_root = os.path.dirname(os.path.dirname(__file__))
-if dir_root not in sys.path:
-    sys.path.append(dir_root)
-
 from collections import namedtuple
-from clf_net.clf_face import ClfFace
-from clf_net.clf_bread import ClfBeard
-from clf_net.clf_hair import ClfHair
-from bld_gen.poster_query_local import PosterQueryLocal
-from utils.colorstr import log_colorstr
 
 SMP_RESULT = namedtuple('SMP_RESULT', "img_org img_hair img_beard img_face hair_id beard_id face_id poster_pathname") 
+
+def _check_run_path():
+    dir_root = os.path.dirname(os.path.dirname(__file__))
+    if dir_root not in sys.path:
+        sys.path.append(dir_root)
 
 class SearchMatchedPoster():
     ffg = None
@@ -48,6 +44,12 @@ class SearchMatchedPoster():
 
     @classmethod
     def search_for_poster(cls, img_filename):
+        from clf_net.clf_face import ClfFace
+        from clf_net.clf_bread import ClfBeard
+        from clf_net.clf_hair import ClfHair
+        from bld_gen.poster_query_local import PosterQueryLocal
+        from utils.colorstr import log_colorstr
+
         cls.init_searcher()
 
         imgs, etnames = cls.ffg.process_image(img_filename)
@@ -86,7 +88,7 @@ def start_work():
               [sg.Multiline('输出结果', key = "result", size=(56, 20))],
              ]
 
-    window = sg.Window('发型分类检查工具({})'.format(version), layout)
+    window = sg.Window('分类批量检查工具({})'.format(version), layout)
     event, values = window.read()
 
     while True:
@@ -180,4 +182,5 @@ def is_valid_file(file_path, file_name):
         return False
 
 if __name__ == '__main__':
+    _check_run_path()
     start_work()

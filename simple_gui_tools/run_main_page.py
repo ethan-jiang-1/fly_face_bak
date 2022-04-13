@@ -2,17 +2,18 @@ import os
 import sys
 import PySimpleGUI as sg
 
-dir_root = os.path.dirname(os.path.dirname(__file__))
-if dir_root not in sys.path:
-    sys.path.append(dir_root)
+def _check_run_path():
+    dir_root = os.path.dirname(os.path.dirname(__file__))
+    if dir_root not in sys.path:
+        sys.path.append(dir_root)
 
-from run_show_hairstyles import analysis_selected_folder as analysis_hair
-from run_show_beardstyles import analysis_selected_folder as analysis_beard
-from run_search_matched_poster import main_page as get_cartoon_character
-from run_batch_analysis_face import start_work as batch_analysis_face
-from run_resize_image import start_work as resize_image
+def _show_form():
+    from run_show_hairstyles import analysis_selected_folder as analysis_hair
+    from run_show_beardstyles import analysis_selected_folder as analysis_beard
+    from run_search_matched_poster import main_page as get_cartoon_character
+    from run_batch_analysis_face import start_work as batch_analysis_face
+    from run_resize_image import start_work as resize_image
 
-def show_form():
     sg.theme('Light Blue 2')
     
     window_size = (420, 180)
@@ -51,4 +52,5 @@ def show_form():
     window.close()
 
 if __name__ == '__main__':
-    show_form()
+    _check_run_path()
+    _show_form()

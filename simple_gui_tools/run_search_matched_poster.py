@@ -3,9 +3,10 @@ import sys
 import PySimpleGUI as sg
 from pprint import pprint
 
-dir_root = os.path.dirname(os.path.dirname(__file__))
-if dir_root not in sys.path:
-    sys.path.append(dir_root)
+def _check_run_path():
+    dir_root = os.path.dirname(os.path.dirname(__file__))
+    if dir_root not in sys.path:
+        sys.path.append(dir_root)
 
 def main_page():
     version = 1.0
@@ -117,4 +118,5 @@ def dep_one_by_one():
     print(f'You clicked {event}')
 
 if __name__ == '__main__':
+    _check_run_path()
     main_page()
