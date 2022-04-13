@@ -1,8 +1,12 @@
 import os
 import sys
 import PySimpleGUI as sg
-sys.path.append(os.getcwd())
 from pprint import pprint
+
+dir_root = os.path.dirname(os.path.dirname(__file__))
+if dir_root not in sys.path:
+    sys.path.append(dir_root)
+
 from impg_search_matched_poster import SearchMatchedPoster
 
 def main_page():
