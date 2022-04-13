@@ -1,10 +1,9 @@
 import os
-#from statistics import multimode
+import sys
 import PySimpleGUI as sg
+sys.path.append(os.getcwd())
 
 from collections import namedtuple
-#from pprint import pprint
-
 from clf_net.clf_face import ClfFace
 from clf_net.clf_bread import ClfBeard
 from clf_net.clf_hair import ClfHair

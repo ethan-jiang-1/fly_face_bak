@@ -1,21 +1,20 @@
-#!/usr/bin/env python
 import os
-#from turtle import color
+# import sys
 import PySimpleGUI as sg
-
-from imgp_show_beardstyles import do_extract_beardstyles
+# sys.path.append(os.getcwd())
+from imgp_show_hairstyles import do_extract_hairstyles
 
 def analysis_selected_folder():
     version = 1.0
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('功能说明：选择胡子图片的根目录或自目录，分析其中所有胡子的边界', text_color="blue")],
+    layout = [[sg.Text('功能说明：选择发型图片的根目录或自目录，分析其中所有发型的边界', text_color="blue")],
               [sg.Text('选择目录', auto_size_text=True, justification='left'),
                sg.InputText(size=(80, 1)), 
                sg.FolderBrowse(initial_folder=os.path.dirname(__file__))], 
               [sg.Button('OK'), sg.Button('Exit')]]
     
-    window = sg.Window('胡子边界扫描工具({})'.format(version), layout)
+    window = sg.Window('头发边界扫描工具({})'.format(version), layout)
     
     while True:
         event, values = window.read()
@@ -23,7 +22,7 @@ def analysis_selected_folder():
         
         if event == 'OK':
             if (values[0] == ''):
-                sg.popup('请选择胡子图片所在的目录！')
+                sg.popup('请选择发型图片所在的目录！')
             elif not os.path.exists(values[0]):
                 sg.popup('目录不存在，请重新选择！')
             else:
@@ -37,8 +36,8 @@ def analysis_selected_folder():
                 if len(src_dirs) == 0:
                     src_dirs.append(values[0])
                 
-                dst_dir = "_reserved_output_beard_styles"
-                do_extract_beardstyles(src_dirs, dst_dir)
+                dst_dir = "_reserved_output_hair_styles"
+                do_extract_hairstyles(src_dirs, dst_dir)
         elif event in (None, 'Exit'):
             break
     window.close()
