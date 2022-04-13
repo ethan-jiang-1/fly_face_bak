@@ -14,13 +14,21 @@ from utils.plot_helper import PlotHelper
 
 UNIFIED_IMG_SIZE = (112, 112)
 
-class EdgeShifterMixIn(object):
+class DgAugBase():
     ET_3L2 = "3L2"
     ET_5L2 = "5L2"
     ET_7L2 = "7L2"
 
-    @classmethod
-    def shift_edge_full(cls, img):
+    TN_COMBINEA = "combine_a"
+    TN_COMBINEB = "combine_b"
+
+    def __init__(self, bin_img=True, debug=False):
+        self.debug = debug
+        self.bin_img = bin_img
+
+        self.transforms = {}
+
+    def shift_edge_full(self, img):
         imgs = []
 
         height = img.shape[0]
@@ -34,12 +42,11 @@ class EdgeShifterMixIn(object):
                     continue 
                 img_overlap = img.copy()
                 img_overlap[hc:height-2+hc, wc:width-2+wc] += img_core
-                _, img_overlap = cv2.threshold(img_overlap, 127, 255, cv2.THRESH_BINARY)
+                img_overlap = self.threshold_img(img_overlap)
                 imgs.append(img_overlap)
         return imgs
 
-    @classmethod
-    def shift_edge_half_left(cls, img):
+    def shift_edge_half_left(self, img):
         imgs = []
 
         height = img.shape[0]
@@ -53,12 +60,11 @@ class EdgeShifterMixIn(object):
                     continue 
                 img_overlap = img.copy()
                 img_overlap[hc:height-2+hc, wc:width-2+wc] += img_core
-                _, img_overlap = cv2.threshold(img_overlap, 127, 255, cv2.THRESH_BINARY)
+                img_overlap = self.threshold_img(img_overlap)
                 imgs.append(img_overlap)
         return imgs
 
-    @classmethod
-    def shift_edge_half_right(cls, img):
+    def shift_edge_half_right(self, img):
         imgs = []
 
         height = img.shape[0]
@@ -72,74 +78,59 @@ class EdgeShifterMixIn(object):
                     continue 
                 img_overlap = img.copy()
                 img_overlap[hc:height-2+hc, width+wc:width+width-2+wc] += img_core
-                _, img_overlap = cv2.threshold(img_overlap, 127, 255, cv2.THRESH_BINARY)
+                img_overlap = self.threshold_img(img_overlap)
                 imgs.append(img_overlap)
         return imgs
 
-    @classmethod
-    def get_edge_b2w(cls, img, edge_type):
+    def get_edge_b2w(self, img, edge_type):
         img_edge = None
-        if edge_type == cls.ET_3L2:
+        if edge_type == self.ET_3L2:
             img_edge = cv2.Canny(img, 127, 255, L2gradient=True)
-        elif edge_type == cls.ET_5L2:
+        elif edge_type == self.ET_5L2:
             img_edge = cv2.Canny(img, 127, 255, apertureSize=5, L2gradient=True)
-        elif edge_type == cls.ET_7L2:
+        elif edge_type == self.ET_7L2:
             img_edge = cv2.Canny(img, 127, 255, apertureSize=5, L2gradient=True)
         else:
             raise ValueError("{} not supported".format(edge_type))
         return img_edge
 
-    @classmethod
-    def get_edge_w2b(cls, img, edge_type):
+    def get_edge_w2b(self, img, edge_type):
         img_w2b = cv2.bitwise_not(img)
 
-        if edge_type == cls.ET_3L2:
+        if edge_type == self.ET_3L2:
             img_edge = cv2.Canny(img_w2b, 127, 255, L2gradient=True)
-        elif edge_type == cls.ET_5L2:
+        elif edge_type == self.ET_5L2:
             img_edge = cv2.Canny(img_w2b, 127, 255, apertureSize=5, L2gradient=True)
-        elif edge_type == cls.ET_7L2:
+        elif edge_type == self.ET_7L2:
             img_edge = cv2.Canny(img_w2b, 127, 255, apertureSize=5, L2gradient=True)
         else:
             raise ValueError("{} not supported".format(edge_type))
         return img_edge
 
-class AugTransformMixIn():
-    transforms = {}
-
-    TN_COMBINEA = "combine_a"
-    TN_COMBINEB = "combine_b"
-
-    @classmethod
-    def get_transforms(cls, transform_name):
-        if len(cls.transforms) == 0:
+    def get_transforms(self, transform_name):
+        if len(self.transforms) == 0:
             transform = A.Compose([A.ShiftScaleRotate(shift_limit=(-0.05, 0.05), rotate_limit=(-5,5), scale_limit=(0.0, 0.0), p=1.0)])
-            cls.transforms[cls.TN_COMBINEA] = transform
+            self.transforms[self.TN_COMBINEA] = transform
 
             transform = A.Compose([A.GridDistortion(num_steps=1, distort_limit=0.1, p=1.0)])
-            cls.transforms[cls.TN_COMBINEB] = transform
-        return cls.transforms[transform_name]
+            self.transforms[self.TN_COMBINEB] = transform
+        return self.transforms[transform_name]
 
-    @classmethod
-    def transform_img(cls, img, transform_name):
-        transform = cls.get_transforms(transform_name)
+    def transform_img(self, img, transform_name):
+        transform = self.get_transforms(transform_name)
         result = transform(image=img)
         img_transformed = result["image"]
-        _, img_b = cv2.threshold(img_transformed, 127, 255, cv2.THRESH_BINARY)
-        img_resized = cv2.resize(img_b, UNIFIED_IMG_SIZE)
+        img_transformed = self.threshold_img(img_transformed)
+        img_resized = cv2.resize(img_transformed, UNIFIED_IMG_SIZE)
         return img_resized
-
-
-class DgAugBase(EdgeShifterMixIn, AugTransformMixIn):
-    def __init__(self, debug=False):
-        self.debug = debug
 
     def get_empty_unified(self):
         img = np.zeros(UNIFIED_IMG_SIZE, dtype=np.uint8)
         return img
 
     def resize_to_unified(self, img):
-        _, img_b = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
-        img_resized = cv2.resize(img_b, UNIFIED_IMG_SIZE)
+        img_th = self.threshold_img(img)
+        img_resized = cv2.resize(img_th, UNIFIED_IMG_SIZE)
         return img_resized
 
     def plot_imgs(self, imgs, names=None, title=None):
@@ -182,7 +173,7 @@ class DgAugBase(EdgeShifterMixIn, AugTransformMixIn):
             blur_core = 3 + i * 2
             
             img_blur = cv2.GaussianBlur(img_unified, (blur_core, blur_core), cv2.BORDER_DEFAULT)
-            _, img_blur = cv2.threshold(img_blur, 127, 255, cv2.THRESH_BINARY)
+            img_blur = self.threshold_img(img_blur)
 
             imgs_org.append(img_blur)
             names_org.append("blur{}".format(blur_core))
@@ -221,6 +212,19 @@ class DgAugBase(EdgeShifterMixIn, AugTransformMixIn):
                     trs_imgs_map[key_trs].append(img_transformed)
         return trs_imgs_map
 
+    def threshold_img(self, img):
+        if img.max() == img.min():
+            return np.zeros_like(img)
+        
+        if self.bin_img:
+            _, img_th = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY)
+        else:
+            img_float  = img.astype('float')
+            img_float -= img_float.min()
+            img_float /= img_float.max()
+            img_float *= 255
+            img_th = img_float.astype('uint8')
+        return img_th
 
 if __name__ == '__main__':
     print(FileHelper, PlotHelper)

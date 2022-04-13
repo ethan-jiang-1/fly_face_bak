@@ -9,11 +9,11 @@ if dir_root not in sys.path:
 try:
     from dg_aug_base import FileHelper
     from dg_aug_face_edge import DgAugFaceEdge
-    from dg_aug_empty import DgAugEmpty
+    #from dg_aug_empty import DgAugEmpty
 except:
     from .dg_aug_base import FileHelper
     from .dg_aug_face_edge import DgAugFaceEdge
-    from .dg_aug_empty import DgAugEmpty
+    #from .dg_aug_empty import DgAugEmpty
 
 from imgp_agent.face_feature_generator import FaceFeatureGenerator
 from utils.colorstr import log_colorstr
@@ -81,18 +81,18 @@ class DatasetHairstyleGen():
                 cnt += 1
         return cnt
 
-    def _process_aug_empty_imgs_in_subdir(self, subname):
-        dst_dir = "{}/{}".format(self.dir_dst, subname)
-        os.makedirs(dst_dir, exist_ok=True)
-        log_colorstr("yellow", "generating {}...".format(dst_dir))
-        cnt = 0
+    # def _process_aug_empty_imgs_in_subdir(self, subname):
+    #     dst_dir = "{}/{}".format(self.dir_dst, subname)
+    #     os.makedirs(dst_dir, exist_ok=True)
+    #     log_colorstr("yellow", "generating {}...".format(dst_dir))
+    #     cnt = 0
 
-        dg = DgAugEmpty()
-        for order_num in range(18):
-            aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num)
-            cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
+    #     dg = DgAugEmpty()
+    #     for order_num in range(18):
+    #         aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num)
+    #         cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
-        log_colorstr("yellow", "generated {} images in {}".format(cnt, dst_dir))
+    #     log_colorstr("yellow", "generated {} images in {}".format(cnt, dst_dir))
 
     def gen(self):
         self._prepare_dirs()
@@ -103,7 +103,9 @@ class DatasetHairstyleGen():
             if not os.path.isdir(dir_sub):
                 continue
             self._process_aug_imgs_in_subdir(subname)
-        self._process_aug_empty_imgs_in_subdir("00")
+
+        #no more empty imgs
+        #self._process_aug_empty_imgs_in_subdir("00")
 
 
 def do_exp(dir_org, dir_dst):
@@ -126,6 +128,6 @@ def do_exp(dir_org, dir_dst):
 
 if __name__ == '__main__':
 
-    dir_org = "dataset_org_hair_styles/Version 1.2"
+    dir_org = "dataset_org_hair_styles/Version 1.4"
     dir_dst = "_dataset_hair_styles"
     do_exp(dir_org, dir_dst)

@@ -10,7 +10,7 @@ except:
 
 class DgAugFaceEdge(DgAugBase):
     def __init__(self, debug=False):
-        super(DgAugFaceEdge, self).__init__(debug=debug)
+        super(DgAugFaceEdge, self).__init__(bin_img=True, debug=debug)
 
     def make_aug_images(self, img, aug_types=("shift_full", "shift_right", "shift_left", "transform_a", "transform_b")):
         img_unified = self.resize_to_unified(img)

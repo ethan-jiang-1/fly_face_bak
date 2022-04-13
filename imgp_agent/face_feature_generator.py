@@ -177,11 +177,11 @@ def do_exp_dir():
                 continue
 
         ffg.show_results(filename) 
-        #ffg.save_results(filename) 
+        ffg.save_results(filename) 
 
     del ffg 
 
 
 if __name__ == '__main__':
-    do_exp_file()
-    #do_exp_dir()
+    #do_exp_file()
+    do_exp_dir()

@@ -9,11 +9,11 @@ if dir_root not in sys.path:
 try:
     from dg_aug_base import FileHelper
     from dg_aug_beard_edge import DgAugBeardEdge
-    from dg_aug_empty import DgAugEmpty
+    #from dg_aug_empty import DgAugEmpty
 except:
     from .dg_aug_base import FileHelper
     from .dg_aug_beard_edge import DgAugBeardEdge
-    from .dg_aug_empty import DgAugEmpty
+    #from .dg_aug_empty import DgAugEmpty
 
 
 from utils.colorstr import log_colorstr
@@ -80,16 +80,16 @@ class DatasetBeardStyleGen():
                 cnt += 1
         return cnt
 
-    def _process_aug_empty_imgs_in_subdir(self, subname):
-        dst_dir = "{}/{}".format(self.dir_dst, subname)
-        os.makedirs(dst_dir, exist_ok=True)
-        log_colorstr("yellow","generating {}...".format(dst_dir))
-        cnt = 0
+    # def _process_aug_empty_imgs_in_subdir(self, subname):
+    #     dst_dir = "{}/{}".format(self.dir_dst, subname)
+    #     os.makedirs(dst_dir, exist_ok=True)
+    #     log_colorstr("yellow","generating {}...".format(dst_dir))
+    #     cnt = 0
 
-        dg = DgAugEmpty()
-        for order_num in range(9):
-            aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num*2)
-            cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
+    #     dg = DgAugEmpty()
+    #     for order_num in range(9):
+    #         aug_imgs_map, trs_imgs_map = dg.make_aug_images(noise_theshold=255-8-order_num*2)
+    #         cnt += self._save_aug_imgs(aug_imgs_map, trs_imgs_map, dst_dir, subname, order_num)
 
         log_colorstr("yellow","generated {} images in {}".format(cnt, dst_dir))
 
@@ -102,7 +102,8 @@ class DatasetBeardStyleGen():
             if not os.path.isdir(dir_sub):
                 continue
             self._process_aug_imgs_in_subdir(subname)
-        self._process_aug_empty_imgs_in_subdir("00")
+        # no more 
+        #self._process_aug_empty_imgs_in_subdir("00")
 
 
 def do_exp(dir_org, dir_dst):
@@ -125,6 +126,6 @@ def do_exp(dir_org, dir_dst):
 
 if __name__ == '__main__':
 
-    dir_org = "dataset_org_beard_styles/Beard Version 1.1"
+    dir_org = "dataset_org_beard_styles/Beard Version 1.2"
     dir_dst = "_dataset_beard_styles"
     do_exp(dir_org, dir_dst)
