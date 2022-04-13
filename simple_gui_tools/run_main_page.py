@@ -1,5 +1,5 @@
-import os
-import sys
+#import os
+#import sys
 import PySimpleGUI as sg
 
 # from run_show_hairstyles import analysis_selected_folder as analysis_hair

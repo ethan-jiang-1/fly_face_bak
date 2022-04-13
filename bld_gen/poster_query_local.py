@@ -13,13 +13,19 @@ class PosterQueryLocal(object):
 
     @classmethod
     def get_poster(cls,  hair_id, beard_id, face_id):
+        from utils.colorstr import log_colorstr
         output_folder = cls._get_output_folder()
         if output_folder is None:
+            log_colorstr("red", "no local output folder found from bld_gen")
             return None, None
 
         folder_id = "H{:02d}B{:02d}F{:02d}".format(hair_id, beard_id, face_id)
         map_subfolder = cls._get_mapped_output_subfolders()
+        if map_subfolder is None:
+            log_colorstr("red", "no local generated posters found")
+            return None, None 
         if folder_id not in map_subfolder:
+            log_colorstr("red", "no local generated posters found match folder_id:{} ".format(folder_id))
             return None, None
 
         matched_folder = map_subfolder[folder_id]
@@ -47,6 +53,9 @@ class PosterQueryLocal(object):
 
         cls.kls_map_subfolders = {}
         output_folder = cls._get_output_folder()
+        if not os.path.isdir(output_folder):
+            return None
+
         names = os.listdir(output_folder)
         for name in names:
             subfolder_name = output_folder + os.sep + name 

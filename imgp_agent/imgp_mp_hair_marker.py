@@ -60,7 +60,7 @@ class ImgpHairMarker():
         img_cv512 = cv2.resize(image, (512, 512))
 
         if img_selfie_mask is not None and img_selfie_mask.shape[0] == 512 and img_selfie_mask.shape[1] == 512:
-            img_cv512 = cls._apply_gray_selfie_mask(img_cv512, img_selfie_mask)
+            img_cv512 = cls._apply_white_selfie_mask(img_cv512, img_selfie_mask)
 
         img_wb = FcxBase.ipc_white_balance_color(img_cv512)
         hsi_result = cls.hsi_instance.process_img_cv512(img_wb)
@@ -73,11 +73,11 @@ class ImgpHairMarker():
         return hsi_result.mask_white_sharp, hsi_result
 
     @classmethod
-    def _apply_gray_selfie_mask(cls, img, img_selfie_mask):
+    def _apply_white_selfie_mask(cls, img, img_selfie_mask):
         condition = np.stack((img_selfie_mask,) * 3 , axis=-1) > 127
         fg_image = img
         bg_image = np.zeros(img.shape, dtype=np.uint8)
-        bg_image[:] = SFM_BG_COLOR 
+        bg_image[:] = (255, 255, 255) 
         output_image = np.where(condition, fg_image, bg_image)
         return output_image
 
@@ -120,7 +120,6 @@ def _mark_hair_img(src_filename, debug=False):
     ImgpHairMarker.init_imgp()
     image = cv2.imread(src_filename, cv2.IMREAD_COLOR)
 
-        
     selfie_mask = _get_selfie_mask(image)
     image_hair, _ = ImgpHairMarker.mark_hair(image, selfie_mask, debug=debug)
     if image_hair is None:

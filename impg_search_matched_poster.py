@@ -77,8 +77,8 @@ def do_exp():
     import cv2
     from utils.plot_helper import PlotHelper
 
-    #img_filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
-    img_filename = "_reserved_imgs/WechatIMG303.jpeg"
+    img_filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
+    #img_filename = "_reserved_imgs/WechatIMG303.jpeg"
 
     smp_ret = SearchMatchedPoster.search_for_poster(img_filename)
     pprint(smp_ret)
