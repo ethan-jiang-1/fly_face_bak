@@ -18,7 +18,8 @@ class ImgpHairMarker():
         cls.hsi_reference += 1
         if cls.hsi_klass is None:
             if not cls.has_tflite_custom_installed():
-                print("please go to hsi_tflite_interpeter foloder to install customized tflite-runtime-hsi")
+                from imgp_agent.imgp_common import log_colorstr
+                log_colorstr("red", "ERROR(HM01): Please go to hsi_tflite_interpeter folder to install customized pip of tflite-runtime-hsi")
                 raise ValueError("no tflite-runtime-hsi installed")
             
             dir_parent = os.path.dirname(os.path.dirname(__file__))

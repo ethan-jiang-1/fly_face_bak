@@ -1,8 +1,0 @@
-facefeature need a special customized tflite runtime (a pip) installed 
-
-go to /hsi_tflite_interpeter
-
-run_install_pip.sh          if you are in macos env
-run_install_pip.linux.sh    if you are in linue env
-
-once the pip installed,  you have customized tflite_runtime installed which required by hair extraction 
