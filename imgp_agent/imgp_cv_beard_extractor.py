@@ -122,9 +122,9 @@ class ImgpCvBeardExtractor():
         from fcx_hair.fcx_beard_otsu import FcxBeardOtsu
         return FcxBeardOtsu.process_img(image, mesh_results, debug=debug)
 
-def do_exp_folder(src_dir=None):
+def do_exp_folder(src_dir=None, quick_check=True):
     from face_feature_generator import FaceFeatureGenerator
-    from imgp_common import FileHelper
+    from imgp_common import FileHelper, PlotHelper
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
 
@@ -141,9 +141,19 @@ def do_exp_folder(src_dir=None):
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
-    for filename in filenames:
-        ffg.show_results(filename) 
-        #ffg.save_results(filename) 
+
+    if quick_check:
+        org_imgs = []
+        brd_imgs = []
+        for filename in filenames:
+            imgs, names = ffg.process_image(filename)
+            org_imgs.append(ffg.find_img(imgs, names, "aligned"))
+            brd_imgs.append(ffg.find_img(imgs, names, "beard"))
+
+        PlotHelper.plot_imgs_grid_2(org_imgs, brd_imgs, mod_num=6)
+    else:
+        for filename in filenames:
+            ffg.show_results(filename) 
 
     del ffg
 

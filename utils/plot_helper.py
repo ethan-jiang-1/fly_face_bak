@@ -80,3 +80,22 @@ class PlotHelper(object):
                 ax.imshow(img, interpolation="none")
         plt.show()    
 
+    @classmethod
+    def plot_imgs_grid_2(cls, imgs, imgs_x, names=None, title=None, mod_num=4, figsize=(10, 8), set_axis_off=False):
+        if mod_num == 0 or len(imgs) == 0:
+            return
+        if names is not None:
+            if len(names) != len(imgs):
+                return
+        
+        num = len(imgs) 
+        num_div = num - num % mod_num
+        if num_div == 0:
+            num_div = num 
+        
+        imgs_div = imgs[0:num_div]
+        imgs_x_div = imgs_x[0:num_div]
+        imgs_cmb = []
+        imgs_cmb.extend(imgs_div)
+        imgs_cmb.extend(imgs_x_div)
+        cls.plot_imgs_grid(imgs_cmb, mod_num=mod_num, figsize=figsize, set_axis_off=set_axis_off)

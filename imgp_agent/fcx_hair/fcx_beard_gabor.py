@@ -297,10 +297,12 @@ class FcxBeardGabor(FcxBase):
         img_gray_float /= img_gray_float.max()
 
         if not has_beard:
-            img_gray_float += 3 * img_gray_float.max()
-            img_gray_float *= 255 / 4
+            img_gray_float += 7 * img_gray_float.max()
+            img_gray_float *= 255 / 8
         else:
             img_gray_float *= 255
+
+        img_gray_float = 255 - img_gray_float
 
         img_gray_uint8 = img_gray_float.astype("uint8")
         return img_gray_uint8
