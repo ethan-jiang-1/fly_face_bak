@@ -1,6 +1,10 @@
-#!/usr/bin/env python
-
+import os
+import sys
 import PySimpleGUI as sg
+
+dir_root = os.path.dirname(os.path.dirname(__file__))
+if dir_root not in sys.path:
+    sys.path.append(dir_root)
 
 from imgp_agent.face_shapekey_comparetor import FaceShapekeyComparetor
 

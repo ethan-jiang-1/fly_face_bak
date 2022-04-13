@@ -54,10 +54,11 @@ def do_exp(img_pathname):
         dir_root = os.path.dirname(dir_this)
         img_pathname = "{}/{}".format(dir_root, img_pathname)
 
-    id = ClfHair.get_category_id(img_pathname)
+    img_array = cv2.imread(img_pathname)
+    id = ClfHair.get_category_id(img_array)
     print("category id for {} is {}".format(img_pathname, id))
     return id
 
 if __name__ == '__main__':
-    filename = "_reserved_output_feature_gen/01_001_hair.jpg"
+    filename = "_reserved_output_feature_gen/06_000_0000_unified_shift_full.jpg"
     do_exp(filename)

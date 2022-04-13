@@ -22,5 +22,5 @@ def do_exp(img_pathname):
     return id
 
 if __name__ == '__main__':
-    filename = "_reserved_output_feature_gen/01_001_hair.jpg"
+    filename = "../_reserved_output_feature_gen/01_001_hair.jpg"
     do_exp(filename)
