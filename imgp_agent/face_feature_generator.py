@@ -119,7 +119,7 @@ class FaceFeatureGenerator(object):
 
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie, debug=self.debug)
-        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, debug=self.debug)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, img_selfie_mask, debug=self.debug)
         img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
 
         dt = datetime.now() - d0
@@ -166,7 +166,8 @@ def do_exp_dir():
     ffg = FaceFeatureGenerator()
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    #src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    src_dir = os.sep.join([parent_dir, "dataset_org_hair_styles/Version 1.4/00"])   
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
