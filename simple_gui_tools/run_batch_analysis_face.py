@@ -82,7 +82,7 @@ def start_work():
     version = 1.0
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('功能说明：选择发型的根目录(如Version 1.2)，检查所有发型分类是否正确', text_color="blue")],
+    layout = [[sg.Text('功能说明：选择图片的根目录(如Version 1.2)，检查所有(发型/胡子)分类是否正确', text_color="blue")],
               [sg.Button('OK'), sg.Button('Exit'), sg.Radio("头发", key = "radio_hair", group_id = 1, default=True), sg.Radio("胡子", key = "radio_beard", group_id = 1), sg.Radio("脸型", key = "radio_face", group_id = 1)],
               [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='folder_browse', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
               [sg.Multiline('输出结果', key = "result", size=(56, 20))],
