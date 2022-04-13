@@ -35,7 +35,7 @@ def main_page():
 def dep_one_file():
     import cv2
     from utils.plot_helper import PlotHelper
-    from impg_search_matched_poster import SearchMatchedPoster
+    from imgp_search_matched_poster import SearchMatchedPoster
     
     sg.theme('Light Blue 2')
     
@@ -75,7 +75,7 @@ def dep_one_file():
 def dep_one_by_one():
     import cv2
     from utils.plot_helper import PlotHelper
-    from impg_search_matched_poster import SearchMatchedPoster
+    from imgp_search_matched_poster import SearchMatchedPoster
     
     sg.theme('Light Blue 2')
     
