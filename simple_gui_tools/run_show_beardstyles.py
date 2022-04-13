@@ -1,10 +1,14 @@
 import os
 import sys
 import PySimpleGUI as sg
-sys.path.append(os.getcwd())
-from imgp_show_beardstyles import do_extract_beardstyles
+
+dir_root = os.path.dirname(os.path.dirname(__file__))
+if dir_root not in sys.path:
+    sys.path.append(dir_root)
 
 def analysis_selected_folder():
+    from imgp_show_beardstyles import do_extract_beardstyles
+    
     version = 1.0
     sg.theme('Light Blue 2')
     

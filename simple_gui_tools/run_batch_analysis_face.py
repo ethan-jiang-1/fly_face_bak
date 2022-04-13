@@ -1,14 +1,16 @@
 import os
 import sys
 import PySimpleGUI as sg
-sys.path.append(os.getcwd())
+
+dir_root = os.path.dirname(os.path.dirname(__file__))
+if dir_root not in sys.path:
+    sys.path.append(dir_root)
 
 from collections import namedtuple
 from clf_net.clf_face import ClfFace
 from clf_net.clf_bread import ClfBeard
 from clf_net.clf_hair import ClfHair
 from bld_gen.poster_query_local import PosterQueryLocal
-
 from utils.colorstr import log_colorstr
 
 SMP_RESULT = namedtuple('SMP_RESULT', "img_org img_hair img_beard img_face hair_id beard_id face_id poster_pathname") 

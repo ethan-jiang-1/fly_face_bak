@@ -7,8 +7,6 @@ dir_root = os.path.dirname(os.path.dirname(__file__))
 if dir_root not in sys.path:
     sys.path.append(dir_root)
 
-from impg_search_matched_poster import SearchMatchedPoster
-
 def main_page():
     version = 1.0
     sg.theme('Light Blue 2')
@@ -36,6 +34,7 @@ def main_page():
 def dep_one_file():
     import cv2
     from utils.plot_helper import PlotHelper
+    from impg_search_matched_poster import SearchMatchedPoster
     
     sg.theme('Light Blue 2')
     
@@ -75,6 +74,7 @@ def dep_one_file():
 def dep_one_by_one():
     import cv2
     from utils.plot_helper import PlotHelper
+    from impg_search_matched_poster import SearchMatchedPoster
     
     sg.theme('Light Blue 2')
     
