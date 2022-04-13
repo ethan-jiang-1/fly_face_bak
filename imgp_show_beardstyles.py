@@ -62,7 +62,7 @@ def do_extract_beardstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
 
         filenames = sorted(filenames)
         for filename in filenames:
-            img = ffg.process_image_for(filename, "beard")
+            img = ffg.process_image_for_fename(filename, "beard")
             title = os.path.basename(filename)
             beard_imgs.append((title, img))
 

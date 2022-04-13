@@ -29,12 +29,12 @@ class SearchMatchedPoster():
             del cls.ffg 
 
     @classmethod
-    def get_bin_images(cls, imgs, names):
+    def get_bin_images(cls, imgs, etnames):
         img_org = None
         img_hair = None 
         img_face = None
         img_beard = None
-        for idx, name in enumerate(names):
+        for idx, name in enumerate(etnames):
             if name == "hair":
                 img_hair = imgs[idx]
             elif name == "outline":
@@ -49,10 +49,10 @@ class SearchMatchedPoster():
     def search_for_poster(cls, img_filename):
         cls.init_searcher()
 
-        imgs, names = cls.ffg.process_image(img_filename)
+        imgs, etnames = cls.ffg.process_image(img_filename)
         log_colorstr("blue", "#SMP: process {}".format(img_filename))
 
-        img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, names)
+        img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
         hair_id = ClfHair.get_category_id(img_hair)
         beard_id = ClfBeard.get_category_id(img_beard)

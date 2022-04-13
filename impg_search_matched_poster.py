@@ -49,11 +49,11 @@ class SearchMatchedPoster():
         import os
         cls.init_searcher()
 
-        imgs, names = cls.ffg.process_image(img_filename)
+        imgs, etnames = cls.ffg.process_image(img_filename)
         title = os.path.basename(img_filename)
         log_colorstr("blue", "#SMP: process {} as {}".format(img_filename, title))
 
-        img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, names)
+        img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
         hair_id = ClfHair.get_category_id(img_hair)
         beard_id = ClfBeard.get_category_id(img_beard)

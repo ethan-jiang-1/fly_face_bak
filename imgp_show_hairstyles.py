@@ -60,7 +60,7 @@ def do_extract_hairstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
         #print(filenames)
         filenames = sorted(filenames)
         for filename in filenames:
-            img = ffg.process_image_for(filename, "hair")
+            img = ffg.process_image_for_fename(filename, "hair")
             title = os.path.basename(filename)
             hair_imgs.append((title, img))
 

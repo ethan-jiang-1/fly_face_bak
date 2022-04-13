@@ -35,7 +35,7 @@ class DatasetBeardStyleGen():
         os.makedirs(self.dir_dst, exist_ok=True)
 
     def _get_img_beard(self, img_pathname):
-        img_beard = self.ffg.process_image_for(img_pathname, "beard")
+        img_beard = self.ffg.process_image_for_fename(img_pathname, "beard")
         return img_beard
 
     def _process_aug_imgs_in_subdir(self, subname):

@@ -27,6 +27,8 @@ class FaceFeatureGenerator(object):
         ImgpFacemeshExtractor.init_imgp()
         ImgpCvBeardExtractor.init_imgp()
 
+        self.last_err = None
+
     def __del__(self):
         ImgpFaceAligment.close_imgp()
         ImgpSelfieMarker.close_imgp()
@@ -71,25 +73,40 @@ class FaceFeatureGenerator(object):
                 new_names.append(name)
         return new_imgs, new_names
 
-    def _load_image(self, filename):   
+    def _prompt_error(self, error_msg):
         from utils.colorstr import log_colorstr
+        self.last_err = error_msg
+        log_colorstr("red", self.last_err)
 
+    def _load_image(self, filename):   
         if not os.path.isfile(filename):
-            log_colorstr("red", "ERROR: failed to locate image file {}".format(filename))
+            self._prompt_error("ERROR(FE01): failed to locate image file {}".format(filename))
             return None
 
         img_org = cv2.imread(filename, cv2.IMREAD_COLOR)
         if img_org is None:
             if not cv2.haveImageReader(filename):
-                log_colorstr("red", "ERROR: failed to load image file {} as there no proper image reader to handle the format".format(filename))
+                self._prompt_error("ERROR(FE02): failed to load image file {} as there no proper image reader to handle the format".format(filename))
             else:
-                log_colorstr("red", "ERROR: failed to load image file {}".format(filename))
+                self._prompt_error("ERROR(EF03): failed to load image file {}".format(filename))
             return None
 
         return img_org
 
+    def _is_valid_face_image(self, fa_ret, filename):
+        if fa_ret is None:
+            self._prompt_error("ERROR(FE10): failed to find alignment info file {}".format(filename))
+            return False
+
+        if fa_ret.img_ratoted_unified is None:
+            self._prompt_error("ERROR(FE11), failed to make aligment of the image file {}".format(filename))
+            return False
+        return True
+
     def process_image(self, filename):
         from utils.colorstr import log_colorstr
+
+        self.last_err = None
         if not os.path.isfile(filename):
             return None, None
 
@@ -97,32 +114,37 @@ class FaceFeatureGenerator(object):
         img_org = self._load_image(filename)
 
         img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_org, debug=self.debug)
+        if not self._is_valid_face_image(fa_ret, filename):
+            return None, None
+
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie, debug=self.debug)
         img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, debug=self.debug)
         img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
-
-        (fa_ret, img_selfie_mask)  # avoid flake8 warning around variable not reference
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
         log_colorstr("blue", "total inference time: for {}: {:.3f}sec\n".format(basename, dt.total_seconds()))
 
         imgs = [img_org, img_aligned, img_selfie,  img_facemesh, fme_result.img_facepaint, fme_result.img_outline, img_beard, img_hair]
-        names = ["org", "aligned", "selfie", "facemesh", "facepaint", "outline", "beard", "hair"]
-        return imgs, names
+        etnames = ["org", "aligned", "selfie", "facemesh", "facepaint", "outline", "beard", "hair"]
+        return imgs, etnames
 
-    def find_img(self, imgs, names, expected_name):
-        for idx, name in enumerate(names):
-            if name == expected_name:
-                return imgs[idx]
+    def get_last_error(self):
+        return self.last_err
+
+    def find_img_by_etname(self, imgs, etnames, expected_etname):
+        if imgs is not None and etnames is not None:
+            for idx, name in enumerate(etnames):
+                if name == expected_etname:
+                    return imgs[idx]
         return None
 
-    def process_image_for(self, filename, expected_name):
-        imgs, names = self.process_image(filename)
+    def process_image_for_fename(self, filename, expected_etname):
+        imgs, etnames = self.process_image(filename)
         if imgs is None:
             return None
-        return self.find_img(imgs, names, expected_name)
+        return self.find_img_by_etname(imgs, etnames, expected_etname)
 
 
 def do_exp_file():
@@ -161,5 +183,5 @@ def do_exp_dir():
 
 
 if __name__ == '__main__':
-    #do_exp_file()
-    do_exp_dir()
+    do_exp_file()
+    #do_exp_dir()

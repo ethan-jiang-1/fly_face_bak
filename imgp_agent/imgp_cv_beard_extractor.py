@@ -146,9 +146,9 @@ def do_exp_folder(src_dir=None, quick_check=True):
         org_imgs = []
         brd_imgs = []
         for filename in filenames:
-            imgs, names = ffg.process_image(filename)
-            org_imgs.append(ffg.find_img(imgs, names, "aligned"))
-            brd_imgs.append(ffg.find_img(imgs, names, "beard"))
+            imgs, etnames = ffg.process_image(filename)
+            org_imgs.append(ffg.find_img_by_etname(imgs, etnames, "aligned"))
+            brd_imgs.append(ffg.find_img_by_etname(imgs, etnames, "beard"))
 
         PlotHelper.plot_imgs_grid_2(org_imgs, brd_imgs, mod_num=6)
     else:
