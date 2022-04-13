@@ -68,7 +68,8 @@ class ImgpHairMarker():
         print("inference time(hm) :{:.3f}".format(dt.total_seconds()))
         if debug:
             from imgp_agent.imgp_common import PlotHelper
-            PlotHelper.plot_imgs([image, img_cv512, img_wb,  hsi_result.mask_white_sharp])
+            PlotHelper.plot_imgs([image, img_selfie_mask, img_cv512, img_wb, hsi_result.mask_white_sharp],
+                                 names=["org", "selfie_mask", "512_masked", "whitebanlanced", "hair"])
         return hsi_result.mask_white_sharp, hsi_result
 
     @classmethod
@@ -160,7 +161,7 @@ def do_exp_single():
     #filename = "dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
     #filename = "dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
     #filename = "dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
-    filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
+    #filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
 
     filename = "dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
 
