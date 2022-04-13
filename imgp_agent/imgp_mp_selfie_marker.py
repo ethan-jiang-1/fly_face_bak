@@ -91,7 +91,7 @@ class ImgpSelfieMarker():
         return output_image, mask_image_wf
 
 
-def _mark_selfie_imgs(src_dir, show=True):
+def _mark_selfie_imgs(src_dir, debug=True):
     from imgp_agent.imgp_common import FileHelper, PlotHelper
     from utils.colorstr import log_colorstr
     filenames = FileHelper.find_all_images(src_dir)
@@ -103,13 +103,13 @@ def _mark_selfie_imgs(src_dir, show=True):
             print("not image file", filename)
             continue
 
-        image, image_mask_wf = ImgpSelfieMarker.fliter_selfie(image, debug=True)
+        image, image_mask_wf = ImgpSelfieMarker.fliter_selfie(image, debug=debug)
         if image is None:
             log_colorstr("red", "ERROR: not able to mark selfie on", filename)
         else:
             FileHelper.save_output_image(image, src_dir, filename, "selfie")
             FileHelper.save_output_image(image_mask_wf, src_dir, filename, "selfie_mask")
-            if show:
+            if debug:
                 PlotHelper.plot_imgs([image, image_mask_wf], names=["selfie", "mask"])
 
     ImgpSelfieMarker.close_imgp()
@@ -133,8 +133,9 @@ def do_exp():
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
+    src_dir = os.sep.join([_get_root_dir(), "dataset_org_hair_styles/Version 1.4/00"])
 
-    _mark_selfie_imgs(src_dir, show=True)
+    _mark_selfie_imgs(src_dir, debug=True)
 
 
 if __name__ == '__main__':

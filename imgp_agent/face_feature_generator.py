@@ -119,7 +119,7 @@ class FaceFeatureGenerator(object):
 
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie, debug=self.debug)
-        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, debug=self.debug)
+        img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, img_selfie_mask, debug=self.debug)
         img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
 
         dt = datetime.now() - d0
@@ -149,12 +149,16 @@ class FaceFeatureGenerator(object):
 
 def do_exp_file():
     #filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
-    filename = "_reserved_bug_imgs/hair_WechatIMG303.jpeg"
+    #filename = "_reserved_bug_imgs/hair_WechatIMG303.jpeg"
 
-    ffg0 = FaceFeatureGenerator()
-    del ffg0
+    #filename = "dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
+    #filename = "dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
+    #filename = "dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
+    filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
 
-    ffg = FaceFeatureGenerator()
+    #filename = "dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
+
+    ffg = FaceFeatureGenerator(debug=True)
     ffg.show_results(filename) 
     del ffg 
 
@@ -166,7 +170,8 @@ def do_exp_dir():
     ffg = FaceFeatureGenerator()
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
-    src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    #src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
+    src_dir = os.sep.join([parent_dir, "dataset_org_hair_styles/Version 1.4/00"])   
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)
@@ -183,5 +188,5 @@ def do_exp_dir():
 
 
 if __name__ == '__main__':
-    #do_exp_file()
-    do_exp_dir()
+    do_exp_file()
+    #do_exp_dir()

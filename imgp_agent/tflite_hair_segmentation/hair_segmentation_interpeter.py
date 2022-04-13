@@ -175,6 +175,8 @@ class HairSegmentationMaskSharpener(object):
     @classmethod
     def sharpen_mask_white(cls, mask_white, mode="MIXED"):
         mask_u8 = cls.make_grayscale_img_u8(mask_white)
+        if mask_u8.max() == mask_u8.min():
+            return np.zeros_like(mask_u8)
         return cls._sharpen_mask_u8(mask_u8, mode=mode, fallback_val=255)
 
 
