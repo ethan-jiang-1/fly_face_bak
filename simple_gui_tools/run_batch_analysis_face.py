@@ -43,7 +43,7 @@ class SearchMatchedPoster():
         return img_org, img_hair, img_face, img_beard
 
     @classmethod
-    def search_for_poster(cls, img_filename):
+    def search_for_poster(cls, img_filename, chk_hair, chk_beard, chk_face):
         from clf_net.clf_face import ClfFace
         from clf_net.clf_bread import ClfBeard
         from clf_net.clf_hair import ClfHair
@@ -57,9 +57,9 @@ class SearchMatchedPoster():
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
-        hair_id = ClfHair.get_category_id(img_hair)
-        beard_id = ClfBeard.get_category_id(img_beard)
-        face_id = ClfFace.get_category_id(img_face)
+        hair_id = 0 if not chk_hair else ClfHair.get_category_id(img_hair)
+        beard_id = 0 if not chk_beard else ClfBeard.get_category_id(img_beard)
+        face_id = 0 if not chk_face else ClfFace.get_category_id(img_face)
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
         poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)
@@ -76,13 +76,10 @@ class SearchMatchedPoster():
         return smp_ret
 
 def start_work():
-    #import cv2
-    #from utils.plot_helper import PlotHelper
-    
     version = 1.0
     sg.theme('Light Blue 2')
     
-    layout = [[sg.Text('功能说明：选择图片的根目录(如Version 1.2)，检查所有(发型/胡子)分类是否正确', text_color="blue")],
+    layout = [[sg.Text('功能说明：选择图片的根目录(如Version 1.2)，检查所有(发型/胡子/脸型)分类是否正确', text_color="blue")],
               [sg.Button('OK'), sg.Button('Exit'), sg.Radio("头发", key = "radio_hair", group_id = 1, default=True), sg.Radio("胡子", key = "radio_beard", group_id = 1), sg.Radio("脸型", key = "radio_face", group_id = 1)],
               [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='folder_browse', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
               [sg.Multiline('输出结果', key = "result", size=(56, 20))],
@@ -131,7 +128,7 @@ def start_work():
                                 continue
                             
                             file_name = "{}/{}".format(sub_folder_full_path, file)
-                            smp_ret = SearchMatchedPoster.search_for_poster(file_name)
+                            smp_ret = SearchMatchedPoster.search_for_poster(file_name, check_hair, check_beard, check_face)
                             # pprint(smp_ret)
                             result_list_all.append("file: {}, sub_folder: {}, hair: {}, face: {}, beard: {}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id))
                             
@@ -143,8 +140,12 @@ def start_work():
                             beard_style_error = (check_beard == True and beard_id_format != sub_folder)  # noqa:E712
                             face_style_error = (check_face == True and face_id_format != sub_folder)  # noqa:E712
                             
-                            if hair_style_error or beard_style_error or face_style_error:
-                                result_list_err.append("file: {}, sub_folder: {}, hair: {}, beard: {}, face: {}".format(file, sub_folder, hair_id_format, beard_id_format, face_id_format))
+                            if hair_style_error:
+                                result_list_err.append("file: {}, sub_folder: {}, hair: {}".format(file, sub_folder, hair_id_format))
+                            elif beard_style_error:
+                                result_list_err.append("file: {}, sub_folder: {}, beard: {}".format(file, sub_folder, beard_id_format))
+                            elif face_style_error:
+                                result_list_err.append("file: {}, sub_folder: {}, face: {}".format(file, sub_folder, face_id_format))
 
                 print("----all list----")
                 for index, line in enumerate(result_list_all):
