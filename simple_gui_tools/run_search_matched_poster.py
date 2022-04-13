@@ -1,7 +1,7 @@
 import os
+import sys
 import PySimpleGUI as sg
-
-#from collections import namedtuple
+sys.path.append(os.getcwd())
 from pprint import pprint
 from impg_search_matched_poster import SearchMatchedPoster
 
