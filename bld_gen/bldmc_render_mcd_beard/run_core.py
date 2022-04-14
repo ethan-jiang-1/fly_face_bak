@@ -5,12 +5,15 @@ from datetime import datetime
 import os
 import json
 from collections import namedtuple
+from pprint import pprint
 
 from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
 from bld_gen.utils_model.easy_dict import EasyDict
 from bld_gen.utils_ui.colorstr import log_colorstr
+from bld_gen.auto_render_cfg import AutoRenderCfg, AutoRenderEnv
 
 CIT = namedtuple("CIT", "hidx hair bidx beard fidx face cmb_idx")
+
 
 class CombinationIterator(object):
     def __init__(self,  cltname2objs):
@@ -64,26 +67,40 @@ class BpyDataMcBeard(BpyDataInsbase):
 
         self.auto_render_filename = auto_render_filename
         self.auto_render_data = None
-        self.max_variation = -1
+
+        self.env_max_variation = 6
+        self.env_combination_id = -1
+
         if auto_render_filename is not None:
             self._prepare_auto_render()
+        self._prepare_env()
 
     def _prepare_auto_render(self):
         self.auto_render_data = self._load_json_data(self.auto_render_filename)
         if self.auto_render_data is not None:
             self.render_root = "{}{}{}".format(self.renv.get_root_dir(), os.sep, self.auto_render_data["output_folder"])
-            self.max_variation = int(self.auto_render_data["max_variation"])
+        print()
+        pprint("auto_render_data", self.auto_render_data)
+        print()
+
+    def _prepare_env(self):
+        if AutoRenderEnv.ENV_AR_MAX_VARIATION in os.environ:
+            self.env_max_variation = int(os.environ[AutoRenderEnv.ENV_AR_MAX_VARIATION])
+        if AutoRenderEnv.ENV_AR_COMBINATION_ID in os.environ:
+            self.env_combination_id = int(os.environ[AutoRenderEnv.ENV_AR_COMBINATION_ID])
+        print()
+        print("env_max_variation", self.env_max_variation)
+        print("env_combination_id", self.env_combination_id)
+        print()
 
     def _load_json_data(self, json_filename):
         dir_this = os.path.dirname(__file__)
         json_path = "{}{}{}".format(dir_this, os.sep, json_filename)
-        if not os.path.isfile(json_path):
-            msg = "failed to find {}".format(json_path)
-            log_colorstr("red", msg)
-            raise ValueError(msg)
-        with open(json_path, "rt") as f:
-            json_data = json.load(f)
-        log_colorstr("yellow", "auto_render parameters found in {}".format(json_path))
+
+        json_data = AutoRenderCfg.get_config_data(json_path)
+        if json_data is None:
+            return None
+        log_colorstr("yellow", "auto_render cfg parameters found in {}".format(json_path))
         return json_data
 
     def inspect(self):
@@ -192,8 +209,8 @@ class BpyDataMcBeard(BpyDataInsbase):
                         self.take_shot(shot_info)
                     self.refresh_screen()
 
-                    if self.max_variation > 1 and vidx >= self.max_variation:
-                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.max_variation))
+                    if self.env_max_variation > 1 and vidx >= self.env_max_variation:
+                        log_colorstr("blue", "stop play varitry as {} >= {}".format(vidx, self.env_max_variation))
                         return combination_name, vidx 
         return combination_name, vidx
 
@@ -220,7 +237,11 @@ class BpyDataMcBeard(BpyDataInsbase):
         cmb_idx = 0
         cits = ci.build_iterator()
         for cit in cits:
-            cmb_idx = cit.cmb_idx 
+            cmb_idx = cit.cmb_idx
+            if self.env_combination_id != -1:
+                if self.env_combination_id != cmb_idx:
+                    continue 
+    
             hidx, bidx, fidx = cit.hidx, cit.bidx, cit.fidx
             combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info)
             self._save_shot_info(combination_name, vcnt, shot_info)

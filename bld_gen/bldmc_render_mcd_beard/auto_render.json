@@ -1,5 +1,5 @@
 {
     "version": "0.0.1",
     "output_folder": "_gen_auto_mcd_beard",
-    "max_variation": 4
+    "test": false
 }
