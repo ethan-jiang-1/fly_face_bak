@@ -13,7 +13,7 @@ from bld_gen.utils_ui.colorstr import log_colorstr
 from bld_gen.auto_render_cfg import AutoRenderCfg, AutoRenderEnv
 
 CIT = namedtuple("CIT", "hidx hair bidx beard fidx face cmb_idx")
-
+AR_MODEL_ID = "00"
 
 class CombinationIterator(object):
     def __init__(self,  cltname2objs):
@@ -62,6 +62,8 @@ class BpyDataMcBeard(BpyDataInsbase):
         import bpy
         super(BpyDataMcBeard, self).__init__(bpy_data, renv)
         self.scene = bpy.context.scene
+
+        self.ar_model_id = AR_MODEL_ID
 
         self.render_root = self.get_gen_img_folder()
 
@@ -182,7 +184,7 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._select_one_visible_obj_only(hair, hair_objs)
         self._select_one_visible_obj_only(beard, beard_objs)
 
-        combination_name = "H{:02}B{:02}F{:02}-c{:03}".format(hidx, bidx, fidx,  cmb_idx)
+        combination_name = "H{:02}B{:02}F{:02}-m{}c{:03}".format(hidx, bidx, fidx, self.ar_model_id, cmb_idx)
         log_colorstr("yellow", "new combination: {} ".format(combination_name))
 
         vidx = 0 
@@ -270,12 +272,10 @@ class BpyDataMcBeard(BpyDataInsbase):
         return True
 
     def _save_publishing_info(self, combination_name, vcnt):
-        if self.auto_render_data is None:
-            return 
         from utils.git_version import git_versions_from_vcs
         import socket 
 
-        filename = self.render_root  + os.sep + "publishing_info.json"
+        filename = self.render_root  + os.sep + "publishing_info_m{}.json".format(self.ar_model_id)
         dir_root = self.renv.get_root_dir()
         git_info = git_versions_from_vcs(dir_root)
 
@@ -287,7 +287,8 @@ class BpyDataMcBeard(BpyDataInsbase):
                                 "date": str(datetime.now()),
                                 "user": str(os.getlogin()),
                                 "host": str(socket.gethostname()),
-                                "vcnt": vcnt}
+                                "vcnt": vcnt,
+                                "ar_model_id": self.ar_model_id}
 
         with open(filename, "wt+") as fw:
             json.dump(pi, fw, indent=4)
