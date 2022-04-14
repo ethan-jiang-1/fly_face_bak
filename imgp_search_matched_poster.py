@@ -88,7 +88,7 @@ def _do_search_for_poster(img_filename, debug=False):
     log_colorstr("yellow", "from poster for  {}... ".format(img_filename))
     d0 = datetime.now()
     smp_ret = SearchMatchedPoster.search_for_poster(img_filename)
-    pprint(smp_ret)
+    # pprint(smp_ret)
     dt = datetime.now() - d0
     print()
     log_colorstr("green", "Search poster that matches hair_id:{} beard_id:{} face_id:{}".format(smp_ret.hair_id, smp_ret.beard_id, smp_ret.face_id))
@@ -109,14 +109,14 @@ def do_exp(debug):
     SearchMatchedPoster.init_searcher()
 
     filenames = []
-    filenames.append("utils_inspect/_sample_imgs/hsi_image1.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image2.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image3.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image4.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image5.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image6.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image7.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image8.jpeg")
+    filenames.append("utils_inspect/_sample_imgs/sun_cancan2.png")
+    filenames.append("utils_inspect/_sample_imgs/sun_girl_1.jpg")
+    filenames.append("utils_inspect/_sample_imgs/sun_me.jpg")
+    filenames.append("utils_inspect/_sample_imgs/sun_guangtou.jpg")
+    # filenames.append("utils_inspect/_sample_imgs/hsi_image5.jpeg")
+    # filenames.append("utils_inspect/_sample_imgs/hsi_image6.jpeg")
+    # filenames.append("utils_inspect/_sample_imgs/hsi_image7.jpeg")
+    # filenames.append("utils_inspect/_sample_imgs/hsi_image8.jpeg")
 
     dts = []
     for filename in filenames:
