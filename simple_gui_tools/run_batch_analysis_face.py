@@ -1,4 +1,5 @@
 import os
+from posixpath import basename
 import sys
 import PySimpleGUI as sg
 
@@ -57,9 +58,14 @@ class SearchMatchedPoster():
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
-        hair_id = 0 if not chk_hair else ClfHair.get_category_id(img_hair)
-        beard_id = 0 if not chk_beard else ClfBeard.get_category_id(img_beard)
-        face_id = 0 if not chk_face else ClfFace.get_category_id(img_face)
+        bname = os.path.basename(img_filename)
+        gender = basename.split("_")[0]
+        if gender not in ["F", "M"]:
+            raise ValueError("not able to indentify gender from filename: {}".format(bname))
+
+        hair_id = 0 if not chk_hair else ClfHair.get_category_id(img_hair, gender=gender)
+        beard_id = 0 if not chk_beard else ClfBeard.get_category_id(img_beard, gender=gender)
+        face_id = 0 if not chk_face else ClfFace.get_category_id(img_face, gender=gender)
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
         poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)

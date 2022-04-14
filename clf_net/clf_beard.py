@@ -21,8 +21,11 @@ output_details = interpreter.get_output_details()
 
 class ClfBeard(object):
     @classmethod
-    def get_category_id(cls, img_bin_hair):
-        img = img_bin_hair
+    def get_category_id(cls, img_beard, gender="M"):
+        if gender == "F":
+            return 0
+
+        img = img_beard
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         # reshape
         res_img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)

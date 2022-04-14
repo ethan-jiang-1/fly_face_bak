@@ -4,7 +4,7 @@ import numpy as np
 
 class ClfFace(object):
     @classmethod
-    def get_category_id(cls,  img_bin_face):
+    def get_category_id(cls,  img_bin_face, gender="M"):
         return 0 
 
 def do_exp(img_pathname):

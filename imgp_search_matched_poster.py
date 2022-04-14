@@ -58,17 +58,15 @@ class SearchMatchedPoster():
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
-        sex = title.split('_')[0]
+        gender = title.split('_')[0]
+        if gender not in ['F', 'M']:
+            log_colorstr("red", "#SMP: not able to guess gender from filename, should starts with F_ or M_: {}".format(img_filename))
+            raise ValueError("filename should starts with F_ or M_: {}".format(title))
 
-        hair_id = ClfHair.get_category_id(img_hair)
-        if sex == 'F':
-            beard_id = 0
-        else:
-            beard_id = ClfBeard.get_category_id(img_beard)
-        face_id = ClfFace.get_category_id(img_face)
+        hair_id = ClfHair.get_category_id(img_hair, gender=gender)
+        beard_id = ClfBeard.get_category_id(img_beard, gender=gender)
+        face_id = ClfFace.get_category_id(img_face, gender=gender)
 
-        if sex == 'F':
-            beard_id = 0
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
         poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)
