@@ -178,8 +178,8 @@ class MpFaceDetection():
         return img_detect_face
 
 def exam_face_aligment(face_crop=True, draw_keypoints=True):
-    from utils_inspect.sample_images import get_sample_images
-    img_pathnames = get_sample_images()
+    from utils_inspect.sample_images import SampleImages
+    img_pathnames = SampleImages.get_sample_images()
 
     def get_output_filename(filename, face_crop):
         basename = os.path.basename(filename)

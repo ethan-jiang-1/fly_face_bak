@@ -124,8 +124,8 @@ class MpFaceDetectionHelper():
 
 
 def exam_face_aligment(face_crop=False, selected_names=None, show_summary=False):
-    from utils_inspect.sample_images import get_sample_images
-    test_set = get_sample_images()
+    from utils_inspect.sample_images import SampleImages
+    test_set = SampleImages.get_sample_images()
 
     fa = FaceAlignemtDlib()
     fa.create_detector()
@@ -161,9 +161,6 @@ if __name__ == '__main__':
     _add_root_in_sys_path()
 
     selected_names = None 
-    #selected_names = ["hsi_image4.jpeg"]
-    #selected_names = ["hsi_image1.jpeg"]
-    #selected_names = ["icl_image2.jpeg"]
 
     exam_face_aligment(face_crop=True, selected_names=selected_names)
     #exam_face_aligment(face_crop=False)

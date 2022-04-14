@@ -24,11 +24,6 @@ def _chk_face_landmark():
     interpreter.allocate_tensors()
     inspect_tflite(interpreter)
 
-
-def _inspect_mp(mp):
-    from utils_inspect.inspect_mp import inspect_mp
-    inspect_mp(mp)
-
 def _inspect_cv2(cv2):
     print(cv2)
 
@@ -39,7 +34,6 @@ def do_chk():
     dt = datetime.now() - d0
     print("loading done", "{:.2f}sec".format(dt.total_seconds()))
 
-    _inspect_mp(mp)
     _chk_face_landmark()
 
 
