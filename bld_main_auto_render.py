@@ -4,7 +4,9 @@ import importlib
 
 SELECTED_ACTION = "auto_render"  # show caputure auto_render
 ENV_NEW = {"RENDER_ENGINE": "EEVEE",
-           "AUTO_RENDER":"auto_render.json"}
+           "AUTO_RENDER":"auto_render.json",
+           "ENV_AR_MAX_VARIATION": "-1",
+           "ENV_AR_COMBINATION_ID": "-1"}
 RELOAD_ALL_MODULES = True
 
 
@@ -67,7 +69,10 @@ def _update_sys_paths(renv):
 def _prepare_run_env():
     import os 
     for key, val in ENV_NEW.items():
-        os.environ[key] = val
+        if key not in os.environ:
+            os.environ[key] = val
+        else:
+            print("skip set env for {} = {}".format(key, val))
 
     _RunEnv.init()
     return _RunEnv

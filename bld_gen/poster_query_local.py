@@ -74,9 +74,8 @@ class PosterQueryLocal(object):
             return cls.kls_output_folder
         
         dir_root = os.path.dirname(os.path.dirname(__file__))
-        cfg = AutoRenderCfg.get_config_data()
-        if cfg and "output_folder" in cfg:
-            output_folder = cfg["output_folder"]
+        output_folder = AutoRenderCfg.get_config_value(AutoRenderCfg.CFG_OUTPUT_FOLDER)
+        if output_folder is not None:
             cls.kls_output_folder = dir_root + os.sep + output_folder
             return cls.kls_output_folder
         return None
