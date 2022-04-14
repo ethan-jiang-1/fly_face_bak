@@ -21,13 +21,13 @@ class ImgpCvBeardExtractor():
     def init_imgp(cls):
         cls.hsi_reference += 1
         if cls.hsi_reference == 1:
-            print("ImgpCvBeardExtractor inited")
+            print("#ImgpCvBeardExtractor inited")
 
     @classmethod
     def close_imgp(cls):
         cls.hsi_reference -= 1
         if cls.hsi_reference == 0:
-            print("ImgpCvBeardExtractor closed")
+            print("#ImgpCvBeardExtractor closed")
 
     @classmethod
     def extract_beard(cls, img_aligned, img_selfie_mask, img_hair_black, mesh_results, debug=False):

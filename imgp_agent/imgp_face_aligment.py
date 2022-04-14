@@ -17,7 +17,7 @@ class ImgpFaceAligment():
         cls.fal_reference += 1
         if cls.fal_klass is None:
             cls.fal_klass = cls._pickup_face_klass()
-            print("ImgpFaceAligment: inited,  Using FaceAlignment", cls.fal_klass)           
+            print("#ImgpFaceAligment: inited")           
 
     @classmethod
     def close_imgp(cls):
@@ -25,7 +25,7 @@ class ImgpFaceAligment():
         if cls.fal_reference == 0:
             if cls.fal_klass is not None:
                 cls.fal_klass = None
-            print("ImgpFaceAligment: closed")   
+            print("#ImgpFaceAligment: closed")   
 
     @classmethod
     def _pickup_face_klass(cls):

@@ -14,13 +14,13 @@ class ImgpCvEyebrowExtractor():
     def init_imgp(cls):
         cls.hsi_reference += 1
         if cls.hsi_reference == 1:
-            print("ImgpCvEyebrowExtractor inited")
+            print("#ImgpCvEyebrowExtractor inited")
 
     @classmethod
     def close_imgp(cls):
         cls.hsi_reference -= 1
         if cls.hsi_reference == 0:
-            print("ImgpCvEyebrowExtractor closed")
+            print("#ImgpCvEyebrowExtractor closed")
 
     @classmethod
     def extract_eyebrow(cls, img_selfie, img_hair_black, mesh_results, debug=EBR_DEBUG):

@@ -7,7 +7,7 @@ from datetime import datetime
 import numpy as np
 
 from clf_net.clf_face import ClfFace
-from clf_net.clf_bread import ClfBeard
+from clf_net.clf_beard import ClfBeard
 from clf_net.clf_hair import ClfHair
 from bld_gen.poster_query_local import PosterQueryLocal
 
@@ -88,7 +88,7 @@ def _do_search_for_poster(img_filename, debug=False):
     log_colorstr("yellow", "from poster for  {}... ".format(img_filename))
     d0 = datetime.now()
     smp_ret = SearchMatchedPoster.search_for_poster(img_filename)
-    pprint(smp_ret)
+    pprint(smp_ret, compact=True)
     dt = datetime.now() - d0
     print()
     log_colorstr("green", "Search poster that matches hair_id:{} beard_id:{} face_id:{}".format(smp_ret.hair_id, smp_ret.beard_id, smp_ret.face_id))
@@ -130,5 +130,21 @@ def do_exp(debug):
     log_colorstr("yellow", "max seconds: {:.3f}sec".format(np_dts.max()))
     print()
 
+
+def do_exp_single(debug):
+    from utils.colorstr import log_colorstr
+
+    SearchMatchedPoster.init_searcher()
+
+    filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
+
+    smp_ret, dt = _do_search_for_poster(filename, debug=debug)
+    del smp_ret
+
+    print()
+    log_colorstr("yellow", "seconds: {:.3f}sec".format(dt.total_seconds()))
+    print()
+
 if __name__ == '__main__':
-    do_exp(debug=False)
+    #do_exp(debug=False)
+    do_exp_single(debug=False)
