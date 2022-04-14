@@ -6,7 +6,7 @@ dir_root = os.path.dirname(os.path.dirname(__file__))
 if dir_root not in sys.path:
     sys.path.append(dir_root)
 
-from utils_mem.mem_tracker import mem_dump
+from track_mem.mem_tracker import mem_dump
 from utils_inspect.sample_images import SampleImages
 from imgp_agent.face_feature_generator import FaceFeatureGenerator
 
