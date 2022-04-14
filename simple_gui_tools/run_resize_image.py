@@ -39,7 +39,7 @@ def start_work():
             elif not os.path.exists(img_folder):
                 print('目录不存在，请重新选择！')
             elif width == "":
-                print("请输入图片宽度");
+                print("请输入图片宽度")
             elif height == "":
                 print("请输入图片高度")
             else:

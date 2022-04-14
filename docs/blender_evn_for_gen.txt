@@ -1,0 +1,5 @@
+make sure you are using blender 3.0.1 
+
+for macos  download the blender3.0.1 and install to default location 
+
+for linux download the blender3.0.1-linux-x64.tar.xz and unzip to the home folder in blender-3.0.1-linux-x64

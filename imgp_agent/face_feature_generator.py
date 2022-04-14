@@ -153,8 +153,8 @@ def do_exp_file():
 
     #filename = "dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
     #filename = "dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
-    filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
+    filename = "dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
+    #filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
 
     #filename = "dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
 
