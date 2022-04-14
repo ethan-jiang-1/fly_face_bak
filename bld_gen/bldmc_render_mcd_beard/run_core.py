@@ -4,9 +4,55 @@ from datetime import datetime
 
 import os
 import json
+from collections import namedtuple
+
 from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
 from bld_gen.utils_model.easy_dict import EasyDict
 from bld_gen.utils_ui.colorstr import log_colorstr
+
+CIT = namedtuple("CIT", "hidx hair bidx beard fidx face cmb_idx")
+
+class CombinationIterator(object):
+    def __init__(self,  cltname2objs):
+        hair_male_objs = cltname2objs["Collection hair_male"]
+        hair_female_objs = cltname2objs["Collection hair_female"]
+        hair_objs = []
+        hair_objs.append(None)
+        hair_objs.extend(hair_male_objs)
+        hair_objs.extend(hair_female_objs)
+
+        beard_objs = cltname2objs["Collection beard"]
+        beard_objs.insert(0, None)
+
+        face_objs = []
+        face_objs.insert(0, None)
+        self.hair_objs = hair_objs
+        self.beard_objs = beard_objs
+        self.face_objs = face_objs
+        self.hair_male_objs = hair_female_objs 
+        self.hair_female_objs = hair_female_objs
+
+    def build_iterator(self):
+        cits = []
+        cmb_idx = -1
+        for hidx, hair in enumerate(self.hair_objs):
+            for bidx, beard in enumerate(self.beard_objs):
+                for fidx, face in enumerate(self.face_objs):
+                    if hair in self.hair_female_objs:
+                        if beard is not None:
+                            continue
+                    cmb_idx += 1
+
+                    cit = CIT(hidx=hidx, 
+                              hair=hair, 
+                              bidx=bidx, 
+                              beard=beard,
+                              fidx=fidx,
+                              face=face,
+                              cmb_idx=cmb_idx)
+                    cits.append(cit)
+        return cits
+
 
 class BpyDataMcBeard(BpyDataInsbase):
     def __init__(self, bpy_data, renv=None, auto_render_filename=None):
@@ -154,44 +200,35 @@ class BpyDataMcBeard(BpyDataInsbase):
     def _save_shot_info(self, combination_name, vcnt, shot_info):
         if shot_info is None or shot_info.mode != "auto":
             return None
-        filename = self.render_root + os.sep + combination_name + os.sep + "shot_num.txt"
+        filename = self.render_root + os.sep + combination_name + os.sep + "vcnt_shot_num.txt"
         with open(filename, "wt+") as f:
             f.write("{}".format(vcnt))
         return filename
 
     def _adjust_shapekeys(self, map_skm, shot_info=None):
-        hair_male_objs = self.cltname2objs["Collection hair_male"]
-        hair_female_objs = self.cltname2objs["Collection hair_female"]
-        hair_objs = []
-        hair_objs.append(None)
-        hair_objs.extend(hair_male_objs)
-        hair_objs.extend(hair_female_objs)
+        ci = CombinationIterator(self.cltname2objs)
 
-        beard_objs = self.cltname2objs["Collection beard"]
-        beard_objs.insert(0, None)
-
-        face_objs = []
-        face_objs.insert(0, None)
+        beard_objs = ci.beard_objs
+        hair_objs = ci.hair_objs
+        face_objs = ci.face_objs
 
         self._deselect_all_obj(beard_objs)
-        self._deselect_all_obj(hair_male_objs)
-        self._deselect_all_obj(hair_female_objs)
+        self._deselect_all_obj(hair_objs)
         self._deselect_all_obj(face_objs)
 
-        cmb_idx = -1
         cvcnt = 0
-        for hidx, hair in enumerate(hair_objs):
-            for bidx, beard in enumerate(beard_objs):
-                for fidx, face in enumerate(face_objs):
-                    if hair in hair_female_objs:
-                        if beard is not None:
-                            continue
-                    cmb_idx += 1
-                    combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info)
-                    self._save_shot_info(combination_name, vcnt, shot_info)
-                    if self.debug:
-                        log_colorstr("blue", "combination {} has {} vairation".format(combination_name, vcnt))
-                    cvcnt += vcnt
+        cmb_idx = 0
+        cits = ci.build_iterator()
+        for cit in cits:
+            cmb_idx = cit.cmb_idx 
+            hidx, bidx, fidx = cit.hidx, cit.bidx, cit.fidx
+            combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info)
+            self._save_shot_info(combination_name, vcnt, shot_info)
+            self._save_publishing_info(combination_name, vcnt)
+            if self.debug:
+                log_colorstr("blue", "combination {} has {} vairation".format(combination_name, vcnt))
+            cvcnt += vcnt
+
         if self.debug:
             log_colorstr("blue", "total combination: {} yield {} variation".format(cmb_idx, cvcnt))
         return cmb_idx, cvcnt
@@ -211,20 +248,34 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._adjust_shapekeys(map_skm, shot_info=shot_info)
         return True
 
-    def _save_publishing_info(self):
+    def _save_publishing_info(self, combination_name, vcnt):
+        if self.auto_render_data is None:
+            return 
         from utils.git_version import git_versions_from_vcs
-        filename = self.render_root  + os.sep + "version.json"
+        import socket 
+
+        filename = self.render_root  + os.sep + "publishing_info.json"
         dir_root = self.renv.get_root_dir()
-        info = git_versions_from_vcs(dir_root)
-        with open(filename, "wt+") as f:
-            json.dump(info, f)
+        git_info = git_versions_from_vcs(dir_root)
+
+        pi = {}
+        if os.path.isfile(filename):
+            with open(filename, "rt") as fr:
+                pi = json.load(fr)
+        pi[combination_name] = {"git": git_info, 
+                                "date": str(datetime.now()),
+                                "user": str(os.getlogin()),
+                                "host": str(socket.gethostname()),
+                                "vcnt": vcnt}
+
+        with open(filename, "wt+") as fw:
+            json.dump(pi, fw, indent=4)
 
     def auto_render(self):
         shot_info = self._get_shot_info_auto()
         map_skm = self._find_all_shapekeys()
         self._gen_render_imgs(map_skm, shot_info=shot_info)
-        if self.auto_render_data is not None:
-            self._save_publishing_info()
+
         return True
 
 def do_exp_show(renv):

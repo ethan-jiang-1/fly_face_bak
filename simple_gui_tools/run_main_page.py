@@ -19,12 +19,12 @@ def _show_form():
     window_size = (420, 180)
     frame_size = (window_size[0] - 30, 45)
     
-    frame_top = [sg.Button("退出", key="exit")]
+    frame_top = [sg.Button("退出", key="exit")] # noqa: F841
     frame_edge = sg.Frame(layout=[[sg.Button("发型分析", key="hair_style"), sg.Button("胡子分析", key="beard_style")]], title="边界分析", size=frame_size)
     frame_composite = sg.Frame(layout=[[sg.Button("卡通形象", key="cartoon"), sg.Button("批量分析", key="batch_analysis")]], title="综合分析", size=frame_size)
     frame_other = sg.Frame(layout=[[sg.Button("图片大小", key="resize_image")]], title="其他", size=frame_size)
     layout = [
-            #   [frame_top],
+              # [frame_top],
               [frame_edge],
               [frame_composite],
               [frame_other]
