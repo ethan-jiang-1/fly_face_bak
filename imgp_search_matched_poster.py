@@ -69,7 +69,7 @@ class SearchMatchedPoster():
 
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
-        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)
+        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id, gender)
         log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
         
         smp_ret = SMP_RESULT(img_org=img_org,
@@ -138,7 +138,7 @@ def do_exp_single(debug):
 
     SearchMatchedPoster.init_searcher()
 
-    filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
+    filename = "utils_inspect/_sample_imgs/F_hsi_image8.jpeg"
 
     smp_ret, dt = _do_search_for_poster(filename, debug=debug)
     del smp_ret
@@ -148,5 +148,5 @@ def do_exp_single(debug):
     print()
 
 if __name__ == '__main__':
-    do_exp(debug=False)
-    # do_exp_single(debug=False)
+    #do_exp(debug=False)
+    do_exp_single(debug=False)

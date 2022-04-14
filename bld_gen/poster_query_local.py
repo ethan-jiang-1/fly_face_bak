@@ -2,24 +2,19 @@ import os
 #import sys 
 import random
 
-try:
-    from auto_render_cfg import AutoRenderCfg
-except:
-    from .auto_render_cfg import AutoRenderCfg
-
 class PosterQueryLocal(object):
     kls_output_folder = None
     kls_map_subfolders = None
 
     @classmethod
-    def get_poster(cls,  hair_id, beard_id, face_id):
+    def get_poster(cls,  hair_id, beard_id, face_id, gender):
         from utils.colorstr import log_colorstr
         output_folder = cls._get_output_folder()
         if output_folder is None:
             log_colorstr("red", "no local output folder found from bld_gen")
             return None, None
 
-        folder_id = "H{:02d}B{:02d}F{:02d}".format(hair_id, beard_id, face_id)
+        folder_id = "H{:02d}B{:02d}F{:02d}{}".format(hair_id, beard_id, face_id, gender)
         map_subfolder = cls._get_mapped_output_subfolders()
         if map_subfolder is None:
             log_colorstr("red", "no local generated posters found")
@@ -74,11 +69,9 @@ class PosterQueryLocal(object):
             return cls.kls_output_folder
         
         dir_root = os.path.dirname(os.path.dirname(__file__))
-        output_folder = AutoRenderCfg.get_config_value(AutoRenderCfg.CFG_OUTPUT_FOLDER)
-        if output_folder is not None:
-            cls.kls_output_folder = dir_root + os.sep + output_folder
-            return cls.kls_output_folder
-        return None
+        output_folder = dir_root + os.sep + "_gen_render_m00"
+        cls.kls_output_folder = output_folder
+        return cls.kls_output_folder
 
 def do_exp():
     hair_id = 0
@@ -88,9 +81,13 @@ def do_exp():
     output_folder = PosterQueryLocal._get_output_folder()
     print(output_folder)
 
-    filename, _ = PosterQueryLocal.get_poster(hair_id, face_id, beard_id)
+    filename, _ = PosterQueryLocal.get_poster(hair_id, face_id, beard_id, "M")
     print("post for hid:{} fid: {} bid: {} is {}".format(hair_id, face_id, beard_id, filename))
     return filename
 
 if __name__ == '__main__':
+    import sys
+    dir_root = os.path.dirname(os.path.dirname(__file__))
+    if dir_root not in sys.path:
+        sys.path.append(dir_root)
     do_exp()

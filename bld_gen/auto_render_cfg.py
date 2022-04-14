@@ -61,7 +61,7 @@ class AutoRenderCfg():
 if __name__ == '__main__':
     from pprint import pprint
 
-    cfg_json_path = "bldmc_render_mcd_beard/auto_render.json"
+    cfg_json_path = "bldmc_render_m00/auto_render.json"
 
     name = AutoRenderCfg._get_config_filename(cfg_json_path)
     print(name)

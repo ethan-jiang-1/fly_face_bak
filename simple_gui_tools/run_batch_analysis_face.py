@@ -68,7 +68,7 @@ class SearchMatchedPoster():
         face_id = 0 if not chk_face else ClfFace.get_category_id(img_face, gender=gender)
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
-        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)
+        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id, gender)
         log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
         
         smp_ret = SMP_RESULT(img_org=img_org,
