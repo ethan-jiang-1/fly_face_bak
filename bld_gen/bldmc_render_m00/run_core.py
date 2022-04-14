@@ -12,7 +12,7 @@ from bld_gen.utils_model.easy_dict import EasyDict
 from bld_gen.utils_ui.colorstr import log_colorstr
 from bld_gen.auto_render_cfg import AutoRenderCfg, AutoRenderEnv
 
-CIT = namedtuple("CIT", "hidx hair bidx beard fidx face cmb_idx")
+CIT = namedtuple("CIT", "hidx hair bidx beard fidx face cmb_idx gender")
 AR_MODEL_ID = "00"
 
 class CombinationIterator(object):
@@ -44,6 +44,9 @@ class CombinationIterator(object):
                     if hair in self.hair_female_objs:
                         if beard is not None:
                             continue
+                        gender = "F"
+                    else:
+                        gender = "M"
                     cmb_idx += 1
 
                     cit = CIT(hidx=hidx, 
@@ -52,7 +55,8 @@ class CombinationIterator(object):
                               beard=beard,
                               fidx=fidx,
                               face=face,
-                              cmb_idx=cmb_idx)
+                              cmb_idx=cmb_idx, 
+                              gender=gender)
                     cits.append(cit)
         return cits
 
@@ -175,7 +179,7 @@ class BpyDataMcBeard(BpyDataInsbase):
                 return True
         return False 
 
-    def _adjust_varity_in_combination(self, map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info):
+    def _adjust_varity_in_combination(self, map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info):
         vals = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
 
         hair = hair_objs[hidx]
@@ -184,7 +188,7 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._select_one_visible_obj_only(hair, hair_objs)
         self._select_one_visible_obj_only(beard, beard_objs)
 
-        combination_name = "H{:02}B{:02}F{:02}-m{}c{:03}".format(hidx, bidx, fidx, self.ar_model_id, cmb_idx)
+        combination_name = "H{:02}B{:02}F{:02}{}-m{}c{:03}".format(hidx, bidx, fidx, gender, self.ar_model_id, cmb_idx)
         log_colorstr("yellow", "new combination: {} ".format(combination_name))
 
         vidx = 0 
@@ -245,7 +249,8 @@ class BpyDataMcBeard(BpyDataInsbase):
                     continue 
     
             hidx, bidx, fidx = cit.hidx, cit.bidx, cit.fidx
-            combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, shot_info)
+            gender = cit.gender
+            combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info)
             self._save_shot_info(combination_name, vcnt, shot_info)
             self._save_publishing_info(combination_name, vcnt)
             if self.debug:
