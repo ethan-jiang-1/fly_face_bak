@@ -45,7 +45,7 @@ class SearchMatchedPoster():
     @classmethod
     def search_for_poster(cls, img_filename, chk_hair, chk_beard, chk_face):
         from clf_net.clf_face import ClfFace
-        from clf_net.clf_bread import ClfBeard
+        from clf_net.clf_beard import ClfBeard
         from clf_net.clf_hair import ClfHair
         from bld_gen.poster_query_local import PosterQueryLocal
         from utils.colorstr import log_colorstr

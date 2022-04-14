@@ -14,15 +14,15 @@ class ImgpFacemeshExtractor():
     def init_imgp(cls):
         cls.slt_reference += 1
         if cls.slt_facemesh is None:
-            from utils_inspect.inspect_solution import inspect_solution
+            #from utils_inspect.inspect_solution import inspect_solution
             mp_face_mesh = mp.solutions.face_mesh
             cls.slt_facemesh = mp_face_mesh.FaceMesh(
                 max_num_faces=1,
                 refine_landmarks=True,
                 min_detection_confidence=0.5,
                 min_tracking_confidence=0.5) 
-            inspect_solution(cls.slt_facemesh)
-            print("ImgpFacemeshExtractor inited")
+            #inspect_solution(cls.slt_facemesh)
+            print("#ImgpFacemeshExtractor inited")
 
     @classmethod
     def close_imgp(cls):
@@ -31,7 +31,7 @@ class ImgpFacemeshExtractor():
             if cls.slt_facemesh is not None:
                 cls.slt_facemesh.close()
                 cls.slt_facemesh = None
-            print("ImgpFacemeshExtractor closed")
+            print("#ImgpFacemeshExtractor closed")
 
     @classmethod
     def extract_mesh_features(cls, img_org, debug=False):

@@ -36,7 +36,7 @@ class ClfBeard(object):
         interpreter.invoke()
         output_data = interpreter.get_tensor(output_details[0]['index'])
         dt = datetime.now() - d0
-        print("interence time: {:.3}sec".format(dt.total_seconds()))
+        print("interence time(clf_beard): {:.3}sec".format(dt.total_seconds()))
         #
         output = np.squeeze(output_data)
         # get top1

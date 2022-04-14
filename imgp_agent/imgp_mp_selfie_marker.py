@@ -22,11 +22,11 @@ class ImgpSelfieMarker():
     def init_imgp(cls):
         cls.slt_reference += 1
         if cls.slt_selfie is None:
-            from utils_inspect.inspect_solution import inspect_solution
+            #from utils_inspect.inspect_solution import inspect_solution
             mp_selfie_segmentation = mp.solutions.selfie_segmentation
             cls.slt_selfie = mp_selfie_segmentation.SelfieSegmentation(model_selection=1) 
-            inspect_solution(cls.slt_selfie)
-            print("ImgpSelfieMarker inited")
+            #inspect_solution(cls.slt_selfie)
+            print("#ImgpSelfieMarker inited")
 
     @classmethod
     def close_imgp(cls):
@@ -35,7 +35,7 @@ class ImgpSelfieMarker():
             if cls.slt_selfie is not None:
                 cls.slt_selfie.close()
                 cls.slt_selfie = None
-            print("ImgpSelfieMarker closed")
+            print("#ImgpSelfieMarker closed")
 
     @classmethod
     def fliter_selfie(cls, image, debug=False):

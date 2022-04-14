@@ -28,7 +28,7 @@ class ImgpHairMarker():
 
             from imgp_agent.tflite_hair_segmentation import hair_segmentation_interpeter
             cls.hsi_klass = hair_segmentation_interpeter.HairSegmentationInterpreter
-            print("ImgpHairMarker inited")
+            print("#ImgpHairMarker inited")
             cls.hsi_instance = cls.hsi_klass()
 
     @classmethod
@@ -38,7 +38,7 @@ class ImgpHairMarker():
             if cls.hsi_klass is not None:
                 cls.hsi_klass = None
                 cls.hsi_instance = None
-            print("ImgpHairMarker closed")
+            print("#ImgpHairMarker closed")
 
     @classmethod
     def has_tflite_custom_installed(cls):
