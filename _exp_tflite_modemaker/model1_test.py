@@ -11,8 +11,8 @@ import tflite_runtime.interpreter as tflite
 
 if __name__ == "__main__":
     dir_this = os.path.dirname(__file__)
-    test_image_dir = '../_dataset_beard_styles/00'
-    model_path = "{}/cls_beard_1.tflite".format(dir_this)
+    test_image_dir = '../_dataset_hair_styles/00'
+    model_path = "{}/cls_hair_1.tflite".format(dir_this)
     dir_npy = "{}/_output".format(dir_this)
     os.makedirs(dir_npy, exist_ok=True)
 
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             # get top1
             ordered = np.argsort(output)
             print(ordered[-1])
-            for i in range(4):
+            for i in range(7):
                 str_info = "%s %.2f%%" % ([ordered[i]], output[ordered[i]] * 100)
                 print(str_info)
 
