@@ -61,7 +61,10 @@ class SearchMatchedPoster():
         sex = title.split('_')[0]
 
         hair_id = ClfHair.get_category_id(img_hair)
-        beard_id = ClfBeard.get_category_id(img_beard)
+        if sex == 'F':
+            beard_id = 0
+        else:
+            beard_id = ClfBeard.get_category_id(img_beard)
         face_id = ClfFace.get_category_id(img_face)
 
         if sex == 'F':
