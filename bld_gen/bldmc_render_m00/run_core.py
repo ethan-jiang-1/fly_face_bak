@@ -6,6 +6,7 @@ import os
 import json
 from collections import namedtuple
 from pprint import pprint
+from xml.dom.expatbuilder import parseFragmentString
 
 from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
 from bld_gen.utils_model.easy_dict import EasyDict
@@ -224,13 +225,16 @@ class BpyDataMcBeard(BpyDataInsbase):
                         return combination_name, vidx 
         return combination_name, vidx
 
-    def _save_shot_info(self, combination_name, vcnt, shot_info):
+    def _save_shot_info(self, combination_name, vcnt, dt_seconds, shot_info):
         if shot_info is None or shot_info.mode != "auto":
             return None
-        filename = self.render_root + os.sep + combination_name + os.sep + "vcnt_shot_num.txt"
-        with open(filename, "wt+") as f:
-            f.write("{}".format(vcnt))
-        return filename
+
+        gi = self._get_gen_info(vcnt, dt_seconds)
+
+        filename = self.render_root + os.sep + combination_name + os.sep + combination_name + ".json"
+        with open(filename, "wt+") as f0:
+            json.dump(gi, f0, indent=4)            
+
 
     def _adjust_shapekeys(self, map_skm, shot_info=None):
         ci = CombinationIterator(self.cltname2objs)
@@ -254,9 +258,11 @@ class BpyDataMcBeard(BpyDataInsbase):
     
             hidx, bidx, fidx = cit.hidx, cit.bidx, cit.fidx
             gender = cit.gender
+            d0 = datetime.now()
             combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info)
-            self._save_shot_info(combination_name, vcnt, shot_info)
-            self._save_publishing_info(combination_name, vcnt)
+            dt = datetime.now() - d0
+            self._save_shot_info(combination_name, vcnt, dt.total_seconds(), shot_info)
+            self._save_publishing_info(combination_name, vcnt, dt.total_seconds())
             if self.debug:
                 log_colorstr("blue", "combination {} has {} vairation".format(combination_name, vcnt))
             cvcnt += vcnt
@@ -280,24 +286,36 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._adjust_shapekeys(map_skm, shot_info=shot_info)
         return True
 
-    def _save_publishing_info(self, combination_name, vcnt):
+    def _get_gen_info(self, vcnt, dt_seconds):
         from utils.git_version import git_versions_from_vcs
+        from utils_ui.bd_render import BdRender
         import socket 
 
-        filename = self.render_root  + os.sep + "publishing_info_m{}.json".format(self.ar_model_id)
+        gi = {}
         dir_root = self.renv.get_root_dir()
         git_info = git_versions_from_vcs(dir_root)
+
+        gi = {"git": git_info, 
+                "date": str(datetime.now()),
+                "user": str(os.getlogin()),
+                "host": str(socket.gethostname()),
+                "vcnt": vcnt,
+                "dt_secs_in_total": dt_seconds,
+                "dt_secs_per_image": dt_seconds/vcnt,
+                "ar_model_id": self.ar_model_id,
+                "ar_render_engine": BdRender.get_engine_type()}
+        return gi
+
+    def _save_publishing_info(self, combination_name, vcnt, dt_seconds):
+        filename = self.render_root  + os.sep + "publishing_info_m{}.json".format(self.ar_model_id)
 
         pi = {}
         if os.path.isfile(filename):
             with open(filename, "rt") as fr:
                 pi = json.load(fr)
-        pi[combination_name] = {"git": git_info, 
-                                "date": str(datetime.now()),
-                                "user": str(os.getlogin()),
-                                "host": str(socket.gethostname()),
-                                "vcnt": vcnt,
-                                "ar_model_id": self.ar_model_id}
+
+        gi = self._get_gen_info(vcnt, dt_seconds)
+        pi[combination_name] = gi
 
         with open(filename, "wt+") as fw:
             json.dump(pi, fw, indent=4)

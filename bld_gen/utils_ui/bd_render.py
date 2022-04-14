@@ -6,6 +6,13 @@ ENGINE_TYPE_EEVEE = "BLENDER_EEVEE"
 
 class BdRender(object):
     @classmethod
+    def get_engine_type(cls):
+        import bpy
+        bpy_context = bpy.context
+        scene = bpy_context.scene
+        return scene.render.engine
+
+    @classmethod
     def setup_engine(cls, engine=ENGINE_TYPE_CYCLES, params=None):
         if engine == "CYCLES":
             cls.setup_engine_cycles(params=params)
