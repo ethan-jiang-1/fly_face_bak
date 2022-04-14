@@ -37,22 +37,25 @@ class FaceFeatureGenerator(object):
         ImgpCvBeardExtractor.close_imgp()
 
     def show_results(self, filename,  selected_img_types=None):
-        imgs, names = self.process_image(filename)
+        imgs, etnames = self.process_image(filename)
 
-        imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
+        imgs, etnames = self._filter_selected_types(imgs, etnames, selected_img_types)
 
-        PlotHelper.plot_imgs_grid(imgs, names, title=os.path.basename(filename))  
+        PlotHelper.plot_imgs_grid(imgs, etnames, title=os.path.basename(filename))  
+
+        del imgs
+        del etnames
 
     def save_results(self, filename, output_dir=None, selected_img_types=None):
-        imgs, names = self.process_image(filename)
+        imgs, etnames = self.process_image(filename)
         if output_dir is None:
             output_dir = os.path.dirname(os.path.dirname(__file__)) + os.sep + "_reserved_output_feature_gen"
             os.makedirs(output_dir, exist_ok=True)
 
-        imgs, names = self._filter_selected_types(imgs, names, selected_img_types)
+        imgs, etnames = self._filter_selected_types(imgs, etnames, selected_img_types)
 
         fname = os.path.basename(filename).split(".")[0]
-        for img, name in zip(imgs, names):
+        for img, name in zip(imgs, etnames):
             if img is None:
                 continue 
             if selected_img_types is not None:
@@ -61,6 +64,9 @@ class FaceFeatureGenerator(object):
             filename = "{}{}{}_{}.jpg".format(output_dir, os.sep, fname, name)
             cv2.imwrite(filename, img)
             print("{} saved".format(filename))
+
+        del imgs
+        del etnames
 
     def _filter_selected_types(self, imgs, names, selected_img_types):
         if selected_img_types is None:
@@ -103,7 +109,7 @@ class FaceFeatureGenerator(object):
             return False
         return True
 
-    def process_image(self, filename):
+    def process_image(self, filename, clean_mem=True):
         from utils.colorstr import log_colorstr
 
         self.last_err = None
@@ -120,7 +126,7 @@ class FaceFeatureGenerator(object):
         img_selfie, img_selfie_mask = ImgpSelfieMarker.fliter_selfie(img_aligned, debug=self.debug)
         img_facemesh, fme_result = ImgpFacemeshExtractor.extract_mesh_features(img_selfie, debug=self.debug)
         img_hair, hsi_result = ImgpHairMarker.mark_hair(img_aligned, img_selfie_mask, debug=self.debug)
-        img_beard, _ = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
+        img_beard, ber_result = ImgpCvBeardExtractor.extract_beard(img_aligned, img_selfie_mask, hsi_result.mask_black_sharp, fme_result.mesh_results, debug=self.debug)
 
         dt = datetime.now() - d0
         basename = os.path.basename(filename)
@@ -128,6 +134,16 @@ class FaceFeatureGenerator(object):
 
         imgs = [img_org, img_aligned, img_selfie,  img_facemesh, fme_result.img_facepaint, fme_result.img_outline, img_beard, img_hair]
         etnames = ["org", "aligned", "selfie", "facemesh", "facepaint", "outline", "beard", "hair"]
+
+        if clean_mem:
+            del img_selfie
+            del img_selfie_mask
+            del img_facemesh
+            del fme_result
+            del img_hair
+            del hsi_result
+            del img_beard
+            del ber_result
         return imgs, etnames
 
     def get_last_error(self):

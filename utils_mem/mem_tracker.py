@@ -1,7 +1,6 @@
 import os
 import gc
 
- 
 # inner psutil function
 def mem_process_memory():
     try:
