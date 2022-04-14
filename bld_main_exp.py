@@ -3,7 +3,7 @@ import sys
 import importlib 
 
 SELECTED_ACTION = "show"  # show caputure 
-ENV_NEW = {"RENDER_ENGINE": "EEVEE",
+ENV_NEW = {"ENV_AR_RENDER_ENGINE": "EEVEE",
            "RENDER_MAX_CNT": "400",
            "AUX_FILE":"mw_key2.wav.json"}
 RELOAD_ALL_MODULES = True

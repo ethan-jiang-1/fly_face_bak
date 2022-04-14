@@ -1,8 +1,12 @@
 #!/bin/bash
 
 echo 'generate posters in macos env'
-ENV_AR_MAX_VARIATION="8"
+#ENV_AR_RENDER_ENGINE="CYCLES"
+#export ENV_AR_RENDER_ENGINE
+
+ENV_AR_MAX_VARIATION="4"
 export ENV_AR_MAX_VARIATION
+
 ENV_AR_COMBINATION_ID="-1"
 export ENV_AR_COMBINATION_ID
 

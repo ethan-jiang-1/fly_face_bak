@@ -7,9 +7,9 @@ ENGINE_TYPE_EEVEE = "BLENDER_EEVEE"
 class BdRender(object):
     @classmethod
     def setup_engine(cls, engine=ENGINE_TYPE_CYCLES, params=None):
-        if engine == ENGINE_TYPE_CYCLES:
+        if engine == "CYCLES":
             cls.setup_engine_cycles(params=params)
-        elif engine == ENGINE_TYPE_EEVEE:
+        elif engine == "EEVEE":
            cls.setup_engine_eevee(params=params)
         else:
             raise ValueError("no supported {}".format(engine))
@@ -17,6 +17,7 @@ class BdRender(object):
     @classmethod
     def setup_engine_cycles(cls, params=None):
         import bpy
+        print("#Select Render Engine", ENGINE_TYPE_CYCLES)
         bpy_context = bpy.context
         scene = bpy_context.scene
 
@@ -38,6 +39,7 @@ class BdRender(object):
     @classmethod
     def setup_engine_eevee(cls, params=None):
         import bpy
+        print("#Select Render Engine", ENGINE_TYPE_EEVEE)
         bpy_context = bpy.context
         scene = bpy_context.scene
 

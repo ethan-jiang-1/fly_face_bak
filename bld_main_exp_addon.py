@@ -3,7 +3,7 @@ import sys
 import os
 
 SELECTED_ACTION = "show"  # show caputure 
-ENV_NEW = {"RENDER_ENGINE": "EEVEE",
+ENV_NEW = {"ENV_AR_RENDER_ENGINE": "EEVEE",
            "RENDER_MAX_CNT": "200",
            "DISABLE_REFRESH":"false"}
 

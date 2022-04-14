@@ -76,6 +76,7 @@ class BpyDataMcBeard(BpyDataInsbase):
 
         self.env_max_variation = 6
         self.env_combination_id = -1
+        self.env_render_engine = "EEVEE"
 
         if auto_render_filename is not None:
             self._prepare_auto_render()
@@ -94,9 +95,12 @@ class BpyDataMcBeard(BpyDataInsbase):
             self.env_max_variation = int(os.environ[AutoRenderEnv.ENV_AR_MAX_VARIATION])
         if AutoRenderEnv.ENV_AR_COMBINATION_ID in os.environ:
             self.env_combination_id = int(os.environ[AutoRenderEnv.ENV_AR_COMBINATION_ID])
+        if AutoRenderEnv.ENV_AR_RENDER_ENGINE in os.environ:
+            self.env_render_engine = os.environ[AutoRenderEnv.ENV_AR_RENDER_ENGINE]
         print()
-        print("env_max_variation", self.env_max_variation)
+        print("env_max_variation ", self.env_max_variation)
         print("env_combination_id", self.env_combination_id)
+        print("env_render_engine ", self.env_render_engine)
         print()
 
     def _load_json_data(self, json_filename):
@@ -299,6 +303,11 @@ class BpyDataMcBeard(BpyDataInsbase):
             json.dump(pi, fw, indent=4)
 
     def auto_render(self):
+        from bld_gen.utils_ui.bd_render import BdRender
+        if self.env_render_engine == "EEVEE":
+            BdRender.setup_engine_eevee()
+        elif self.env_render_engine == "CYCLES":
+            BdRender.setup_engine_cycles()
         shot_info = self._get_shot_info_auto()
         map_skm = self._find_all_shapekeys()
         self._gen_render_imgs(map_skm, shot_info=shot_info)
