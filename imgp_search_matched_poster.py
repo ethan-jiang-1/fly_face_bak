@@ -58,9 +58,14 @@ class SearchMatchedPoster():
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
+        sex = title.split('_')[0]
+
         hair_id = ClfHair.get_category_id(img_hair)
         beard_id = ClfBeard.get_category_id(img_beard)
         face_id = ClfFace.get_category_id(img_face)
+
+        if sex == 'F':
+            beard_id = 0
         log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
 
         poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id)
@@ -88,7 +93,7 @@ def _do_search_for_poster(img_filename, debug=False):
     log_colorstr("yellow", "from poster for  {}... ".format(img_filename))
     d0 = datetime.now()
     smp_ret = SearchMatchedPoster.search_for_poster(img_filename)
-    pprint(smp_ret, compact=True)
+    # pprint(smp_ret, compact=True)
     dt = datetime.now() - d0
     print()
     log_colorstr("green", "Search poster that matches hair_id:{} beard_id:{} face_id:{}".format(smp_ret.hair_id, smp_ret.beard_id, smp_ret.face_id))
@@ -109,14 +114,10 @@ def do_exp(debug):
     SearchMatchedPoster.init_searcher()
 
     filenames = []
-    filenames.append("utils_inspect/_sample_imgs/hsi_image1.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image2.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image3.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image4.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image5.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image6.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image7.jpeg")
-    filenames.append("utils_inspect/_sample_imgs/hsi_image8.jpeg")
+    filenames.append("utils_inspect/_sample_imgs/M_sun_guangtou.jpg")
+    filenames.append("utils_inspect/_sample_imgs/M_sun_me.jpg")
+    filenames.append("utils_inspect/_sample_imgs/F_sun_cancan.jpg")
+    filenames.append("utils_inspect/_sample_imgs/F_sun_girl_1.jpg")
 
     dts = []
     for filename in filenames:
@@ -146,5 +147,5 @@ def do_exp_single(debug):
     print()
 
 if __name__ == '__main__':
-    #do_exp(debug=False)
-    do_exp_single(debug=False)
+    do_exp(debug=False)
+    # do_exp_single(debug=False)
