@@ -25,12 +25,17 @@ def do_trace(filenames, plot=True, gender=None):
         if not filename.startswith("/"):
             filename = dir_root + os.sep + filename
 
+        mem_dump("ck10")
         smp_ret = smg.search_for_poster_with_gender(filename, gender=gender)
         #ffg.show_results(filename)
 
         s_cnt += 1
 
+        mem_dump("ck11")
         del smp_ret
+        mem_dump("ck12")
+        gc.collect()        
+        mem_dump("ck13")
 
     mem_dump("ck02")
     del smg
@@ -46,9 +51,13 @@ def do_trace(filenames, plot=True, gender=None):
 
 
 if __name__ == '__main__':
-    dir_root = os.path.dirname(os.path.dirname(__file__))
+    if __file__.startswith("/"):
+        dir_root = os.path.dirname(os.path.dirname(__file__))
+    else:
+        dir_root = os.getcwd()
 
-    for i in range(2):
+    for i in range(10):
+
         filenames = FileHelper.find_all_images(dir_root + os.sep + "dataset_org_hair_styles/Version 1.4/00")
         do_trace(filenames, plot=False, gender="M")
 
