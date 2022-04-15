@@ -53,7 +53,8 @@ class SearchMatchedPoster():
 
         cls.init_searcher()
 
-        imgs, etnames = cls.ffg.process_image(img_filename)
+        ffg_ret = cls.ffg.process_image(img_filename)
+        imgs, etnames = ffg_ret.imgs, ffg_ret.etnames
         log_colorstr("blue", "#SMP: process {}".format(img_filename))
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)

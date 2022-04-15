@@ -29,7 +29,9 @@ class FaceShapekeyComparetor(object):
                 return None 
 
             d0 = datetime.now()
-            imgs, etnames = self.ffg.process_image(filename)
+            ffg_ret = self.ffg.process_image(filename)
+            imgs, etnames = ffg_ret.imgs, ffg_ret.etnames
+
             dt = datetime.now() - d0
             log_colorstr("blue", "total inference time: for {}: {:.3f}".format(os.path.basename(filename), dt.total_seconds()))
 
