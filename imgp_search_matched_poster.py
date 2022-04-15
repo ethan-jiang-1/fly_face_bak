@@ -31,37 +31,44 @@ class SearchMatchedPoster():
             del cls.ffg 
 
     @classmethod
-    def get_bin_images(cls, imgs, names):
+    def get_bin_images(cls, imgs, etnames):
         img_org = None
         img_hair = None 
         img_face = None
         img_beard = None
-        for idx, name in enumerate(names):
-            if name == "hair":
-                img_hair = imgs[idx]
-            elif name == "outline":
-                img_face = imgs[idx]
-            elif name == "beard":
-                img_beard = imgs[idx] 
-            elif name == "org":
-                img_org = imgs[idx]
+        if imgs is not None and etnames is not None:
+            for idx, name in enumerate(etnames):
+                if name == "hair":
+                    img_hair = imgs[idx]
+                elif name == "outline":
+                    img_face = imgs[idx]
+                elif name == "beard":
+                    img_beard = imgs[idx] 
+                elif name == "org":
+                    img_org = imgs[idx]
         return img_org, img_hair, img_face, img_beard
 
     @classmethod
-    def search_for_poster(cls, img_filename):
+    def search_for_poster(cls, img_filename, gender=None):
         import os
         cls.init_searcher()
 
-        imgs, etnames = cls.ffg.process_image(img_filename)
+        ffg_ret = cls.ffg.process_image(img_filename)
+        if ffg_ret.err_code is not None:
+            log_colorstr("red", "#SMP: err_code: {} for {}".format(ffg_ret.err_code, img_filename))
+            raise ValueError("ERROR(SMP00): ffg err_code:{}".format(ffg_ret.err_code))
+    
+        imgs, etnames = ffg_ret.imgs, ffg_ret.etnames
         title = os.path.basename(img_filename)
         log_colorstr("blue", "#SMP: process {} as {}".format(img_filename, title))
 
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
-        gender = title.split('_')[0]
+        if gender is None:
+            gender = title.split('_')[0]
         if gender not in ['F', 'M']:
             log_colorstr("red", "#SMP: not able to guess gender from filename, should starts with F_ or M_: {}".format(img_filename))
-            raise ValueError("filename should starts with F_ or M_: {}".format(title))
+            raise ValueError("ERROR(SMP01): filename should starts with F_ or M_: {}".format(title))
 
         hair_id = ClfHair.get_category_id(img_hair, gender=gender)
         beard_id = ClfBeard.get_category_id(img_beard, gender=gender)
@@ -84,37 +91,7 @@ class SearchMatchedPoster():
     
     @classmethod
     def search_for_poster_with_gender(cls, img_filename, gender):
-        import os
-        cls.init_searcher()
-
-        imgs, etnames = cls.ffg.process_image(img_filename)
-        title = os.path.basename(img_filename)
-        log_colorstr("blue", "#SMP: process {} as {}".format(img_filename, title))
-
-        img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
-
-        if gender not in ['F', 'M']:
-            log_colorstr("red", "#SMP: not able to guess gender from filename, should starts with F_ or M_: {}".format(img_filename))
-            raise ValueError("filename should starts with F_ or M_: {}".format(title))
-
-        hair_id = ClfHair.get_category_id(img_hair, gender=gender)
-        beard_id = ClfBeard.get_category_id(img_beard, gender=gender)
-        face_id = ClfFace.get_category_id(img_face, gender=gender)
-
-        log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
-
-        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id, gender)
-        log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
-        
-        smp_ret = SMP_RESULT(img_org=img_org,
-                             img_hair=img_hair,
-                             img_beard=img_beard,
-                             img_face=img_face,
-                             hair_id=hair_id,
-                             beard_id=beard_id,
-                             face_id=face_id,
-                             poster_pathname=poster_pathname)
-        return smp_ret
+        return cls.search_for_poster(img_filename, gender)
 
 def _debug_search_result(filename, smp_ret):
     from utils.plot_helper import PlotHelper
@@ -145,14 +122,11 @@ def _do_search_for_poster(img_filename, debug=False):
 def do_exp(debug):
 
     from utils.colorstr import log_colorstr
+    from utils_inspect.sample_images import SampleImages
 
     SearchMatchedPoster.init_searcher()
 
-    filenames = []
-    filenames.append("utils_inspect/_sample_imgs/M_sun_guangtou.jpg")
-    filenames.append("utils_inspect/_sample_imgs/M_sun_me.jpg")
-    filenames.append("utils_inspect/_sample_imgs/F_sun_cancan.jpg")
-    filenames.append("utils_inspect/_sample_imgs/F_sun_girl_1.jpg")
+    filenames = SampleImages.get_sample_images_hsi()
 
     dts = []
     for filename in filenames:

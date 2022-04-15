@@ -146,7 +146,9 @@ def do_exp_folder(src_dir=None, quick_check=True):
         org_imgs = []
         brd_imgs = []
         for filename in filenames:
-            imgs, etnames = ffg.process_image(filename)
+            ffg_ret = ffg.process_image(filename)
+            imgs, etnames = ffg_ret.imgs, ffg_ret.etnames
+
             org_imgs.append(ffg.find_img_by_etname(imgs, etnames, "aligned"))
             brd_imgs.append(ffg.find_img_by_etname(imgs, etnames, "beard"))
 
@@ -179,17 +181,7 @@ def do_exp_single(filename=None):
         #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_007.jpg"
         #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
         #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
-
-        #filename = "utils_inspect/_sample_imgs/hsi_image8.jpeg"
-        #filename = "utils_inspect/_sample_imgs/brd_image1.jpeg"
-        #filename = "utils_inspect/_sample_imgs/brd_image2.jpeg"
-        #filename = "utils_inspect/_sample_imgs/brd_image3.jpeg"
-        #filename = "utils_inspect/_sample_imgs/brd_image5.jpeg"
-        #filename = "utils_inspect/_sample_imgs/sun_girl_1.jpg"
-        #filename = "utils_inspect/_sample_imgs/sun_girl_2.jpg"
-        #filename = "utils_inspect/_sample_imgs/icl_image5.jpeg"
-        filename = "utils_inspect/_sample_imgs/ctn_cartoon1.jpeg"
+        filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
 
     if not filename.startswith("/"):
         filename = parent_dir + os.sep + filename
