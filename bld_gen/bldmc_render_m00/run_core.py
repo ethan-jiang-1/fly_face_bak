@@ -6,7 +6,6 @@ import os
 import json
 from collections import namedtuple
 from pprint import pprint
-from xml.dom.expatbuilder import parseFragmentString
 
 from bld_gen.model_inspect.bpy_data_inspect_base import BpyDataInsbase
 from bld_gen.utils_model.easy_dict import EasyDict
@@ -16,7 +15,7 @@ from bld_gen.auto_render_cfg import AutoRenderCfg, AutoRenderEnv
 CIT = namedtuple("CIT", "hidx hair bidx beard fidx face cmb_idx gender")
 AR_MODEL_ID = "00"
 
-class CombinationIterator(object):
+class CombinationWalker(object):
     def __init__(self,  cltname2objs):
         hair_male_objs = cltname2objs["Collection hair_male"]
         hair_female_objs = cltname2objs["Collection hair_female"]
@@ -30,6 +29,7 @@ class CombinationIterator(object):
 
         face_objs = []
         face_objs.insert(0, None)
+
         self.hair_objs = hair_objs
         self.beard_objs = beard_objs
         self.face_objs = face_objs
@@ -60,6 +60,25 @@ class CombinationIterator(object):
                               gender=gender)
                     cits.append(cit)
         return cits
+
+    def get_combination_name(self, hidx, bidx, fidx, gender, ar_model_id, cmb_idx):
+        hnum = 0
+        hair_obj = self.hair_objs[hidx]
+        if hair_obj is not None:
+            hnum = int(hair_obj.name.split(".")[1])
+        
+        bnum = 0
+        beard_obj = self.beard_objs[bidx]
+        if beard_obj is not None:
+            bnum = int(beard_obj.name.split(".")[1])
+        
+        fnum = 0
+        face_obj = self.face_objs[fidx]
+        if face_obj is not None:
+            fnum = int(face_obj.name.split(".")[1])
+        
+        combination_name = "H{:02}B{:02}F{:02}{}-m{}c{:03}".format(hnum, bnum, fnum, gender, ar_model_id, cmb_idx)
+        return combination_name
 
 
 class BpyDataMcBeard(BpyDataInsbase):
@@ -184,7 +203,7 @@ class BpyDataMcBeard(BpyDataInsbase):
                 return True
         return False 
 
-    def _adjust_varity_in_combination(self, map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info):
+    def _adjust_varity_in_combination(self, cw, map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info):
         vals = [1.0, 0.8, 0.6, 0.4, 0.2, 0.0]
 
         hair = hair_objs[hidx]
@@ -193,7 +212,7 @@ class BpyDataMcBeard(BpyDataInsbase):
         self._select_one_visible_obj_only(hair, hair_objs)
         self._select_one_visible_obj_only(beard, beard_objs)
 
-        combination_name = "H{:02}B{:02}F{:02}{}-m{}c{:03}".format(hidx, bidx, fidx, gender, self.ar_model_id, cmb_idx)
+        combination_name = cw.get_combination_name(hidx, bidx, fidx, gender, self.ar_model_id, cmb_idx)
         log_colorstr("yellow", "new combination: {} ".format(combination_name))
 
         vidx = 0 
@@ -235,13 +254,12 @@ class BpyDataMcBeard(BpyDataInsbase):
         with open(filename, "wt+") as f0:
             json.dump(gi, f0, indent=4)            
 
-
     def _adjust_shapekeys(self, map_skm, shot_info=None):
-        ci = CombinationIterator(self.cltname2objs)
+        cw = CombinationWalker(self.cltname2objs)
 
-        beard_objs = ci.beard_objs
-        hair_objs = ci.hair_objs
-        face_objs = ci.face_objs
+        beard_objs = cw.beard_objs
+        hair_objs = cw.hair_objs
+        face_objs = cw.face_objs
 
         self._deselect_all_obj(beard_objs)
         self._deselect_all_obj(hair_objs)
@@ -249,7 +267,7 @@ class BpyDataMcBeard(BpyDataInsbase):
 
         cvcnt = 0
         cmb_idx = 0
-        cits = ci.build_iterator()
+        cits = cw.build_iterator()
         for cit in cits:
             cmb_idx = cit.cmb_idx
             if self.env_combination_id != -1:
@@ -259,7 +277,7 @@ class BpyDataMcBeard(BpyDataInsbase):
             hidx, bidx, fidx = cit.hidx, cit.bidx, cit.fidx
             gender = cit.gender
             d0 = datetime.now()
-            combination_name, vcnt = self._adjust_varity_in_combination(map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info)
+            combination_name, vcnt = self._adjust_varity_in_combination(cw, map_skm, cmb_idx, hidx, hair_objs, bidx, beard_objs, fidx, face_objs, gender, shot_info)
             dt = datetime.now() - d0
             self._save_shot_info(combination_name, vcnt, dt.total_seconds(), shot_info)
             self._save_publishing_info(combination_name, vcnt, dt.total_seconds())
