@@ -20,8 +20,10 @@ def do_trace(filenames, plot=True):
         if not filename.startswith("/"):
             filename = dir_root + os.sep + filename
 
+        mem_dump("ck11")
         ffg.save_results(filename)
         #ffg.show_results(filename)
+        mem_dump("ck12")
 
     mem_dump("ck02")
     del ffg
