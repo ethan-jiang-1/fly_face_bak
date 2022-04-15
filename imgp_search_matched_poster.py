@@ -91,7 +91,7 @@ class SearchMatchedPoster():
     
     @classmethod
     def search_for_poster_with_gender(cls, img_filename, gender):
-        return cls.search_for_poster(cls, img_filename, gender)
+        return cls.search_for_poster(img_filename, gender)
 
 def _debug_search_result(filename, smp_ret):
     from utils.plot_helper import PlotHelper

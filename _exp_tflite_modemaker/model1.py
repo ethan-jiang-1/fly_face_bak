@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 dir_this = os.path.dirname(__file__)
 # image_path = os.path.join(dir_this, 'flower_photos')
 
-data = DataLoader.from_folder("../_dataset_hair_styles")
+data = DataLoader.from_folder("../_dataset_hair_styles/F")
 
 train_data, rest_data = data.split(0.8)
 validation_data, test_data = rest_data.split(0.5)
@@ -63,5 +63,5 @@ for i, (image, label) in enumerate(test_data.gen_dataset().unbatch().take(100)):
 plt.show()
 
 config = QuantizationConfig.for_float16()
-model._export_tflite('cls_hair_1.tflite',  quantization_config=config, with_metadata=True, export_metadata_json_file=True)
+model._export_tflite('cls_hair_F.tflite',  quantization_config=config, with_metadata=True, export_metadata_json_file=True)
 # model.export(export_dir='.', tflite_filename='cls_hair.tflite', quantization_config=config, export_format=ExportFormat.LABEL)
