@@ -1,17 +1,18 @@
 import os 
 import sys
 import gc
+#import numpy as np
 
 dir_root = os.path.dirname(os.path.dirname(__file__))
 if dir_root not in sys.path:
     sys.path.append(dir_root)
 
-from track_mem.mem_tracker import mem_dump
+from track_mem.mem_tracker import mem_dump, plot_mem_history
 from utils_inspect.sample_images import SampleImages
 from imgp_search_matched_poster import SearchMatchedPoster
 
 
-def do_trace(filenames):
+def do_trace(filenames, plot=True):
     print()
     mem_dump("ck01")
     smg = SearchMatchedPoster()
@@ -33,10 +34,19 @@ def do_trace(filenames):
     mem_dump("ck04")
     print()
 
+    if plot:
+        plot_mem_history()
+
 
 if __name__ == '__main__':
     filenames = SampleImages.get_sample_images_female()
-    do_trace(filenames)
+    do_trace(filenames, plot=False)
 
     filenames = SampleImages.get_sample_images_male()
+    do_trace(filenames, plot=False)
+
+    filenames = SampleImages.get_sample_images_brd()
+    do_trace(filenames, plot=False)
+
+    filenames = SampleImages.get_sample_images_hsi()
     do_trace(filenames)

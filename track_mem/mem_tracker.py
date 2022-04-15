@@ -22,9 +22,28 @@ def mem_profile(func):
         return result
     return wrapper
 
-
+s_mem_history = []
 def mem_dump(cp_name):
-    print(cp_name, "{:,}".format(mem_process_memory()))
+    global s_mem_history
+    mem = mem_process_memory()
+    s_mem_history.append(mem)
+    print(cp_name, "{:,}".format(mem))
+
+def get_mem_history():
+    global s_mem_history
+    return s_mem_history
+
+def plot_mem_history():
+    import matplotlib.pyplot as plt
+    import numpy as np
+
+    np_mh = np.array(s_mem_history).astype("float")
+    np_mh /= float(1024 * 1024)
+
+    plt.figure(figsize=(8, 8))
+    plt.plot([i for i in range(len(np_mh))], np_mh)
+    plt.ylabel('mem(G)')
+    plt.show()
 
 
 if __name__ == '__main__':
