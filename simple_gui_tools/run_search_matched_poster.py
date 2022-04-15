@@ -9,7 +9,7 @@ def _check_run_path():
         sys.path.append(dir_root)
 
 def main_page():
-    version = 1.0
+    version = 1.1
     sg.theme('Light Blue 2')
     
     layout = [[sg.Button('选择文件', size=(9, 1)), sg.Button('选择目录', size=(9, 1)), sg.Button('退出', size=(9, 1))]]
@@ -65,7 +65,7 @@ def dep_one_file():
 
                 img_poster = cv2.imread(smp_ret.poster_pathname)
                 imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
-                names = ["org", "hair[{}]".format(smp_ret.hair_id), "face[{}]".format(smp_ret.face_id), "beard[{}]".format(smp_ret.beard_id), "poster"]
+                names = ["org", "hair[{}]".format(smp_ret.hair_id), "face[{}]".format(smp_ret.face_id), "beard[{}]".format(0 if smp_ret.beard_id == 0 else 1), "poster"]
                 PlotHelper.plot_imgs(imgs, names)
         elif event in (None, 'Exit'):
             break
@@ -116,7 +116,7 @@ def dep_one_by_one():
 
                     img_poster = cv2.imread(smp_ret.poster_pathname)
                     imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
-                    names = ["org[{}]".format(file), "hair[{}]".format(smp_ret.hair_id), "face[{}]".format(smp_ret.face_id), "beard[{}]".format(smp_ret.beard_id), "poster"]
+                    names = ["org[{}]".format(file), "hair[{}]".format(smp_ret.hair_id), "face[{}]".format(smp_ret.face_id), "beard[{}]".format(0 if smp_ret.beard_id == 0 else 1), "poster"]
                     PlotHelper.plot_imgs(imgs, names)
         elif event in (None, 'Exit'):
             break
