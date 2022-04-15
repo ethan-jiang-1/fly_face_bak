@@ -1,5 +1,11 @@
 import os
 import gc
+import platform
+
+if platform == "linux" or platform == "linux2":
+    import matplotlib
+    if matplotlib.get_backend() != "TkAgg":
+        matplotlib.use("Agg")
 
 # inner psutil function
 def mem_process_memory():

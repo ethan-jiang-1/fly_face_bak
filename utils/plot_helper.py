@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 if platform == "linux" or platform == "linux2":
     import matplotlib
-    matplotlib.use("Agg")
+    if matplotlib.get_backend() != "TkAgg":
+        matplotlib.use("Agg")
 
 
 class PlotHelper(object):

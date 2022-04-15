@@ -1,14 +1,12 @@
 import os
 import sys
 import PySimpleGUI as sg
-import matplotlib
-import matplotlib.pyplot as plt
-import matplotlib
-from matplotlib.backends.backend_tkagg import (
-    FigureCanvasTkAgg, NavigationToolbar2Tk)
+#import matplotlib
+#import matplotlib.pyplot as plt
+#import matplotlib
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk) # noqa: F401
 from pprint import pprint
 
-from numpy import size
 
 def _check_run_path():
     dir_root = os.path.dirname(os.path.dirname(__file__))
@@ -140,7 +138,7 @@ def dep_one_by_one():
                     canvas = sg.Canvas(key="canvas{}".format(index), size=(1200, 600), expand_x=True, expand_y=True)
                     tabgroup.add_tab(sg.Tab(file, expand_x=True, expand_y=True, layout=[[get_result(smp_ret, img_poster, gender)], [canvas]]))
                     draw_figure(canvas.TKCanvas, fig)
-                    index += 1;
+                    index += 1
                 
                 tabgroup.set_size(size=(1200, 600))
                 window.refresh()
