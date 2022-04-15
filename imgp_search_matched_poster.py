@@ -172,7 +172,7 @@ def do_exp_single(debug):
 
     SearchMatchedPoster.init_searcher()
 
-    filename = "utils_inspect/_sample_imgs/F_hsi_image8.jpeg"
+    filename = "utils_inspect/_sample_imgs/M_hsi_image2.jpeg"
 
     smp_ret, dt = _do_search_for_poster(filename, debug=debug)
     del smp_ret

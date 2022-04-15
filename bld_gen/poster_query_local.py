@@ -14,6 +14,10 @@ class PosterQueryLocal(object):
             log_colorstr("red", "no local output folder found from bld_gen")
             return None, None
 
+        # ethan hack: we only support one type of beard for now (2020/4/15)
+        if beard_id > 0:
+            beard_id = 1
+
         folder_id = "H{:02d}B{:02d}F{:02d}{}".format(hair_id, beard_id, face_id, gender)
         map_subfolder = cls._get_mapped_output_subfolders()
         if map_subfolder is None:
@@ -26,6 +30,7 @@ class PosterQueryLocal(object):
         matched_folder = map_subfolder[folder_id]
 
         picked_pathname, _ = cls._random_pick_a_filename(matched_folder, folder_id)
+        log_colorstr("green", "matched poster found at {} to match {}".format(picked_pathname, folder_id))
 
         return picked_pathname, None
 
