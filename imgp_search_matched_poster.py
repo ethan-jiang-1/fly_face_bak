@@ -81,6 +81,40 @@ class SearchMatchedPoster():
                              face_id=face_id,
                              poster_pathname=poster_pathname)
         return smp_ret
+    
+    @classmethod
+    def search_for_poster_with_gender(cls, img_filename, gender):
+        import os
+        cls.init_searcher()
+
+        imgs, etnames = cls.ffg.process_image(img_filename)
+        title = os.path.basename(img_filename)
+        log_colorstr("blue", "#SMP: process {} as {}".format(img_filename, title))
+
+        img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
+
+        if gender not in ['F', 'M']:
+            log_colorstr("red", "#SMP: not able to guess gender from filename, should starts with F_ or M_: {}".format(img_filename))
+            raise ValueError("filename should starts with F_ or M_: {}".format(title))
+
+        hair_id = ClfHair.get_category_id(img_hair, gender=gender)
+        beard_id = ClfBeard.get_category_id(img_beard, gender=gender)
+        face_id = ClfFace.get_category_id(img_face, gender=gender)
+
+        log_colorstr("blue", "#SMP: hair_id:{},  beard_id:{}, face_id:{}".format(hair_id, beard_id, face_id))
+
+        poster_pathname, _ = PosterQueryLocal.get_poster(hair_id, beard_id, face_id, gender)
+        log_colorstr("blue", "#SMP: poster_pathname: {}".format(poster_pathname))
+        
+        smp_ret = SMP_RESULT(img_org=img_org,
+                             img_hair=img_hair,
+                             img_beard=img_beard,
+                             img_face=img_face,
+                             hair_id=hair_id,
+                             beard_id=beard_id,
+                             face_id=face_id,
+                             poster_pathname=poster_pathname)
+        return smp_ret
 
 def _debug_search_result(filename, smp_ret):
     from utils.plot_helper import PlotHelper
