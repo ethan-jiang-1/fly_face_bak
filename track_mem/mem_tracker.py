@@ -57,22 +57,29 @@ def mem_profile(func):
         return result
     return wrapper
 
-s_mem_history = []
+s_mem_max = 99999
+s_mem_history = [0.0 for _ in range(s_mem_max)]
+s_mem_idx = 0
 def mem_dump(cp_name):
-    global s_mem_history
+    global s_mem_history, s_mem_max, s_mem_idx
     mem = mem_process_memory()
-    s_mem_history.append(mem)
+    s_mem_history[s_mem_idx] = mem
+    s_mem_idx += 1
+    s_mem_idx %= s_mem_max
     _log_colorstr("bright_magenta", "{:,}@{}".format(mem, cp_name))
 
 def get_mem_history():
     global s_mem_history
-    return s_mem_history
+    mem_final = [val for val in s_mem_history if val > 0.0]    
+    return mem_final
 
 def plot_mem_history(title=None):
     import matplotlib.pyplot as plt
     import numpy as np
 
-    np_mh = np.array(s_mem_history).astype("float")
+    mem_final = get_mem_history()
+
+    np_mh = np.array(mem_final).astype("float")
     np_mh /= float(1024 * 1024)
 
     plt.figure(figsize=(8, 8))

@@ -9,7 +9,7 @@ if dir_root not in sys.path:
 
 from track_mem.mem_tracker import mem_dump, plot_mem_history
 from utils_inspect.sample_images import SampleImages
-from imgp_agent.tflite_hair_segmentation.hair_segmentation_interpeter import HairSegmentationInterpreter
+from imgp_agent.imgp_face_aligment import ImgpFaceAligment
 from utils.file_helper import FileHelper
 import cv2
 
@@ -19,9 +19,8 @@ def do_trace(filenames, plot=True, gender=None):
     global s_cnt
     print()
     mem_dump("ck01")
-
-    hsi = HairSegmentationInterpreter(debug=False)
-    hsi.validate()
+    ImgpFaceAligment.init_imgp()
+    mem_dump("ck02")
 
     for filename in filenames:
         if not filename.startswith("/"):
@@ -29,13 +28,14 @@ def do_trace(filenames, plot=True, gender=None):
 
         img = cv2.imread(filename, cv2.IMREAD_ANYCOLOR)
         img_resized = cv2.resize(img, (512, 512))
-        img_unified, mask_white, mask_black, dt = hsi.run_inference(img_resized)
+        img_aligned, fa_ret = ImgpFaceAligment.make_aligment(img_resized)
+
         mem_dump("ck10")
 
+        del img
         del img_resized
-        del img_unified
-        del mask_white
-        del mask_black
+        del img_aligned
+        del fa_ret
 
         s_cnt += 1
 
@@ -43,9 +43,11 @@ def do_trace(filenames, plot=True, gender=None):
         gc.collect()        
         mem_dump("ck12")
 
-    mem_dump("ck02")
-    gc.collect()
     mem_dump("ck03")
+    ImgpFaceAligment.close_imgp()
+    mem_dump("ck04")
+    gc.collect()
+    mem_dump("ck05")
     print()
 
     if plot:

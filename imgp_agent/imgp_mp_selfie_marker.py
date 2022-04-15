@@ -34,14 +34,12 @@ class ImgpSelfieMarker():
         if cls.slt_reference == 0:
             if cls.slt_selfie is not None:
                 cls.slt_selfie.close()
+                del cls.slt_selfie
                 cls.slt_selfie = None
             print("#ImgpSelfieMarker closed")
 
     @classmethod
     def fliter_selfie(cls, image, debug=False):
-        if cls.slt_selfie is None:
-            cls.init_imgp()
-        
         slt_selfie = cls.slt_selfie
         # To improve performance, optionally mark the image as not writeable to
         # pass by reference.

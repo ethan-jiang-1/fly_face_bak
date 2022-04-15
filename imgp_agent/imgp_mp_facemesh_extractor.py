@@ -30,14 +30,13 @@ class ImgpFacemeshExtractor():
         if cls.slt_reference == 0:
             if cls.slt_facemesh is not None:
                 cls.slt_facemesh.close()
+                if cls.slt_facemesh is not None:
+                    del cls.slt_facemesh
                 cls.slt_facemesh = None
             print("#ImgpFacemeshExtractor closed")
 
     @classmethod
     def extract_mesh_features(cls, img_org, debug=False):
-        if cls.slt_facemesh is None:
-            cls.init_imgp()
-
         d0 = datetime.now()
         image, mesh_results = cls._extract_face_mesh(img_org, debug=debug)
 
