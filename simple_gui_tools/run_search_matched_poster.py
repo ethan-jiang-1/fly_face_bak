@@ -60,8 +60,13 @@ def dep_one_file():
                 male = values["radio_male"]
                 gender = "M" if male else "F"
                 print("->file: %s, gender: %s" % (os.path.basename(values[0]), gender))
-                smp_ret = SearchMatchedPoster.search_for_poster_with_gender(values[0], gender)
-                pprint(smp_ret)
+                
+                try:
+                    smp_ret = SearchMatchedPoster.search_for_poster_with_gender(values[0], gender)
+                    pprint(smp_ret)
+                except Exception as ex:
+                        print("<><run_search_matched_poster.dep_one_by_one>error: %s" % ex)
+                        continue
 
                 img_poster = cv2.imread(smp_ret.poster_pathname)
                 imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
@@ -111,8 +116,12 @@ def dep_one_by_one():
                         continue
 
                     print("->file: %s, gender: %s" % (os.path.basename(values[0]), gender))
-                    smp_ret = SearchMatchedPoster.search_for_poster_with_gender("{}/{}".format(values[0], file), gender)
-                    pprint(smp_ret)
+                    try:
+                        smp_ret = SearchMatchedPoster.search_for_poster_with_gender("{}/{}".format(values[0], file), gender)
+                        pprint(smp_ret)
+                    except Exception as ex:
+                        print("<><run_search_matched_poster.dep_one_by_one>error: %s" % ex)
+                        continue
 
                     img_poster = cv2.imread(smp_ret.poster_pathname)
                     imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_face, smp_ret.img_beard, img_poster]
