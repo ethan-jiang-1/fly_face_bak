@@ -99,6 +99,9 @@ def dep_one_by_one():
             elif (not os.path.exists(values[0])):
                 sg.popup("目录不存在，请重新选择")
             else:
+                import matplotlib.pyplot as plt
+                plt.ioff()
+                
                 male = values["radio_male"]
                 gender = "M" if male else "F"
                 
