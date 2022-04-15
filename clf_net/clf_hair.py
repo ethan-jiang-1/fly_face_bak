@@ -34,6 +34,9 @@ class ClfHair(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             # reshape
             res_img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
+
+            interpreter_M.reset_all_variables()
+
             # expand 1 axis
             image_np_expanded = np.expand_dims(res_img, axis=0)
             image_np_expanded = image_np_expanded.astype('float32')
@@ -57,6 +60,9 @@ class ClfHair(object):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             # reshape
             res_img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
+
+            interpreter_F.reset_all_variables()
+    
             # expand 1 axis
             image_np_expanded = np.expand_dims(res_img, axis=0)
             image_np_expanded = image_np_expanded.astype('float32')

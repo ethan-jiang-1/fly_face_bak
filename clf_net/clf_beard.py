@@ -32,6 +32,9 @@ class ClfBeard(object):
         # expand 1 axis
         image_np_expanded = np.expand_dims(res_img, axis=0)
         image_np_expanded = image_np_expanded.astype('float32')
+
+        interpreter.reset_all_variables()
+
         # feed data
         interpreter.set_tensor(input_details[0]['index'], image_np_expanded)
         # run model

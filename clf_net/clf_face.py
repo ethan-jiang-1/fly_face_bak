@@ -1,6 +1,6 @@
 # import os
 # import sys
-import numpy as np
+#import numpy as np
 
 class ClfFace(object):
     @classmethod
@@ -17,7 +17,7 @@ def do_exp(img_pathname):
     #     img_pathname = "{}/{}".format(dir_root, img_pathname)
     #
     # id = ClfFace.get_category_id(img_pathname)
-    id = np.random.randint(0,3)
+    id = 0
     print("category id for {} is {}".format(img_pathname, id))
     return id
 
