@@ -80,9 +80,9 @@ def do_extract_beardstyles(src_dirs, dst_dir, plot_img=True, save_img=True):
 def analysis_all_files():
     #dir_root = os.path.dirname(__file__)
     src_dirs = [] 
-    src_dirs.append("dataset_org_beard_styles/Beard Version 1.1/01")
-    src_dirs.append("dataset_org_beard_styles/Beard Version 1.1/02")
-    src_dirs.append("dataset_org_beard_styles/Beard Version 1.1/03")
+    src_dirs.append("data/dataset_org_beard_styles/Beard Version 1.1/01")
+    src_dirs.append("data/dataset_org_beard_styles/Beard Version 1.1/02")
+    src_dirs.append("data/dataset_org_beard_styles/Beard Version 1.1/03")
 
     dst_dir = "_reserved_output_beard_styles"
 

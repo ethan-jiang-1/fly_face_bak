@@ -60,7 +60,7 @@ def do_exp(full_path):
 if __name__ == '__main__':
     parent_dir = os.path.dirname(os.path.dirname(__file__))
 
-    filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
+    filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
 
     full_path = parent_dir + os.sep + filename
 

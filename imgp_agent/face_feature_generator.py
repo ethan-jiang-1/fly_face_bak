@@ -177,15 +177,15 @@ class FaceFeatureGenerator(object):
 
 
 def do_exp_file():
-    #filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+    #filename = "data/dataset_org_hair_styles/Version 1.1/02/001.jpeg"
     #filename = "_reserved_bug_imgs/hair_WechatIMG303.jpeg"
 
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
-    filename = "dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
+    filename = "data/dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
 
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
 
     ffg = FaceFeatureGenerator(debug=True)
     ffg.show_results(filename) 
@@ -200,7 +200,7 @@ def do_exp_dir():
 
     parent_dir = os.path.dirname(os.path.dirname(__file__))
     #src_dir = os.sep.join([parent_dir, "utils_inspect", "_sample_imgs"])   
-    src_dir = os.sep.join([parent_dir, "dataset_org_hair_styles/Version 1.4/00"])   
+    src_dir = os.sep.join([parent_dir, "data/dataset_org_hair_styles/Version 1.4/00"])   
 
     filenames = FileHelper.find_all_images(src_dir)
     filenames = sorted(filenames)

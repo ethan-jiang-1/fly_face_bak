@@ -56,7 +56,7 @@ seq = iaa.Sequential([
 # 遍历要增强的文件夹，把所有的图片保存在imglist中
 dir_this = os.path.dirname(__file__)
 idx = '02'
-path = '{}/../dataset_org_beard_styles/Beard Version 1.1/{}/'.format(dir_this, idx)
+path = '{}/../data/dataset_org_beard_styles/Beard Version 1.1/{}/'.format(dir_this, idx)
 saved_path = '{}/../_output_beard_gen/{}/'.format(dir_this,idx)
 imglist=[]
 filelist = os.listdir(path)

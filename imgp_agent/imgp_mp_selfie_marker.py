@@ -131,7 +131,6 @@ def do_exp():
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
-    src_dir = os.sep.join([_get_root_dir(), "dataset_org_hair_styles/Version 1.4/00"])
 
     _mark_selfie_imgs(src_dir, debug=True)
 

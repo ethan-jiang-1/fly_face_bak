@@ -129,9 +129,9 @@ def do_exp_folder(src_dir=None, quick_check=True):
     parent_dir = os.path.dirname(os.path.dirname(__file__))
 
     if src_dir is None:
-        #src_dir = "/Users/bowhead/prj_fly_face/dataset_org_beard_styles/Beard Version 1.1/01"
-        #src_dir = "/Users/bowhead/prj_fly_face/dataset_org_beard_styles/Beard Version 1.1/02"
-        #src_dir = "/Users/bowhead/prj_fly_face/dataset_org_beard_styles/Beard Version 1.1/03"
+        #src_dir = "/Users/bowhead/prj_fly_face/data/dataset_org_beard_styles/Beard Version 1.1/01"
+        #src_dir = "/Users/bowhead/prj_fly_face/data/dataset_org_beard_styles/Beard Version 1.1/02"
+        #src_dir = "/Users/bowhead/prj_fly_face/data/dataset_org_beard_styles/Beard Version 1.1/03"
         src_dir = "utils_inspect/_sample_imgs"
     
     if not src_dir.startswith("/"):
@@ -165,23 +165,23 @@ def do_exp_single(filename=None):
     parent_dir = os.path.dirname(os.path.dirname(__file__))
 
     if filename is None:
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/03/03_020.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/03/03_019.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/03/03_018.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/03/03_017.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/03/03_016.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/03/03_015.jpg"
 
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_002.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_003.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_004.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_005.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_006.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_007.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
-        #filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
-        filename = "dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_001.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_002.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_003.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_004.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_005.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_006.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_007.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_008.jpg"
+        #filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_009.jpg"
+        filename = "data/dataset_org_beard_styles/Beard Version 1.1/01/01_010.jpg"
 
     if not filename.startswith("/"):
         filename = parent_dir + os.sep + filename

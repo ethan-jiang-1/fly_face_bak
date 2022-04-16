@@ -126,6 +126,6 @@ def do_exp(dir_org, dir_dst):
 
 if __name__ == '__main__':
 
-    dir_org = "dataset_org_beard_styles/Beard Version 1.2"
+    dir_org = "data/dataset_org_beard_styles/Beard Version 1.2"
     dir_dst = "_dataset_beard_styles"
     do_exp(dir_org, dir_dst)

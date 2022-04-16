@@ -149,23 +149,23 @@ def do_exp_folder():
     #src_dir = os.sep.join([_get_root_dir(), "_test_imgs_1"])
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     #src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
-    src_dir = os.sep.join([_get_root_dir(), "dataset_org_hair_styles/Version 1.4/00"])
+    src_dir = os.sep.join([_get_root_dir(), "data/dataset_org_hair_styles/Version 1.4/00"])
 
     _mark_hair_imgs(src_dir, debug=True)
 
-    #src_filename = "dataset_org_hair_styles/Version 1.1/02/001.jpeg"
+    #src_filename = "data/dataset_org_hair_styles/Version 1.1/02/001.jpeg"
     #_mark_hair_img(src_filename)
 
 def do_exp_single():
     dir_root = _get_root_dir()
 
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-001.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
-    #filename = "dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-001.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-002.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-003.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-004.jpg"
+    #filename = "data/dataset_org_hair_styles/Version 1.4/00/00-005.jpg"
 
-    filename = "dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
+    filename = "data/dataset_org_hair_styles/Version 1.4/00/00-015.jpg"
 
     filename = dir_root + os.sep + filename 
     _mark_hair_img(filename, debug=True)
