@@ -62,7 +62,7 @@ if __name__ == '__main__':
     else:
         dir_root = os.getcwd()
 
-    for i in range(10):
+    for i in range(30):
 
         filenames = FileHelper.find_all_images(dir_root + os.sep + "dataset_org_hair_styles/Version 1.4/00")
         do_trace(filenames, plot=False, gender="M")
