@@ -95,8 +95,10 @@ class SearchMatchedPoster():
 
 def _debug_search_result(filename, smp_ret):
     from utils.plot_helper import PlotHelper
+    from imgp_agent.fcx_hair.fcx_base import FcxBase
     img_poster = cv2.imread(smp_ret.poster_pathname)
-    imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_beard, smp_ret.img_face, img_poster]
+    img_poster_wb = FcxBase.ipc_white_balance_color(img_poster)
+    imgs = [smp_ret.img_org, smp_ret.img_hair, smp_ret.img_beard, smp_ret.img_face, img_poster_wb]
     names = ["org", "hair", "beard", "face", "poster"]
 
     PlotHelper.plot_imgs(imgs, names)
@@ -157,4 +159,4 @@ def do_exp_single(debug):
 
 if __name__ == '__main__':
     #do_exp(debug=False)
-    do_exp_single(debug=False)
+    do_exp_single(debug=True)
