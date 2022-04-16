@@ -12,6 +12,10 @@ class HairSegmentationInterpreter(object):
         self.debug = debug
         self.ipt = self._create_tfl_interperter()
 
+    def __del__(self):
+        if self.ipt is not None:
+            del self.ipt
+
     def _create_tfl_interperter(self):
         try:
             import tflite_runtime.interpreter as tflite

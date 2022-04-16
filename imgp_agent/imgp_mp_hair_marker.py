@@ -37,7 +37,9 @@ class ImgpHairMarker():
         if cls.hsi_reference == 0:
             if cls.hsi_klass is not None:
                 cls.hsi_klass = None
-                cls.hsi_instance = None
+                if cls.hsi_instance is not None:
+                    del cls.hsi_instance
+                cls.hsi_instance = None 
             print("#ImgpHairMarker closed")
 
     @classmethod

@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 
 if platform == "linux" or platform == "linux2":
     import matplotlib
-    matplotlib.use("Agg")
+    if matplotlib.get_backend() != "TkAgg":
+        matplotlib.use("Agg")
 
 
 class PlotHelper(object):
@@ -17,7 +18,7 @@ class PlotHelper(object):
         plt.show()
 
     @classmethod
-    def plot_imgs(cls, imgs, names=None, title=None):
+    def plot_imgs(cls, imgs, names=None, title=None, return_fig=False):
         fig = plt.figure(figsize=(14, 6))    
         if title is not None:
             ax = plt.gca()
@@ -32,7 +33,11 @@ class PlotHelper(object):
                 ax.set_title(names[i])
             if img is not None:
                 ax.imshow(img, interpolation="none")
-        plt.show()    
+        
+        if return_fig:
+            return fig
+        else:
+            plt.show()
 
     @classmethod
     def plot_imgs_vertical(cls, imgs, names=None, title=None, horizontal=True):

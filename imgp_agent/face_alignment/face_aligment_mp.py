@@ -10,6 +10,13 @@ except:
 class FaceAlignemtMp(FaceAligmentBase):
     def __init__(self, debug=True):
         super(FaceAlignemtMp, self).__init__(debug=debug)
+        self.slt_face_mesh = None 
+        self.mesh_ndx_face_oval = None
+        
+    def __del__(self):
+        if hasattr(self, "slt_face_mesh"):
+            self.slt_face_mesh.close()
+            del self.slt_face_mesh
 
     def create_detector(self):
         import mediapipe as mp # this is not a must dependency. do not import it in the global level.
