@@ -44,12 +44,12 @@ class ImgpFacemeshExtractor():
         d0 = datetime.now()
         image_bgr, mesh_results = cls._extract_face_mesh(img_org, debug=debug)
 
-        #img_facemesh = cls._draw_meshes(image_bgr, mesh_results)
-        #img_facepaint = cls._paint_meshes(image_bgr, mesh_results)
-        #img_outline = cls._paint_outline(image_bgr, mesh_results)
-        img_facemesh = None 
-        img_facepaint = None 
-        img_outline = None 
+        img_facemesh = cls._draw_meshes(image_bgr, mesh_results)
+        img_facepaint = cls._paint_meshes(image_bgr, mesh_results)
+        img_outline = cls._paint_outline(image_bgr, mesh_results)
+        #img_facemesh = None 
+        #img_facepaint = None 
+        #img_outline = None 
         dt = datetime.now() - d0
         print("inference time(fm) :{:.3f}".format(dt.total_seconds()))
 
@@ -68,10 +68,11 @@ class ImgpFacemeshExtractor():
         #slt_facemesh.reset()
         mp_face_mesh = mp.solutions.face_mesh
         with mp_face_mesh.FaceMesh(
+            static_image_mode=True,
             max_num_faces=1,
             refine_landmarks=True,
             min_detection_confidence=0.5,
-            min_tracking_confidence=0.5) as slt_facemesh:
+            min_tracking_confidence=0.0) as slt_facemesh:
 
             # To improve performance, optionally mark the image as not writeable to
             # pass by reference.
@@ -87,9 +88,9 @@ class ImgpFacemeshExtractor():
             # Draw the face mesh annotations on the image.
             image.flags.writeable = True
             image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            del mesh_results
-        #return image_bgr, mesh_results
-        return image_bgr, None
+            #del mesh_results
+        return image_bgr, mesh_results
+        #return image_bgr, None
 
     @classmethod
     def _draw_meshes(cls, image, mesh_results):
