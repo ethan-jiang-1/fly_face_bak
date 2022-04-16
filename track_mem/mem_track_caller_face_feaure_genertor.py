@@ -9,9 +9,10 @@ if dir_root not in sys.path:
 from track_mem.mem_tracker import mem_dump, plot_mem_history
 from utils_inspect.sample_images import SampleImages
 from imgp_agent.face_feature_generator import FaceFeatureGenerator
+from utils.file_helper import FileHelper
 
 s_cnt = 0
-def do_trace(filenames, plot=True):
+def do_trace(filenames, plot=True, gender="M"):
     global s_cnt
     print()
     mem_dump("ck01")
@@ -40,7 +41,22 @@ def do_trace(filenames, plot=True):
 
 
 if __name__ == '__main__':
-    for i in range(20):
+    if __file__.startswith("/"):
+        dir_root = os.path.dirname(os.path.dirname(__file__))
+    else:
+        dir_root = os.getcwd()
+
+    for i in range(10):
+
+        filenames = FileHelper.find_all_images(dir_root + os.sep + "dataset_org_hair_styles/Version 1.4/00")
+        do_trace(filenames, plot=False, gender="M")
+
+        filenames = FileHelper.find_all_images(dir_root + os.sep + "dataset_org_hair_styles/Version 1.4/01")
+        do_trace(filenames, plot=False, gender="F")
+
+        filenames = FileHelper.find_all_images(dir_root + os.sep + "dataset_org_hair_styles/Version 1.4/02")
+        do_trace(filenames, plot=False, gender="F")
+
         filenames = SampleImages.get_sample_images_female()
         do_trace(filenames, plot=False)
 
@@ -48,6 +64,12 @@ if __name__ == '__main__':
         do_trace(filenames, plot=False)
 
         filenames = SampleImages.get_sample_images_brd()
+        do_trace(filenames, plot=False)
+
+        filenames = SampleImages.get_sample_images_ctn()
+        do_trace(filenames, plot=False)
+
+        filenames = SampleImages.get_sample_images_icl()
         do_trace(filenames, plot=False)
 
     filenames = SampleImages.get_sample_images_hsi()
