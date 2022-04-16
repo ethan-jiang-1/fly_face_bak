@@ -1,8 +1,8 @@
 import os
-from posixpath import basename
 import sys
 import PySimpleGUI as sg
 
+from posixpath import basename
 from collections import namedtuple
 
 SMP_RESULT = namedtuple('SMP_RESULT', "img_org img_hair img_beard img_face hair_id beard_id face_id poster_pathname") 
@@ -44,7 +44,7 @@ class SearchMatchedPoster():
         return img_org, img_hair, img_face, img_beard
 
     @classmethod
-    def search_for_poster(cls, img_filename, chk_hair, chk_beard, chk_face):
+    def search_for_poster(cls, img_filename, chk_hair, chk_beard, chk_face, gender):
         from clf_net.clf_face import ClfFace
         from clf_net.clf_beard import ClfBeard
         from clf_net.clf_hair import ClfHair
@@ -60,7 +60,6 @@ class SearchMatchedPoster():
         img_org, img_hair, img_face, img_beard = cls.get_bin_images(imgs, etnames)
 
         bname = os.path.basename(img_filename)
-        gender = basename.split("_")[0]
         if gender not in ["F", "M"]:
             raise ValueError("not able to indentify gender from filename: {}".format(bname))
 
@@ -87,8 +86,16 @@ def start_work():
     sg.theme('Light Blue 2')
     
     layout = [[sg.Text('功能说明：选择图片的根目录(如Version 1.2)，检查所有(发型/胡子/脸型)分类是否正确', text_color="blue")],
-              [sg.Button('OK'), sg.Button('Exit'), sg.Radio("头发", key = "radio_hair", group_id = 1, default=True), sg.Radio("胡子", key = "radio_beard", group_id = 1), sg.Radio("脸型", key = "radio_face", group_id = 1)],
-              [sg.Text('选择目录', auto_size_text=True), sg.Input(size=(40, 1)), sg.FolderBrowse(key='folder_browse', initial_folder="/Users/gaobo/Workspace/Python/fly_face/_dataset_org_hair_styles/Version 1.1")],
+              [sg.Button('OK'), 
+               sg.Button('Exit'), 
+               sg.Radio("头发", key = "radio_hair", group_id = 1, default=True), 
+               sg.Radio("胡子", key = "radio_beard", group_id = 1), 
+               sg.Radio("脸型", key = "radio_face", group_id = 1), 
+               sg.Radio("男", group_id=2, key="radio_male", default=True), 
+               sg.Radio("女", group_id=2, key="radio_female")],
+              [sg.Text('选择目录', auto_size_text=True), 
+               sg.Input(size=(40, 1)), 
+               sg.FolderBrowse(key='folder_browse', initial_folder=os.path.dirname(__file__))],
               [sg.Multiline('输出结果', key = "result", size=(56, 20))],
              ]
 
@@ -111,6 +118,9 @@ def start_work():
                 window["result"].update("目录不存在，请重新选择")
             else:
                 window["result"].update("开始分析...")
+                male = values["radio_male"]
+                gender = "M" if male else "F"
+                
                 sub_folder_list = []
                 sub_folders = sorted(os.listdir(selected_folder))
                 for sub_folder in sub_folders:
@@ -135,7 +145,7 @@ def start_work():
                                 continue
                             
                             file_name = "{}/{}".format(sub_folder_full_path, file)
-                            smp_ret = SearchMatchedPoster.search_for_poster(file_name, check_hair, check_beard, check_face)
+                            smp_ret = SearchMatchedPoster.search_for_poster(file_name, check_hair, check_beard, check_face, gender)
                             # pprint(smp_ret)
                             result_list_all.append("file: {}, sub_folder: {}, hair: {}, face: {}, beard: {}".format(file, sub_folder, smp_ret.hair_id, smp_ret.face_id, smp_ret.beard_id))
                             
