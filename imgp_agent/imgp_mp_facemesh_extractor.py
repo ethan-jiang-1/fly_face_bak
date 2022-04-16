@@ -44,12 +44,12 @@ class ImgpFacemeshExtractor():
         d0 = datetime.now()
         image_bgr, mesh_results = cls._extract_face_mesh(img_org, debug=debug)
 
-        #img_facemesh = cls._draw_meshes(image_bgr, mesh_results)
-        #img_facepaint = cls._paint_meshes(image_bgr, mesh_results)
-        #img_outline = cls._paint_outline(image_bgr, mesh_results)
-        img_facemesh = None 
-        img_facepaint = None 
-        img_outline = None 
+        img_facemesh = cls._draw_meshes(image_bgr, mesh_results)
+        img_facepaint = cls._paint_meshes(image_bgr, mesh_results)
+        img_outline = cls._paint_outline(image_bgr, mesh_results)
+        # img_facemesh = None 
+        # img_facepaint = None 
+        # img_outline = None 
         dt = datetime.now() - d0
         print("inference time(fm) :{:.3f}".format(dt.total_seconds()))
 
@@ -87,9 +87,7 @@ class ImgpFacemeshExtractor():
             # Draw the face mesh annotations on the image.
             image.flags.writeable = True
             image_bgr = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            del mesh_results
-        #return image_bgr, mesh_results
-        return image_bgr, None
+        return image_bgr, mesh_results
 
     @classmethod
     def _draw_meshes(cls, image, mesh_results):
@@ -121,7 +119,7 @@ class ImgpFacemeshExtractor():
         print("len(lms)", len(lms))
 
 
-def _mark_facemesh_imgs(src_dir, selected_names=None):
+def _mark_facemesh_imgs(src_dir, selected_names=None, show=True):
     from imgp_agent.imgp_common import FileHelper, PlotHelper
     filenames =FileHelper.find_all_images(src_dir)
 
@@ -143,7 +141,8 @@ def _mark_facemesh_imgs(src_dir, selected_names=None):
 
         FileHelper.save_output_image(image_m, src_dir, filename, "facemesh")
         FileHelper.save_output_image(fme_result.img_facepaint, src_dir, filename, "paintmesh")
-        PlotHelper.plot_imgs([image_m, fme_result.img_facepaint])
+        if show:
+            PlotHelper.plot_imgs([image_m, fme_result.img_facepaint])
 
     ImgpFacemeshExtractor.close_imgp()
     print("done")
@@ -167,12 +166,12 @@ def do_exp():
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
 
-    #selected_names = None
+    selected_names = None
     #selected_names = ["hsi_image1.jpeg"]
     #selected_names = ["hsi_image4.jpeg"]
-    selected_names = ["icl_image5.jpeg"]
+    #selected_names = ["icl_image5.jpeg"]
        
-    _mark_facemesh_imgs(src_dir, selected_names=selected_names)
+    _mark_facemesh_imgs(src_dir, selected_names=selected_names, show=True)
 
 
 if __name__ == '__main__':
