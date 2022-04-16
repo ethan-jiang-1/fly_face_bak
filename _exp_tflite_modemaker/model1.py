@@ -27,8 +27,8 @@ validation_data, test_data = rest_data.split(0.5)
 #   plt.xlabel(data.index_to_label[label.numpy()])
 # plt.show()
 
-model = image_classifier.create(train_data,validation_data=validation_data, epochs=4,train_whole_model=True,
-                                shuffle=True,dropout_rate=0.5)
+model = image_classifier.create(train_data, validation_data=validation_data, epochs=2, train_whole_model=True,
+                                shuffle=True, dropout_rate=0.5, use_hub_library=True,model_spec='efficientnet_lite0',)
 # model = image_classifier.create(train_data, validation_data=validation_data, epochs=8, model_dir='cls_hair.tflite', do_train=False)
 
 model.summary()
