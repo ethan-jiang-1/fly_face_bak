@@ -13,7 +13,7 @@ dir_this = os.path.dirname(__file__)
 model_path_M = "{}/cls_hair_M.tflite".format(dir_this)
 model_path_F = "{}/cls_hair_F.tflite".format(dir_this)
 interpreter_M = tflite.Interpreter(model_path=model_path_M)
-interpreter_F = tflite.Interpreter(model_path=model_path_M)
+interpreter_F = tflite.Interpreter(model_path=model_path_F)
 interpreter_M.allocate_tensors()
 interpreter_F.allocate_tensors()
 # Get input and output tensors.

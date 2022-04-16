@@ -51,7 +51,7 @@ def do_trace(filenames, plot=True, gender=None):
     print()
 
     if plot:
-        msg = "total file processed {} ".format(s_cnt)
+        msg = "ImgpFacemeshExtractor total file processed {} ".format(s_cnt)
         print(msg)
         plot_mem_history(title=msg)
 
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     else:
         dir_root = os.getcwd()
 
-    for i in range(100):
+    for i in range(50):
 
         filenames = FileHelper.find_all_images(dir_root + os.sep + "dataset_org_hair_styles/Version 1.4/00")
         do_trace(filenames, plot=False, gender="M")

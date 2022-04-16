@@ -154,3 +154,5 @@ new_inspect.txt
 
 .history
 **/.history/
+
+*.orig
