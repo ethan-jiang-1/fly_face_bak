@@ -168,10 +168,10 @@ def do_exp():
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
 
-    #selected_names = None
+    selected_names = None
     #selected_names = ["hsi_image1.jpeg"]
     #selected_names = ["hsi_image4.jpeg"]
-    selected_names = ["icl_image5.jpeg"]
+    #selected_names = ["icl_image5.jpeg"]
        
     _mark_facemesh_imgs(src_dir, selected_names=selected_names)
 

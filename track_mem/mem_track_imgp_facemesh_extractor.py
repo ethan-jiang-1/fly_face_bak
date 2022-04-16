@@ -51,7 +51,7 @@ def do_trace(filenames, plot=True, gender=None):
     print()
 
     if plot:
-        msg = "total file processed {} ".format(s_cnt)
+        msg = "ImgpFacemeshExtractor total file processed {} ".format(s_cnt)
         print(msg)
         plot_mem_history(title=msg)
 
