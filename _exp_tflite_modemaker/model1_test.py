@@ -11,7 +11,7 @@ import tflite_runtime.interpreter as tflite
 
 if __name__ == "__main__":
     dir_this = os.path.dirname(__file__)
-    test_image_dir = '../_dataset_hair_styles/01'
+    test_image_dir = '../_dataset_hair_styles/F/05'
     model_path = "{}/cls_hair_F.tflite".format(dir_this)
     dir_npy = "{}/_output".format(dir_this)
     os.makedirs(dir_npy, exist_ok=True)
@@ -42,7 +42,7 @@ if __name__ == "__main__":
             #
             img = cv2.imread(full_path)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            res_img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
+            res_img = cv2.resize(img, (300, 300), interpolation=cv2.INTER_CUBIC)
 
             # 增加一个维度，
             image_np_expanded = np.expand_dims(res_img, axis=0)
