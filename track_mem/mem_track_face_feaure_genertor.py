@@ -36,18 +36,19 @@ def do_trace(filenames, plot=True):
     if plot:
         msg = "FaceFeatureGenerator total file processed {} ".format(s_cnt)
         print(msg)
-        plot_mem_history(title="")
+        plot_mem_history(title=msg)
 
 
 if __name__ == '__main__':
-    filenames = SampleImages.get_sample_images_female()
-    do_trace(filenames, plot=False)
+    for i in range(20):
+        filenames = SampleImages.get_sample_images_female()
+        do_trace(filenames, plot=False)
 
-    filenames = SampleImages.get_sample_images_male()
-    do_trace(filenames, plot=False)
+        filenames = SampleImages.get_sample_images_male()
+        do_trace(filenames, plot=False)
 
-    filenames = SampleImages.get_sample_images_brd()
-    do_trace(filenames, plot=False)
+        filenames = SampleImages.get_sample_images_brd()
+        do_trace(filenames, plot=False)
 
     filenames = SampleImages.get_sample_images_hsi()
     do_trace(filenames)
