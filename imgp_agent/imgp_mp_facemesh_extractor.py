@@ -21,7 +21,7 @@ class ImgpFacemeshExtractor():
                 max_num_faces=1,
                 refine_landmarks=True,
                 min_detection_confidence=0.5,
-                min_tracking_confidence=0.5) 
+                min_tracking_confidence=0.0) 
             #inspect_solution(cls.slt_facemesh)
             print("#ImgpFacemeshExtractor inited")
 
@@ -153,10 +153,10 @@ def do_exp():
     #src_dir = os.sep.join([_get_root_dir(), "hsi_tflite_interpeter", "_reserved_imgs"])
     src_dir = os.sep.join([_get_root_dir(), "utils_inspect", "_sample_imgs"])
 
-    #selected_names = None
+    selected_names = None
     #selected_names = ["hsi_image1.jpeg"]
     #selected_names = ["hsi_image4.jpeg"]
-    selected_names = ["icl_image5.jpeg"]
+    #selected_names = ["icl_image5.jpeg"]
        
     _mark_facemesh_imgs(src_dir, selected_names=selected_names)
 
